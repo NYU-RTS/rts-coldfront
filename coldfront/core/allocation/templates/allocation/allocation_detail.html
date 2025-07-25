@@ -336,6 +336,21 @@ Allocation Detail
   </div>
 </div>
 
+<!-- Usage data from XDMoD -->
+<div class="card mb-3">
+  <div class="card-header">
+    <h3 class="d-inline"><i class="fas fa-users" aria-hidden="true"></i> Usage data</h3>
+  </div>
+  <div class="card-body">
+    {% autoescape off %}
+    {% for plot in plots %}
+      {{ plot }}
+    {% endfor %}
+    {% endautoescape %}
+   </div>
+</div>
+
+
 <!-- Start Admin Messages -->
 <div class="card mb-3">
   <div class="card-header">
