@@ -78,6 +78,8 @@ from coldfront.core.utils.mail import (
 
 from coldfront.plugins.xdmod.utils import get_usage_data
 import plotly.express as px
+from plotly.offline import plot
+from plotly.graph_objs import Figure
 
 ALLOCATION_ENABLE_ALLOCATION_RENEWAL = import_from_settings(
     "ALLOCATION_ENABLE_ALLOCATION_RENEWAL", True
@@ -201,7 +203,8 @@ class AllocationDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
         usage_avg_node_hours = get_usage_data("avg_node_hours", slurm_account_name)
         if usage_avg_node_hours is not None:
             plot_avg_node_hours = px.bar(usage_avg_node_hours)
-            context["plots"] = [plot_avg_node_hours]
+            plot_div = plot(plot_avg_node_hours, output_type="div")
+            context["plots"] = [plot_div]
         return context
 
     def get(self, request, *args, **kwargs):
