@@ -203,8 +203,13 @@ class AllocationDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
         usage_avg_node_hours = get_usage_data("avg_node_hours", slurm_account_name)
         if usage_avg_node_hours is not None:
             plot_avg_node_hours = px.bar(usage_avg_node_hours)
-            plot_div = plot(plot_avg_node_hours, output_type="div")
-            context["plots"] = [plot_div]
+            plot_div_avg_node_hours = plot(plot_avg_node_hours, output_type="div")
+            context["plots"] = [plot_div_avg_node_hours]
+        else:
+            context["plots"] = (
+                "Usage data is not available! \n This is likely due to the \
+                fact  that there is no usage for this allocation."
+            )
         return context
 
     def get(self, request, *args, **kwargs):
