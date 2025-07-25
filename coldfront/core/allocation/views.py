@@ -76,6 +76,9 @@ from coldfront.core.utils.mail import (
     send_allocation_customer_email,
 )
 
+from coldfront.plugins.xdmod.utils import get_usage_data
+import plotly.express as px
+
 ALLOCATION_ENABLE_ALLOCATION_RENEWAL = import_from_settings(
     "ALLOCATION_ENABLE_ALLOCATION_RENEWAL", True
 )
@@ -192,6 +195,13 @@ class AllocationDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
         context["ALLOCATION_ENABLE_ALLOCATION_RENEWAL"] = (
             ALLOCATION_ENABLE_ALLOCATION_RENEWAL
         )
+
+        # Fetch usage data from XDMoD
+        slurm_account_name = allocation_obj.get_attribute("slurm_account_name")
+        usage_avg_node_hours = get_usage_data("avg_node_hours", slurm_account_name)
+        if usage_avg_node_hours is not None:
+            plot_avg_node_hours = px.bar(usage_avg_node_hours)
+            context["plots"] = [plot_avg_node_hours]
         return context
 
     def get(self, request, *args, **kwargs):
