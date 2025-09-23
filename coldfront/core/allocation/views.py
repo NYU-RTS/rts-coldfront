@@ -198,33 +198,39 @@ class AllocationDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
         )
 
         # Fetch usage data from XDMoD
+        def _has_data_same_as_before(data):
+            return data is not None
+
+        def build_usage_plots(slurm_account_name: str):
+            # metric_name, has_key, plot_key
+            METRICS = [
+                ("avg_cpu_hours", "has_cpu_usage", "cpu_usage_plots"),
+                ("avg_gpu_hours", "has_gpu_usage", "gpu_usage_plots"),
+                ("avg_waitduration_hours", "has_wait_usage", "wait_usage_plots"),
+            ]
+
+            ctx_updates = {}
+            first_plot = True
+
+            for metric_name, has_key, plot_key in METRICS:
+                data = get_usage_data(metric_name, slurm_account_name)
+                has_data = _has_data_same_as_before(data)
+                ctx_updates[has_key] = has_data
+
+                if has_data:
+                    fig = px.bar(data)
+                    div = plot(
+                        fig,
+                        output_type="div",
+                        include_plotlyjs="cdn" if first_plot else False  # include JS once
+                    )
+                    first_plot = False
+                    ctx_updates[plot_key] = div
+
+            return ctx_updates
+
         slurm_account_name = allocation_obj.get_attribute("slurm_account_name")
-        usage_cpu_hours = get_usage_data("avg_cpu_hours", slurm_account_name)
-        if usage_cpu_hours is not None:
-            plot_cpu_hours = px.bar(usage_cpu_hours)
-            plot_div_cpu_hours = plot(plot_cpu_hours, output_type="div")
-            context["has_cpu_usage"] = True
-            context["cpu_usage_plots"] = plot_div_cpu_hours
-        else:
-            context["has_cpu_usage"] = False
-
-        usage_gpu_hours = get_usage_data("avg_gpu_hours", slurm_account_name)
-        if usage_gpu_hours is not None:
-            plot_gpu_hours = px.bar(usage_gpu_hours)
-            plot_div_gpu_hours = plot(plot_gpu_hours, output_type="div")
-            context["has_gpu_usage"] = True
-            context["gpu_usage_plots"] = plot_div_gpu_hours
-        else:
-            context["has_gpu_usage"] = False
-
-        usage_wait_hours = get_usage_data("avg_waitduration_hours", slurm_account_name)
-        if usage_wait_hours is not None:
-            plot_wait_hours = px.bar(usage_wait_hours)
-            plot_div_wait_hours = plot(plot_wait_hours, output_type="div")
-            context["has_wait_usage"] = True
-            context["wait_usage_plots"] = plot_div_wait_hours
-        else:
-            context["has_wait_usage"] = False
+        context.update(build_usage_plots(slurm_account_name))
 
         return context
 
