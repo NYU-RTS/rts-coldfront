@@ -1,36 +1,35 @@
 FROM registry.cloud.rt.nyu.edu/nyu-rts/ubi/ubi9
 
-# Build Python as superuser!
-RUN dnf install -y python3.12 && dnf update -y
-
-USER 1001
-
 LABEL name="coldfront" \
       vendor="NYU RTS" \
       description="For production use to deploy Coldfront in RTC" 
 
+# Build Python as superuser!
+RUN dnf install -y python3.12 && dnf update -y
+
+COPY . /app
+# For the files that were copied in during the build   
+RUN chown -R 1001:0 /app && \
+    chmod -R g+rwx /app
+
+USER 1001
+
+# Enable bytecode compilation
+ENV UV_COMPILE_BYTECODE=1
+
+# Copy from the cache instead of linking since it's a mounted volume
+ENV UV_LINK_MODE=copy
+
+
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
-RUN chown -R 1001:0 /app && \
-    chmod -R g=u /app
 
 RUN mkdir -p /tmp/uv
-
 # Need this to prevent os13 errors on shipwright.
 ENV UV_CACHE_DIR=/tmp/uv
 
-# From uv template: Install the project's dependencies using the lockfile and settings
-# Need to relabel due to SELinux restrictions, ref: https://github.com/containers/podman/issues/26020
-RUN --mount=type=bind,source=uv.lock,target=uv.lock,relabel=shared \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml,relabel=shared \
-    uv sync --locked --no-install-project --no-dev
-
-# Then, add the rest of the project source code and install it
-# Installing separately from its dependencies allows optimal layer caching
-COPY . /app
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked --extra prod --no-dev
+RUN uv sync --locked --extra prod --no-dev
 
 # Default port for gunicorn
 EXPOSE 8000
@@ -42,7 +41,3 @@ EXPOSE 5678
 
 RUN chown -R 1001:0 /tmp/uv && \
     chmod -R g=u /tmp/uv
-
-# For the files that were copied in during the build   
-RUN chown -R 1001:0 /app && \
-    chmod -R g+rwx /app
