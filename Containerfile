@@ -8,7 +8,7 @@ LABEL name="coldfront" \
 RUN dnf install -y python3.12 && dnf update -y
 
 COPY . /app
-# For the files that were copied in during the build   
+
 RUN chown -R 1001:0 /app && \
     chmod -R g+rwx /app
 
@@ -41,3 +41,9 @@ EXPOSE 5678
 
 RUN chown -R 1001:0 /tmp/uv && \
     chmod -R g=u /tmp/uv
+
+# Terrible hack for now :( )
+USER 0
+RUN chown -R 1001:0 /app && \
+    chmod -R g+rwx /app
+USER 1001
