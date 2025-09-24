@@ -42,3 +42,7 @@ EXPOSE 5678
 
 RUN chown -R 1001:0 /tmp/uv && \
     chmod -R g=u /tmp/uv
+
+# For the files that were copied in during the build   
+RUN chown -R 1001:0 /app && \
+    chmod -R g+rwx /app
