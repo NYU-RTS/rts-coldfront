@@ -8,14 +8,17 @@ RUN apt-get update \
 WORKDIR /usr/src/app
 COPY ../../. .
 
+ENV PLUGIN_SLURM=True
+ENV PLUGIN_XDMOD=True
+ENV EMAIL_DEVELOPMENT_EMAIL_LIST=""
+
 RUN uv sync --extra prod --extra dev
 RUN echo "yes" | uv run manage.py initial_setup
+RUN uv run coldfront slurm_attr_create
 RUN uv run manage.py load_test_data
 
 ENV DEBUG=True
 ENV PYTHONUNBUFFERED=1
-ENV PLUGIN_SLURM=True
-ENV PLUGIN_XDMOD=True
 EXPOSE 8000
 EXPOSE 5678
 
