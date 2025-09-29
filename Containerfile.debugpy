@@ -10,6 +10,7 @@ COPY ../../. .
 
 RUN uv sync --extra prod --extra dev
 RUN echo "yes" | uv run manage.py initial_setup
+RUN PLUGIN_SLURM=True uv run coldfront slurm_attr_create
 RUN uv run manage.py load_test_data
 
 ENV DEBUG=True
