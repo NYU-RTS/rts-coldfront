@@ -45,3 +45,8 @@ class ApproverProfile(models.Model):
         UserProfile, on_delete=models.CASCADE, related_name="approver_profile"
     )
     schools = models.ManyToManyField(School, blank=True)
+
+    def __str__(self):
+        username = self.user_profile.user.username
+        schools = [school.description for school in self.schools.all()]
+        return f"{username} is an approver for {schools}"
