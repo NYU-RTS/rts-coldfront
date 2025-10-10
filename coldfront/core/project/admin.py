@@ -313,6 +313,7 @@ class ProjectAdmin(SimpleHistoryAdmin):
     fields_change = (
         "title",
         "pi",
+        "school",
         "description",
         "status",
         "requires_review",
