@@ -24,14 +24,13 @@ Log In
 		</div>
 		<div class="card-body">
 			{% if 'mozilla_django_oidc' in EXTRA_APPS %}
-			<hr>
-			<p class="text-center"><strong>OR</strong></p>
-
 			<a class="btn btn-nyu-primary-violet btn-block" role="button" href="{% url 'oidc_authentication_init' %}?next={{request.GET.next}}">
 				<i class="fab fa-openid" aria-hidden="true"></i>
 				Log in with NYU NetID
 			</a>
 			{% endif %}
+			<hr>
+			<p class="text-center"><strong>For NYU RTS Staff use only</strong></p>
 			{% include "user/login_form.html" %}
 		</div>
 	</div>
