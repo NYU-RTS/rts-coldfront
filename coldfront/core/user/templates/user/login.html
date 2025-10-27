@@ -24,6 +24,7 @@ Log In
 		</div>
 		<div class="card-body">
 			{% if 'mozilla_django_oidc' in EXTRA_APPS %}
+			<p class="text-center"><strong>For everyone</strong></p>
 			<a class="btn btn-nyu-primary-violet btn-block" role="button" href="{% url 'oidc_authentication_init' %}?next={{request.GET.next}}">
 				<i class="fab fa-openid" aria-hidden="true"></i>
 				Log in with NYU NetID
