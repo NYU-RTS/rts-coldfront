@@ -142,7 +142,9 @@ def send_allocation_admin_email(
             ctx,
             receiver_list=recipient_list,  # Send only to matched approvers
         )
-        logger.debug(f"Sent admin allocation email to approvers: {recipient_list}")
+        logger.debug(
+            f"Sent admin allocation email for request to access {resource_name} to approvers: {recipient_list}"
+        )
     else:
         logger.warning(
             f'No approvers found for school "{project_school}" to send allocation email.'
