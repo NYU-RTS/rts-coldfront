@@ -24,7 +24,7 @@ MESSAGE_TAGS = {
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "root": {"level": "INFO", "handlers": ["file"]},
+    "root": {"level": "DEBUG", "handlers": ["file"]},
     "formatters": {
         "standard": {
             "format": "{levelname} {asctime} {module} {thread:d} {message}",
@@ -34,12 +34,12 @@ LOGGING = {
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "level": "INFO",
+            "level": "DEBUG",
             "formatter": "standard",
         },
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "level": "INFO",
+            "level": "DEBUG",
             "formatter": "standard",
             "filename": LOG_FILE,
             "maxBytes": 1024 * 1024,
@@ -49,11 +49,11 @@ LOGGING = {
     "loggers": {
         "django": {
             "handlers": ["console", "file"],
-            "level": "INFO",
+            "level": "DEBUG",
         },
         "django-q": {
             "handlers": ["console", "file"],
-            "level": "INFO",
+            "level": "DEBUG",
         },
     },
 }
