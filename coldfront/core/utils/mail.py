@@ -48,8 +48,10 @@ def send_email(subject, body, sender, receiver_list, cc=[]):
         if cc:
             email = EmailMessage(subject, body, sender, receiver_list, cc=cc)
             email.send(fail_silently=False)
+            logger.info(f"Email sent to {receiver_list} and CC'ed to {cc}")
         else:
             send_mail(subject, body, sender, receiver_list, fail_silently=False)
+            logger.info(f"Email sent to {receiver_list}")
     except SMTPException:
         logger.error(
             "Failed to send email to %s from %s with subject %s",
@@ -94,6 +96,7 @@ def send_admin_email_template(
         receiver_list = [
             EMAIL_TICKET_SYSTEM_ADDRESS,
         ]
+    logger.info(f"Sending admin email to {receiver_list}")
     send_email_template(
         subject, template_name, template_context, EMAIL_SENDER, receiver_list
     )
@@ -142,7 +145,7 @@ def send_allocation_admin_email(
             ctx,
             receiver_list=recipient_list,  # Send only to matched approvers
         )
-        logger.debug(
+        logger.info(
             f"Sent admin allocation email for request to access {resource_name} to approvers: {recipient_list}"
         )
     else:
