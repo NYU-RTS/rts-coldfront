@@ -39,7 +39,7 @@ def send_email(subject, body, sender, receiver_list, cc=[]):
         subject = EMAIL_SUBJECT_PREFIX + " " + subject
 
     if settings.DEBUG:
-        receiver_list = EMAIL_DEVELOPMENT_EMAIL_LIST
+        receiver_list.append(EMAIL_DEVELOPMENT_EMAIL_LIST)
 
     if cc and settings.DEBUG:
         cc = EMAIL_DEVELOPMENT_EMAIL_LIST
