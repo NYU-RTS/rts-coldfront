@@ -24,7 +24,7 @@ MESSAGE_TAGS = {
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "root": {"level": "DEBUG", "handlers": ["file"]},
+    "root": {"level": "INFO", "handlers": ["file"]},
     "formatters": {
         "standard": {
             "format": "{levelname} {asctime} {module} {thread:d} {message}",
@@ -34,12 +34,12 @@ LOGGING = {
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "level": "DEBUG",
+            "level": "INFO",
             "formatter": "standard",
         },
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "level": "DEBUG",
+            "level": "INFO",
             "formatter": "standard",
             "filename": LOG_FILE,
             "maxBytes": 1024 * 1024,
