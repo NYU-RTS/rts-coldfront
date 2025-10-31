@@ -35,7 +35,6 @@ RUN uv sync --locked --extra prod --extra dev
 EXPOSE 8000
 
 # Remove when we get users, but keep it for testing for now
-ENV DEBUG=True
 ENV PYTHONUNBUFFERED=1
 EXPOSE 5678
 

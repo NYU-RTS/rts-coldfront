@@ -69,6 +69,7 @@ def send_email_template(
         return
 
     body = render_to_string(template_name, template_context)
+    logger.info(f"Email to send to {receiver_list} has been rendered")
 
     return send_email(subject, body, sender, receiver_list)
 
