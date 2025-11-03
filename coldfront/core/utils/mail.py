@@ -41,8 +41,8 @@ def send_email(subject, body, sender, receiver_list, cc=[]):
     if settings.DEBUG:
         receiver_list.append(EMAIL_DEVELOPMENT_EMAIL_LIST)
 
-    if cc and settings.DEBUG:
-        cc = EMAIL_DEVELOPMENT_EMAIL_LIST
+    # Always CC to EMAIL_TICKET_SYSTEM_ADDRESS to keep us in the loop
+    cc.append(EMAIL_TICKET_SYSTEM_ADDRESS)
 
     try:
         if cc:
