@@ -12,7 +12,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms import formset_factory
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.utils.html import format_html, mark_safe
@@ -159,6 +159,15 @@ class AllocationDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
         fig = px.bar(data)
         div_html = plot(fig, output_type="div", include_plotlyjs=False)
         return HttpResponse(div_html)
+
+    # ONLY stop redirects for the _usage_partial path
+    def dispatch(self, request, *args, **kwargs):
+        is_htmx = request.headers.get("HX-Request") == "true"
+        is_usage_partial = "usage" in request.GET  # this is what triggers _usage_partial
+        if is_htmx and is_usage_partial and not request.user.is_authenticated:
+            logger.info("HTMX usage-partial unauthenticated -> 401 (no redirect)")
+            return HttpResponse("Authentication required", status=401)  # no 302
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
