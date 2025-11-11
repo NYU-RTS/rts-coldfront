@@ -76,7 +76,7 @@ from coldfront.core.utils.mail import (
     send_allocation_customer_email,
 )
 
-from coldfront.plugins.xdmod.utils import get_usage_data
+from coldfront.plugins.xdmod.utils import get_usage_data, XDMoDConnectivityError, XDMoDFetchError
 import plotly.express as px
 from plotly.offline import plot
 from django.http import HttpResponse, HttpResponseBadRequest
@@ -152,22 +152,21 @@ class AllocationDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
         if not slurm_account_name:
             return HttpResponse("<div class='text-muted'>No SLURM account for this allocation.</div>")
 
-        data = get_usage_data(metric_name, slurm_account_name)
-        if data is None or (hasattr(data, "__len__") and len(data) == 0):
-            return HttpResponse("<div class='text-muted'>No usage data available.</div>")
-
-        fig = px.bar(data)
-        div_html = plot(fig, output_type="div", include_plotlyjs=False)
-        return HttpResponse(div_html)
-
-    # ONLY stop redirects for the _usage_partial path
-    def dispatch(self, request, *args, **kwargs):
-        is_htmx = request.headers.get("HX-Request") == "true"
-        is_usage_partial = "usage" in request.GET  # this is what triggers _usage_partial
-        if is_htmx and is_usage_partial and not request.user.is_authenticated:
-            logger.info("HTMX usage-partial unauthenticated -> 401 (no redirect)")
-            return HttpResponse("Authentication required", status=401)  # no 302
-        return super().dispatch(request, *args, **kwargs)
+        try:
+            data = get_usage_data(metric_name, slurm_account_name)
+            if data is None or (hasattr(data, "__len__") and len(data) == 0):
+                return HttpResponse("<div class='text-muted'>No usage data available.</div>")
+            # build the figure only on success
+            fig = px.bar(data)
+            div_html = plot(fig, output_type="div", include_plotlyjs=False)
+            return HttpResponse(div_html)
+        except XDMoDConnectivityError:
+            return HttpResponse("<div class='text-muted'>XDMoD is unreachable right now.</div>")
+        except XDMoDFetchError:
+            return HttpResponse("<div class='text-muted'>Unexpected error during XDMoD fetch.</div>")
+        except Exception:
+            logger.exception("Unexpected error rendering usage chart")
+            return HttpResponse("<div class='text-muted'>Unable to render usage chart.</div>")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
