@@ -45,6 +45,9 @@ if settings.RESEARCH_OUTPUT_ENABLE:
 if "coldfront.plugins.iquota" in settings.INSTALLED_APPS:
     urlpatterns.append(path("iquota/", include("coldfront.plugins.iquota.urls")))
 
+if "coldfront.plugins.api" in settings.INSTALLED_APPS:
+    urlpatterns.append(path("api/", include("coldfront.plugins.api.urls")))
+
 if "mozilla_django_oidc" in settings.INSTALLED_APPS:
     urlpatterns.append(path("oidc/", include("mozilla_django_oidc.urls")))
 
