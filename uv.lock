@@ -167,6 +167,7 @@ dependencies = [
     { name = "django" },
     { name = "django-crispy-forms" },
     { name = "django-environ" },
+    { name = "django-filter" },
     { name = "django-model-utils" },
     { name = "django-q2" },
     { name = "django-settings-export" },
@@ -174,6 +175,7 @@ dependencies = [
     { name = "django-split-settings" },
     { name = "django-sslserver" },
     { name = "django-su" },
+    { name = "djangorestframework" },
     { name = "doi2bib" },
     { name = "factory-boy" },
     { name = "faker" },
@@ -220,6 +222,7 @@ requires-dist = [
     { name = "django-auth-ldap", marker = "extra == 'auth'", specifier = "==5.1.0" },
     { name = "django-crispy-forms", specifier = ">=2.3" },
     { name = "django-environ", specifier = ">=0.12.0" },
+    { name = "django-filter", specifier = ">=25.2" },
     { name = "django-model-utils", specifier = ">=5.0.0" },
     { name = "django-q2", specifier = ">=1.7.6" },
     { name = "django-settings-export", specifier = ">=1.2.1" },
@@ -227,6 +230,7 @@ requires-dist = [
     { name = "django-split-settings", specifier = ">=1.3.2" },
     { name = "django-sslserver", specifier = ">=0.22" },
     { name = "django-su", specifier = ">=1.0.0" },
+    { name = "djangorestframework", specifier = ">=3.16.1" },
     { name = "doi2bib", specifier = ">=0.4.0" },
     { name = "factory-boy", specifier = ">=3.3.3" },
     { name = "faker", specifier = ">=35.2.0" },
@@ -393,6 +397,18 @@ wheels = [
 ]
 
 [[package]]
+name = "django-filter"
+version = "25.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2c/e4/465d2699cd388c0005fb8d6ae6709f239917c6d8790ac35719676fffdcf3/django_filter-25.2.tar.gz", hash = "sha256:760e984a931f4468d096f5541787efb8998c61217b73006163bf2f9523fe8f23", size = 143818, upload-time = "2025-10-05T09:51:31.521Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c1/40/6a02495c5658beb1f31eb09952d8aa12ef3c2a66342331ce3a35f7132439/django_filter-25.2-py3-none-any.whl", hash = "sha256:9c0f8609057309bba611062fe1b720b4a873652541192d232dd28970383633e3", size = 94145, upload-time = "2025-10-05T09:51:29.728Z" },
+]
+
+[[package]]
 name = "django-model-utils"
 version = "5.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -489,6 +505,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/9d/dc/8242d9fbf0ae64feccbdd781fa741db5cf0521127a26ed9361e5f2f31f1b/django_upgrade-1.29.1.tar.gz", hash = "sha256:8c53b6bcd326a638a5dc908a707f26d71593bad5789b33775c90a8dc8a76afd5", size = 39638, upload-time = "2025-10-23T16:34:57.003Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f0/b0/c9fe7b4dbfcacb2402169f8189d4f7fa1609237317d714f01143d167db1c/django_upgrade-1.29.1-py3-none-any.whl", hash = "sha256:39a4d71365189ce8a5ccab534b2d1f0ed69c71bea7f1ef4c46041918d5247e64", size = 68847, upload-time = "2025-10-23T16:34:55.511Z" },
+]
+
+[[package]]
+name = "djangorestframework"
+version = "3.16.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8a/95/5376fe618646fde6899b3cdc85fd959716bb67542e273a76a80d9f326f27/djangorestframework-3.16.1.tar.gz", hash = "sha256:166809528b1aced0a17dc66c24492af18049f2c9420dbd0be29422029cfc3ff7", size = 1089735, upload-time = "2025-08-06T17:50:53.251Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b0/ce/bf8b9d3f415be4ac5588545b5fcdbbb841977db1c1d923f7568eeabe1689/djangorestframework-3.16.1-py3-none-any.whl", hash = "sha256:33a59f47fb9c85ede792cbf88bde71893bcda0667bc573f784649521f1102cec", size = 1080442, upload-time = "2025-08-06T17:50:50.667Z" },
 ]
 
 [[package]]
