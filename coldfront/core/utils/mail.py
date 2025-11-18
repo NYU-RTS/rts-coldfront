@@ -39,17 +39,19 @@ def send_email(subject, body, sender, receiver_list, cc=[]):
         subject = EMAIL_SUBJECT_PREFIX + " " + subject
 
     if settings.DEBUG:
-        receiver_list = EMAIL_DEVELOPMENT_EMAIL_LIST
+        receiver_list.append(EMAIL_DEVELOPMENT_EMAIL_LIST)
 
-    if cc and settings.DEBUG:
-        cc = EMAIL_DEVELOPMENT_EMAIL_LIST
+    # Always CC to EMAIL_TICKET_SYSTEM_ADDRESS to keep us in the loop
+    cc.append(EMAIL_TICKET_SYSTEM_ADDRESS)
 
     try:
         if cc:
             email = EmailMessage(subject, body, sender, receiver_list, cc=cc)
             email.send(fail_silently=False)
+            logger.info(f"Email sent to {receiver_list} and CC'ed to {cc}")
         else:
             send_mail(subject, body, sender, receiver_list, fail_silently=False)
+            logger.info(f"Email sent to {receiver_list}")
     except SMTPException:
         logger.error(
             "Failed to send email to %s from %s with subject %s",
@@ -67,6 +69,7 @@ def send_email_template(
         return
 
     body = render_to_string(template_name, template_context)
+    logger.info(f"Email to send to {receiver_list} has been rendered")
 
     return send_email(subject, body, sender, receiver_list)
 
@@ -94,6 +97,7 @@ def send_admin_email_template(
         receiver_list = [
             EMAIL_TICKET_SYSTEM_ADDRESS,
         ]
+    logger.info(f"Sending admin email to {receiver_list}")
     send_email_template(
         subject, template_name, template_context, EMAIL_SENDER, receiver_list
     )
@@ -142,7 +146,9 @@ def send_allocation_admin_email(
             ctx,
             receiver_list=recipient_list,  # Send only to matched approvers
         )
-        logger.debug(f"Sent admin allocation email to approvers: {recipient_list}")
+        logger.info(
+            f"Sent admin allocation email for request to access {resource_name} to approvers: {recipient_list}"
+        )
     else:
         logger.warning(
             f'No approvers found for school "{project_school}" to send allocation email.'

@@ -49,11 +49,11 @@ LOGGING = {
     "loggers": {
         "django": {
             "handlers": ["console", "file"],
-            "level": "INFO",
+            "level": "DEBUG",
         },
         "django-q": {
             "handlers": ["console", "file"],
-            "level": "INFO",
+            "level": "DEBUG",
         },
     },
 }

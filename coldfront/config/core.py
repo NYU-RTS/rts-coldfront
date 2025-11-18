@@ -110,7 +110,7 @@ xxx@example.edu
 Phone: (xxx) xxx-xxx
 """
 
-ACCOUNT_CREATION_TEXT = """University faculty can submit a help ticket to request an account.
-Please see <a href="#">instructions on our website</a>. Staff, students, and external collaborators must
-request an account through a university faculty member.
+ACCOUNT_CREATION_TEXT = """You need an active HPC account to access Coldfront.
+If you do not have an active HPC account, please refer to 
+<a href="https://services.rt.nyu.edu/docs/hpc/getting_started/getting_and_renewing_an_account/"> instructions on our website</a>.
 """
