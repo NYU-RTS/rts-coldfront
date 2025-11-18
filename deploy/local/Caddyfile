@@ -1,10 +1,17 @@
-http://localhost {
+https://localhost {
+    # Okay for develoment use only
+    tls internal {
+        on_demand
+    }
+
     handle /static/* {
         root * /srv/
         file_server
     }
+
     handle {
         reverse_proxy localhost:8000
     }
+
     log
 }
