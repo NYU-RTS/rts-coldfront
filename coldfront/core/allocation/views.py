@@ -12,7 +12,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms import formset_factory
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.utils.html import format_html, mark_safe
@@ -76,9 +76,10 @@ from coldfront.core.utils.mail import (
     send_allocation_customer_email,
 )
 
-from coldfront.plugins.xdmod.utils import get_usage_data
+from coldfront.plugins.xdmod.utils import get_usage_data, XDMoDConnectivityError, XDMoDFetchError
 import plotly.express as px
 from plotly.offline import plot
+from django.http import HttpResponse, HttpResponseBadRequest
 
 ALLOCATION_ENABLE_ALLOCATION_RENEWAL = import_from_settings(
     "ALLOCATION_ENABLE_ALLOCATION_RENEWAL", True
@@ -111,6 +112,12 @@ class AllocationDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
     model = Allocation
     template_name = "allocation/allocation_detail.html"
     context_object_name = "allocation"
+    # Map short keys -> XDMoD metric names used by get_usage_data (partial load)
+    METRIC_MAP = {
+        "cpu":  "avg_cpu_hours",
+        "gpu":  "avg_gpu_hours",
+        "wait": "avg_waitduration_hours",
+    }
 
     def test_func(self):
         """UserPassesTestMixin Tests"""
@@ -132,6 +139,34 @@ class AllocationDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
                     return True
 
         return allocation_obj.has_perm(self.request.user, AllocationPermission.USER)
+
+    def _usage_partial(self, usage_key: str):
+        metric_name = self.METRIC_MAP.get(usage_key)
+        if not metric_name:
+            return HttpResponseBadRequest("Unknown usage metric.")
+
+        pk = self.kwargs.get("pk")
+        allocation = get_object_or_404(Allocation, pk=pk)
+
+        slurm_account_name = allocation.get_attribute("slurm_account_name")
+        if not slurm_account_name:
+            return HttpResponse("<div class='text-muted'>No SLURM account for this allocation.</div>")
+
+        try:
+            data = get_usage_data(metric_name, slurm_account_name)
+            if data is None or (hasattr(data, "__len__") and len(data) == 0):
+                return HttpResponse("<div class='text-muted'>No usage data available.</div>")
+            # build the figure only on success
+            fig = px.bar(data)
+            div_html = plot(fig, output_type="div", include_plotlyjs=False)
+            return HttpResponse(div_html)
+        except XDMoDConnectivityError:
+            return HttpResponse("<div class='text-muted'>XDMoD is unreachable right now.</div>")
+        except XDMoDFetchError:
+            return HttpResponse("<div class='text-muted'>Unexpected error during XDMoD fetch.</div>")
+        except Exception:
+            logger.exception("Unexpected error rendering usage chart")
+            return HttpResponse("<div class='text-muted'>Unable to render usage chart.</div>")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -197,44 +232,16 @@ class AllocationDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
             ALLOCATION_ENABLE_ALLOCATION_RENEWAL
         )
 
-        # Fetch usage data from XDMoD
-        def _has_data_same_as_before(data):
-            return data is not None
-
-        def build_usage_plots(slurm_account_name: str):
-            # metric_name, has_key, plot_key
-            METRICS = [
-                ("avg_cpu_hours", "has_cpu_usage", "cpu_usage_plots"),
-                ("avg_gpu_hours", "has_gpu_usage", "gpu_usage_plots"),
-                ("avg_waitduration_hours", "has_wait_usage", "wait_usage_plots"),
-            ]
-
-            ctx_updates = {}
-            first_plot = True
-
-            for metric_name, has_key, plot_key in METRICS:
-                data = get_usage_data(metric_name, slurm_account_name)
-                has_data = _has_data_same_as_before(data)
-                ctx_updates[has_key] = has_data
-
-                if has_data:
-                    fig = px.bar(data)
-                    div = plot(
-                        fig,
-                        output_type="div",
-                        include_plotlyjs="cdn" if first_plot else False  # include JS once
-                    )
-                    first_plot = False
-                    ctx_updates[plot_key] = div
-
-            return ctx_updates
-
-        slurm_account_name = allocation_obj.get_attribute("slurm_account_name")
-        context.update(build_usage_plots(slurm_account_name))
-
+        # Keep SLURM value so the template can decide to show loaders for xdmod partial load plots.
+        context["slurm_account_name"] = allocation_obj.get_attribute("slurm_account_name")
         return context
 
     def get(self, request, *args, **kwargs):
+        """Serve partial chart when ?usage=cpu|gpu|wait; otherwise render full page."""
+        usage_key = request.GET.get("usage")
+        if usage_key:
+            return self._usage_partial(usage_key)
+
         pk = self.kwargs.get("pk")
         allocation_obj = get_object_or_404(Allocation, pk=pk)
 

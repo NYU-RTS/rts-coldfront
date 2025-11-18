@@ -2,6 +2,17 @@
 {% load crispy_forms_tags %}
 {% load static %}
 
+{% block extra_head %}
+  <!-- Plotly & HTMX -->
+  <script defer src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script defer src="https://unpkg.com/htmx.org@2.0.0"></script>
+
+  <!-- Skeleton -->
+  <style>
+    .skeleton { background:#eee; height:260px; border-radius:8px; animation:pulse 1.4s ease-in-out infinite; }
+    @keyframes pulse { 0%{opacity:.7} 50%{opacity:1} 100%{opacity:.7} }
+  </style>
+{% endblock %}
 
 {% block title %}
 Allocation Detail
@@ -342,14 +353,15 @@ Allocation Detail
     <h3 class="d-inline"><i class="fas fa-server" aria-hidden="true"></i> CPU Usage</h3>
   </div>
   <div class="card-body">
-    {% autoescape off %}
-    {% if has_cpu_usage %}
-      {{ cpu_usage_plots }}
-    {% else %}
-      Usage data is not available! This is likely due to the fact  that there is no usage for this allocation.
-    {% endif %}
-    {% endautoescape %}
-   </div>
+    <div
+      id="cpu-usage"
+      class="skeleton"
+      hx-get="{% url 'allocation-detail' allocation.pk %}?usage=cpu"
+      hx-trigger="load"
+      hx-swap="outerHTML">
+      Loading CPU usage…
+    </div>
+  </div>
 </div>
 
 <!-- GPU Usage data from XDMoD -->
@@ -358,14 +370,15 @@ Allocation Detail
     <h3 class="d-inline"><i class="fas fa-server" aria-hidden="true"></i> GPU Usage</h3>
   </div>
   <div class="card-body">
-    {% autoescape off %}
-    {% if has_gpu_usage %}
-      {{ gpu_usage_plots }}
-    {% else %}
-      Usage data is not available! This is likely due to the fact  that there is no usage for this allocation.
-    {% endif %}
-    {% endautoescape %}
-   </div>
+    <div
+      id="gpu-usage"
+      class="skeleton"
+      hx-get="{% url 'allocation-detail' allocation.pk %}?usage=gpu"
+      hx-trigger="load"
+      hx-swap="outerHTML">
+      Loading GPU usage…
+    </div>
+  </div>
 </div>
 
 <!-- Wait time data from XDMoD -->
@@ -374,14 +387,15 @@ Allocation Detail
     <h3 class="d-inline"><i class="fas fa-clock" aria-hidden="true"></i> Wait time</h3>
   </div>
   <div class="card-body">
-    {% autoescape off %}
-    {% if has_wait_usage %}
-      {{ wait_usage_plots }}
-    {% else %}
-      Usage data is not available! This is likely due to the fact  that there is no usage for this allocation.
-    {% endif %}
-    {% endautoescape %}
-   </div>
+    <div
+      id="wait-usage"
+      class="skeleton"
+      hx-get="{% url 'allocation-detail' allocation.pk %}?usage=wait"
+      hx-trigger="load"
+      hx-swap="outerHTML">
+      Loading wait time…
+    </div>
+  </div>
 </div>
 
 <!-- Start Admin Messages -->
@@ -431,9 +445,11 @@ Allocation Detail
 
 <script>
   $(document).ready(function () {
+    // Initialize Gauges
     var guage_data = {{ guage_data | safe }};
     drawGauges(guage_data);
 
+    // Initialize DataTables
     $('#allocation_change_table').DataTable({
       lengthMenu: [5, 10, 20, 50, 100],
       "pageLength": 5,
@@ -449,7 +465,11 @@ Allocation Detail
         'aTargets': ['nosort']
       }]
     });
+
+    // MOVED THIS LINE INSIDE
+    $(".datepicker").flatpickr();
   });
+
 
   function drawGauges(guage_data) {
     var arrayLength = guage_data.length;
