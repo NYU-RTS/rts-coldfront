@@ -189,13 +189,14 @@ class ProjectAttributeSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     pi = serializers.SlugRelatedField(slug_field="username", read_only=True)
     status = serializers.SlugRelatedField(slug_field="name", read_only=True)
+    school = serializers.SlugRelatedField(slug_field="description", read_only=True)
     project_users = serializers.SerializerMethodField()
     allocations = serializers.SerializerMethodField()
     project_attributes = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
-        fields = ("id", "title", "pi", "status", "project_users", "allocations", "project_attributes")
+        fields = ("id", "title", "school", "pi", "status", "project_users", "allocations", "project_attributes")
 
     def get_project_users(self, obj):
         request = self.context.get("request", None)

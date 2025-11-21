@@ -10,10 +10,8 @@ from django.db.models import ExpressionWrapper, F, OuterRef, Q, Subquery, fields
 from django.db.models.functions import Cast
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
-from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.response import Response
+
 from simple_history.utils import get_history_model_for_model
 
 from coldfront.core.allocation.models import Allocation, AllocationChangeRequest
@@ -22,27 +20,6 @@ from coldfront.core.resource.models import Resource
 from coldfront.plugins.api import serializers
 
 logger = logging.getLogger(__name__)
-
-
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def regenerate_token(request):
-    old_token = None
-    if hasattr(request.user, "auth_token"):
-        old_token = request.user.auth_token.key[-6:]  # Last 6 chars for logging
-        # Delete existing token
-        Token.objects.filter(user=request.user).delete()
-
-    # Create new token
-    token = Token.objects.create(user=request.user)
-
-    logger.info(
-        "API token regenerated for user %s (uid: %s). Old token ending: %s",
-        request.user.username,
-        request.user.id,
-        old_token or "None",
-    )
-    return Response({"token": token.key})
 
 
 class ResourceViewSet(viewsets.ReadOnlyModelViewSet):
@@ -63,9 +40,14 @@ class AllocationViewSet(viewsets.ReadOnlyModelViewSet):
     # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        allocations = Allocation.objects.prefetch_related("project", "project__pi", "status")
+        allocations = Allocation.objects.prefetch_related(
+            "project", "project__pi", "status"
+        )
 
-        if not (self.request.user.is_superuser or self.request.user.has_perm("allocation.can_view_all_allocations")):
+        if not (
+            self.request.user.is_superuser
+            or self.request.user.has_perm("allocation.can_view_all_allocations")
+        ):
             allocations = allocations.filter(
                 Q(project__status__name__in=["New", "Active"])
                 & (
@@ -97,7 +79,9 @@ class AllocationRequestFilter(filters.FilterSet):
     created = filters.DateFromToRangeFilter()
     fulfilled = filters.BooleanFilter(method="filter_fulfilled", label="Fulfilled")
     fulfilled_date = filters.DateFromToRangeFilter(label="Date fulfilled")
-    time_to_fulfillment = filters.NumericRangeFilter(method="filter_time_to_fulfillment", label="Time to fulfillment")
+    time_to_fulfillment = filters.NumericRangeFilter(
+        method="filter_time_to_fulfillment", label="Time to fulfillment"
+    )
 
     class Meta:
         model = Allocation
@@ -116,9 +100,13 @@ class AllocationRequestFilter(filters.FilterSet):
 
     def filter_time_to_fulfillment(self, queryset, name, value):
         if value.start is not None:
-            queryset = queryset.filter(time_to_fulfillment__gte=timedelta(days=int(value.start)))
+            queryset = queryset.filter(
+                time_to_fulfillment__gte=timedelta(days=int(value.start))
+            )
         if value.stop is not None:
-            queryset = queryset.filter(time_to_fulfillment__lte=timedelta(days=int(value.stop)))
+            queryset = queryset.filter(
+                time_to_fulfillment__lte=timedelta(days=int(value.stop))
+            )
         return queryset
 
 
@@ -155,11 +143,15 @@ class AllocationRequestViewSet(viewsets.ReadOnlyModelViewSet):
 
         # Subquery to get the earliest historical record for each allocation
         earliest_history = (
-            HistoricalAllocation.objects.filter(id=OuterRef("pk")).order_by("history_date").values("status__name")[:1]
+            HistoricalAllocation.objects.filter(id=OuterRef("pk"))
+            .order_by("history_date")
+            .values("status__name")[:1]
         )
 
         fulfilled_date = (
-            HistoricalAllocation.objects.filter(id=OuterRef("pk"), status__name="Active")
+            HistoricalAllocation.objects.filter(
+                id=OuterRef("pk"), status__name="Active"
+            )
             .order_by("history_date")
             .values("modified")[:1]
         )
@@ -191,7 +183,9 @@ class AllocationChangeRequestFilter(filters.FilterSet):
     created = filters.DateFromToRangeFilter()
     fulfilled = filters.BooleanFilter(method="filter_fulfilled", label="Fulfilled")
     fulfilled_date = filters.DateFromToRangeFilter(label="Date fulfilled")
-    time_to_fulfillment = filters.NumericRangeFilter(method="filter_time_to_fulfillment", label="Time to fulfillment")
+    time_to_fulfillment = filters.NumericRangeFilter(
+        method="filter_time_to_fulfillment", label="Time to fulfillment"
+    )
 
     class Meta:
         model = AllocationChangeRequest
@@ -210,9 +204,13 @@ class AllocationChangeRequestFilter(filters.FilterSet):
 
     def filter_time_to_fulfillment(self, queryset, name, value):
         if value.start is not None:
-            queryset = queryset.filter(time_to_fulfillment__gte=timedelta(days=int(value.start)))
+            queryset = queryset.filter(
+                time_to_fulfillment__gte=timedelta(days=int(value.start))
+            )
         if value.stop is not None:
-            queryset = queryset.filter(time_to_fulfillment__lte=timedelta(days=int(value.stop)))
+            queryset = queryset.filter(
+                time_to_fulfillment__lte=timedelta(days=int(value.stop))
+            )
         return queryset
 
 
@@ -250,17 +248,23 @@ class AllocationChangeRequestViewSet(viewsets.ReadOnlyModelViewSet):
                 Q(allocation__project__status__name__in=["New", "Active"])
                 & (
                     (
-                        Q(allocation__project__projectuser__role__name__contains="Manager")
+                        Q(
+                            allocation__project__projectuser__role__name__contains="Manager"
+                        )
                         & Q(allocation__project__projectuser__user=self.request.user)
                     )
                     | Q(allocation__project__pi=self.request.user)
                 )
             ).distinct()
 
-        HistoricalAllocationChangeRequest = get_history_model_for_model(AllocationChangeRequest)
+        HistoricalAllocationChangeRequest = get_history_model_for_model(
+            AllocationChangeRequest
+        )
 
         fulfilled_date = (
-            HistoricalAllocationChangeRequest.objects.filter(id=OuterRef("pk"), status__name="Approved")
+            HistoricalAllocationChangeRequest.objects.filter(
+                id=OuterRef("pk"), status__name="Approved"
+            )
             .order_by("history_date")
             .values("modified")[:1]
         )
@@ -303,7 +307,10 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
                 projects.filter(
                     Q(status__name__in=["New", "Active"])
                     & (
-                        (Q(projectuser__role__name__contains="Manager") & Q(projectuser__user=self.request.user))
+                        (
+                            Q(projectuser__role__name__contains="Manager")
+                            & Q(projectuser__user=self.request.user)
+                        )
                         | Q(pi=self.request.user)
                     )
                 )

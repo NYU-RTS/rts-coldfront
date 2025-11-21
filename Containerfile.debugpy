@@ -8,10 +8,6 @@ RUN apt-get update \
 WORKDIR /usr/src/app
 COPY ../../. .
 
-RUN uv sync --extra prod --extra dev
-RUN echo "yes" | uv run manage.py initial_setup
-RUN uv run manage.py load_test_data
-
 ENV DEBUG=True
 ENV PYTHONUNBUFFERED=1
 ENV PLUGIN_SLURM=True
@@ -20,5 +16,9 @@ ENV PLUGIN_API=True
 ENV XDMOD_API_URL="localhost"
 EXPOSE 8000
 EXPOSE 5678
+
+RUN uv sync --extra prod --extra dev
+RUN echo "yes" | uv run manage.py initial_setup
+RUN uv run manage.py load_test_data
 
 CMD ["uv", "run", "python3", "-m", "debugpy", "--listen", "0.0.0.0:5678", "-m", "gunicorn", "-w", "1", "--capture-output","--enable-stdio-inheritance", "coldfront.config.wsgi","--bind", "0.0.0.0:8000"]
