@@ -1,13 +1,10 @@
 [build-system]
-requires = [
-    "wheel",
-    "setuptools-scm[toml]>=8.0",
-]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "coldfront"
-dynamic = ["version"]
+version = "1.1.6"
 requires-python = ">=3.12"
 authors = [
   {name = "Andrew E. Bruno"},
@@ -74,19 +71,14 @@ prod = [
 ]
 
 [project.urls]
-"Bug Tracker" = "https://github.com/ubccr/coldfront/issues"
-Changelog = "https://github.com/ubccr/coldfront/blob/main/CHANGELOG.md"
+"Bug Tracker" = "https://github.com/NYU-RTS/rts-coldfront/issues"
+Changelog = "https://github.com/NYU-RTS/rts-coldfront/blob/main/CHANGELOG.md"
 Documentation = "https://coldfront.readthedocs.io"
-"Source Code" = "https://github.com/ubccr/coldfront"
+"Source Code" = "https://github.com/NYU-RTS/rts-coldfront"
 
-[project.entry-points."console_scripts"]
+[project.scripts]
 coldfront = "coldfront:manage"
-
-[tool.setuptools.dynamic]
-version = {attr = "coldfront.VERSION"}
-
-[tool.setuptools.packages]
-find = {}
+gunicorn = "gunicorn.app.wsgiapp:run"
 
 [dependency-groups]
 dev = [
