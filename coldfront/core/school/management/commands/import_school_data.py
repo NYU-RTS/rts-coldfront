@@ -22,15 +22,16 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         print("Adding schools ...")
         file_path = options["csv_file_path"]
-        School.objects.all().delete()
         with open(file_path, "r") as fp:
             for line in fp:
                 pk, description = line.strip().split("\t")
-
-                school = School(
+                _, created = School.objects.get_or_create(
                     pk=pk,
                     description=description,
                 )
-                school.save()
+                if created:
+                    print(f"created school {description}")
+                else:
+                    print(f"school {description} already exists")
 
         print("Finished adding schools")
