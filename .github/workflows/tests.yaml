@@ -29,5 +29,5 @@ jobs:
 
       - name: Test
         run: |
-          uv run manage.py test       
+          uv run --group dev manage.py test       
         shell: bash
