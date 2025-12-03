@@ -29,7 +29,7 @@ RUN mkdir -p /tmp/uv
 # Need this to prevent os13 errors on shipwright.
 ENV UV_CACHE_DIR=/tmp/uv
 
-RUN uv sync --locked --extra prod --extra dev
+RUN uv sync --locked --extra prod
 
 # Default port for gunicorn
 EXPOSE 8000
