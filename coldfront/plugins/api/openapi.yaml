@@ -1,0 +1,631 @@
+openapi: 3.0.3
+info:
+  title: RTS Coldfront API
+  version: 2025.12.02
+  description: HPC Project Management portal
+paths:
+  /api/allocation-change-requests/:
+    get:
+      operationId: allocation_change_requests_list
+      description: |-
+        Data:
+        - allocation: allocation object details
+        - justification: justification provided at time of filing
+        - status: request status
+        - created: date created
+        - created_by: user who created the object.
+        - fulfilled_date: date the allocationchangerequests's status was first set to "Approved"
+        - fulfilled_by: user who last modified an approved object.
+
+        Query parameters:
+        - created_before/created_after (structure date as 'YYYY-MM-DD')
+        - fulfilled (boolean)
+            Set to true to return all approved requests, false to return all pending and denied requests.
+        - fulfilled_date_before/fulfilled_date_after (structure date as 'YYYY-MM-DD')
+        - time_to_fulfillment_max/time_to_fulfillment_min (integer)
+            Set to the maximum/minimum number of days between request creation and time_to_fulfillment.
+      tags:
+      - allocation-change-requests
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AllocationChangeRequest'
+          description: ''
+  /api/allocation-change-requests/{id}/:
+    get:
+      operationId: allocation_change_requests_retrieve
+      description: |-
+        Data:
+        - allocation: allocation object details
+        - justification: justification provided at time of filing
+        - status: request status
+        - created: date created
+        - created_by: user who created the object.
+        - fulfilled_date: date the allocationchangerequests's status was first set to "Approved"
+        - fulfilled_by: user who last modified an approved object.
+
+        Query parameters:
+        - created_before/created_after (structure date as 'YYYY-MM-DD')
+        - fulfilled (boolean)
+            Set to true to return all approved requests, false to return all pending and denied requests.
+        - fulfilled_date_before/fulfilled_date_after (structure date as 'YYYY-MM-DD')
+        - time_to_fulfillment_max/time_to_fulfillment_min (integer)
+            Set to the maximum/minimum number of days between request creation and time_to_fulfillment.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - allocation-change-requests
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllocationChangeRequest'
+          description: ''
+  /api/allocation-requests/:
+    get:
+      operationId: allocation_requests_list
+      description: |-
+        Report view on allocations requested through Coldfront.
+        Data:
+        - id: allocation id
+        - project: project name
+        - resource: resource name
+        - status: current status of the allocation
+        - created: date created
+        - created_by: user who submitted the allocation request
+        - fulfilled_date: date the allocation's status was first set to "Active"
+        - fulfilled_by: user who first set the allocation status to "Active"
+        - time_to_fulfillment: time between request creation and time_to_fulfillment
+            displayed as "DAY_INTEGER HH:MM:SS"
+
+        Filters:
+        - created_before/created_after (structure date as 'YYYY-MM-DD')
+        - fulfilled (boolean)
+            Set to true to return all approved requests, false to return all pending and denied requests.
+        - fulfilled_date_before/fulfilled_date_after (structure date as 'YYYY-MM-DD')
+        - time_to_fulfillment_max/time_to_fulfillment_min (integer)
+            Set to the maximum/minimum number of days between request creation and time_to_fulfillment.
+      parameters:
+      - in: query
+        name: created_after
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: created_before
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: fulfilled
+        schema:
+          type: boolean
+        description: Fulfilled
+      - in: query
+        name: fulfilled_date_after
+        schema:
+          type: string
+          format: date
+        description: Date fulfilled
+      - in: query
+        name: fulfilled_date_before
+        schema:
+          type: string
+          format: date
+        description: Date fulfilled
+      - in: query
+        name: time_to_fulfillment_max
+        schema:
+          type: number
+        description: Time to fulfillment
+      - in: query
+        name: time_to_fulfillment_min
+        schema:
+          type: number
+        description: Time to fulfillment
+      tags:
+      - allocation-requests
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AllocationRequest'
+          description: ''
+  /api/allocation-requests/{id}/:
+    get:
+      operationId: allocation_requests_retrieve
+      description: |-
+        Report view on allocations requested through Coldfront.
+        Data:
+        - id: allocation id
+        - project: project name
+        - resource: resource name
+        - status: current status of the allocation
+        - created: date created
+        - created_by: user who submitted the allocation request
+        - fulfilled_date: date the allocation's status was first set to "Active"
+        - fulfilled_by: user who first set the allocation status to "Active"
+        - time_to_fulfillment: time between request creation and time_to_fulfillment
+            displayed as "DAY_INTEGER HH:MM:SS"
+
+        Filters:
+        - created_before/created_after (structure date as 'YYYY-MM-DD')
+        - fulfilled (boolean)
+            Set to true to return all approved requests, false to return all pending and denied requests.
+        - fulfilled_date_before/fulfilled_date_after (structure date as 'YYYY-MM-DD')
+        - time_to_fulfillment_max/time_to_fulfillment_min (integer)
+            Set to the maximum/minimum number of days between request creation and time_to_fulfillment.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this allocation.
+        required: true
+      tags:
+      - allocation-requests
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllocationRequest'
+          description: ''
+  /api/allocations/:
+    get:
+      operationId: allocations_list
+      description: |-
+        Query parameters:
+        - allocation_users (default false)
+            Show related user data.
+        - allocation_attributes (default false)
+            Show related attribute data.
+      tags:
+      - allocations
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Allocation'
+          description: ''
+  /api/allocations/{id}/:
+    get:
+      operationId: allocations_retrieve
+      description: |-
+        Query parameters:
+        - allocation_users (default false)
+            Show related user data.
+        - allocation_attributes (default false)
+            Show related attribute data.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - allocations
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Allocation'
+          description: ''
+  /api/projects/:
+    get:
+      operationId: projects_list
+      description: |-
+        Query parameters:
+        - allocations (default false)
+            Show related allocation data.
+        - project_users (default false)
+            Show related user data.
+        - project_attributes (default false)
+            Show related attribute data.
+      tags:
+      - projects
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+          description: ''
+  /api/projects/{id}/:
+    get:
+      operationId: projects_retrieve
+      description: |-
+        Query parameters:
+        - allocations (default false)
+            Show related allocation data.
+        - project_users (default false)
+            Show related user data.
+        - project_attributes (default false)
+            Show related attribute data.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - projects
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+  /api/resources/:
+    get:
+      operationId: resources_list
+      tags:
+      - resources
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Resource'
+          description: ''
+  /api/resources/{id}/:
+    get:
+      operationId: resources_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this resource.
+        required: true
+      tags:
+      - resources
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+          description: ''
+  /api/users/:
+    get:
+      operationId: users_list
+      description: |-
+        Staff and superuser-only view for user data.
+        Filter parameters:
+        - username (exact)
+        - is_active
+        - is_superuser
+        - is_staff
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - in: query
+        name: is_staff
+        schema:
+          type: boolean
+      - in: query
+        name: is_superuser
+        schema:
+          type: boolean
+      - in: query
+        name: username
+        schema:
+          type: string
+      tags:
+      - users
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+  /api/users/{id}/:
+    get:
+      operationId: users_retrieve
+      description: |-
+        Staff and superuser-only view for user data.
+        Filter parameters:
+        - username (exact)
+        - is_active
+        - is_superuser
+        - is_staff
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - users
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+components:
+  schemas:
+    Allocation:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        project:
+          type: string
+          readOnly: true
+        resource:
+          type: string
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+        allocation_users:
+          type: string
+          readOnly: true
+        allocation_attributes:
+          type: string
+          readOnly: true
+      required:
+      - allocation_attributes
+      - allocation_users
+      - id
+      - project
+      - resource
+      - status
+    AllocationChangeRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        allocation:
+          allOf:
+          - $ref: '#/components/schemas/Allocation'
+          readOnly: true
+        justification:
+          type: string
+        status:
+          type: string
+          readOnly: true
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          readOnly: true
+        fulfilled_date:
+          type: string
+          format: date-time
+          readOnly: true
+        fulfilled_by:
+          type: string
+          readOnly: true
+        time_to_fulfillment:
+          type: string
+          readOnly: true
+      required:
+      - allocation
+      - created
+      - created_by
+      - fulfilled_by
+      - fulfilled_date
+      - id
+      - justification
+      - status
+      - time_to_fulfillment
+    AllocationRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        project:
+          type: string
+          readOnly: true
+        resource:
+          type: string
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          readOnly: true
+        fulfilled_date:
+          type: string
+          format: date-time
+          readOnly: true
+        fulfilled_by:
+          type: string
+          readOnly: true
+        time_to_fulfillment:
+          type: string
+          readOnly: true
+      required:
+      - created
+      - created_by
+      - fulfilled_by
+      - fulfilled_date
+      - id
+      - project
+      - resource
+      - status
+      - time_to_fulfillment
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        school:
+          type: string
+          readOnly: true
+        pi:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+        project_users:
+          type: string
+          readOnly: true
+        allocations:
+          type: string
+          readOnly: true
+        project_attributes:
+          type: string
+          readOnly: true
+      required:
+      - allocations
+      - id
+      - pi
+      - project_attributes
+      - project_users
+      - school
+      - status
+      - title
+    Resource:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        resource_type:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 128
+        description:
+          type: string
+        is_allocatable:
+          type: boolean
+      required:
+      - description
+      - id
+      - name
+      - resource_type
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        is_superuser:
+          type: boolean
+          title: Superuser status
+          description: Designates that this user has all permissions without explicitly
+            assigning them.
+        is_staff:
+          type: boolean
+          title: Staff status
+          description: Designates whether the user can log into this admin site.
+        date_joined:
+          type: string
+          format: date-time
+      required:
+      - id
+      - username
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"
