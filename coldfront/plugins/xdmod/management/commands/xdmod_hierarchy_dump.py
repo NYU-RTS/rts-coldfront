@@ -16,9 +16,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("-o", "--output", help="Path to output directory")
-        parser.add_argument(
-            "-c", "--cluster", help="Only output specific Slurm cluster"
-        )
+        parser.add_argument("-c", "--cluster", help="Only output specific Slurm cluster")
 
     def handle(self, *args, **options):
         verbosity = int(options["verbosity"])
@@ -44,7 +42,7 @@ class Command(BaseCommand):
             )
 
         all_schools = School.objects.all()
-        all_allocations = Allocation.objects.all()
+        all_allocations = Allocation.objects.filter(status__name__in=["Active", "Renewal Requested"])
         today: str = date.today().isoformat()
 
         with open(os.path.join(out_dir, "hierarchy-" + today + ".csv"), "w") as csvfile:
@@ -82,9 +80,7 @@ class Command(BaseCommand):
                     ]
                 )
 
-        with open(
-            os.path.join(out_dir, "group-to-hierarchy-" + today + ".csv"), "w"
-        ) as csvfile:
+        with open(os.path.join(out_dir, "group-to-hierarchy-" + today + ".csv"), "w") as csvfile:
             hierarchy_writer = csv.writer(
                 csvfile,
                 delimiter=",",
