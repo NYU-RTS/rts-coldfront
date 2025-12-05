@@ -61,9 +61,7 @@ def send_email(subject, body, sender, receiver_list, cc=[]):
         )
 
 
-def send_email_template(
-    subject, template_name, template_context, sender, receiver_list
-):
+def send_email_template(subject, template_name, template_context, sender, receiver_list):
     """Helper function for sending emails from a template"""
     if not EMAIL_ENABLED:
         return
@@ -89,23 +87,17 @@ def build_link(url_path, domain_url=""):
     return f"{domain_url}{url_path}"
 
 
-def send_admin_email_template(
-    subject, template_name, template_context, receiver_list=None
-):
+def send_admin_email_template(subject, template_name, template_context, receiver_list=None):
     """Helper function for sending admin emails using a template"""
     if receiver_list == None:
         receiver_list = [
             EMAIL_TICKET_SYSTEM_ADDRESS,
         ]
     logger.info(f"Sending admin email to {receiver_list}")
-    send_email_template(
-        subject, template_name, template_context, EMAIL_SENDER, receiver_list
-    )
+    send_email_template(subject, template_name, template_context, EMAIL_SENDER, receiver_list)
 
 
-def send_allocation_admin_email(
-    allocation_obj, subject, template_name, url_path="", domain_url=""
-):
+def send_allocation_admin_email(allocation_obj, subject, template_name, url_path="", domain_url=""):
     """Send allocation admin emails to approvers whose schools match the allocation's project school."""
     if not url_path:
         url_path = reverse("allocation-request-list")
@@ -122,9 +114,7 @@ def send_allocation_admin_email(
     ctx["url"] = url
 
     # Get all approvers whose schools include this project's school
-    approvers = User.objects.filter(
-        userprofile__approver_profile__schools=project_school, is_active=True
-    ).distinct()
+    approvers = User.objects.filter(userprofile__approver_profile__schools=project_school, is_active=True).distinct()
 
     # Extract valid email addresses
     recipient_list = [approver.email for approver in approvers if approver.email]
@@ -146,18 +136,12 @@ def send_allocation_admin_email(
             ctx,
             receiver_list=recipient_list,  # Send only to matched approvers
         )
-        logger.info(
-            f"Sent admin allocation email for request to access {resource_name} to approvers: {recipient_list}"
-        )
+        logger.info(f"Sent admin allocation email for request to access {resource_name} to approvers: {recipient_list}")
     else:
-        logger.warning(
-            f'No approvers found for school "{project_school}" to send allocation email.'
-        )
+        logger.warning(f'No approvers found for school "{project_school}" to send allocation email.')
 
 
-def send_allocation_customer_email(
-    allocation_obj, subject, template_name, url_path="", domain_url=""
-):
+def send_allocation_customer_email(allocation_obj, subject, template_name, url_path="", domain_url=""):
     """Send allocation customer emails"""
     if not url_path:
         url_path = reverse("allocation-detail", kwargs={"pk": allocation_obj.pk})
@@ -167,14 +151,10 @@ def send_allocation_customer_email(
     ctx["resource"] = allocation_obj.get_parent_resource
     ctx["url"] = url
 
-    allocation_users = allocation_obj.allocationuser_set.exclude(
-        status__name__in=["Removed", "Error"]
-    )
+    allocation_users = allocation_obj.allocationuser_set.exclude(status__name__in=["Removed", "Error"])
     email_receiver_list = []
     for allocation_user in allocation_users:
-        if allocation_user.allocation.project.projectuser_set.get(
-            user=allocation_user.user
-        ).enable_notifications:
+        if allocation_user.allocation.project.projectuser_set.get(user=allocation_user.user).enable_notifications:
             email_receiver_list.append(allocation_user.user.email)
 
     send_email_template(subject, template_name, ctx, EMAIL_SENDER, email_receiver_list)
