@@ -1,5 +1,5 @@
+import logging
 import datetime
-import traceback
 
 from django.core.management.base import BaseCommand
 
@@ -13,6 +13,8 @@ from coldfront.core.utils.mail import (
     send_allocation_customer_email,
 )
 
+logger = logging.getLogger(__name__)
+
 GENERAL_RESOURCE_NAME = import_from_settings("GENERAL_RESOURCE_NAME")
 CENTER_BASE_URL = import_from_settings("CENTER_BASE_URL")
 
@@ -23,13 +25,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            allocations = Allocation.objects.filter(
-                resources__name=GENERAL_RESOURCE_NAME, status__name="New"
-            )
+            allocations = Allocation.objects.filter(resources__name=GENERAL_RESOURCE_NAME, status__name="New")
             active = AllocationStatusChoice.objects.get(name="Active")
 
             for allocation_obj in allocations:
-                print(f"Approving allocation number {allocation_obj.pk}")
+                logger.info(f"Approving allocation number {allocation_obj.pk}")
                 allocation_obj.status = active
                 if not allocation_obj.start_date:
                     allocation_obj.start_date = datetime.datetime.now()
@@ -43,9 +43,7 @@ class Command(BaseCommand):
                     status__name__in=["Removed", "Error", "DeclinedEULA", "PendingEULA"]
                 )
                 for allocation_user in allocation_users:
-                    allocation_activate_user.send(
-                        sender=None, allocation_user_pk=allocation_user.pk
-                    )
+                    allocation_activate_user.send(sender=None, allocation_user_pk=allocation_user.pk)
 
                 send_allocation_customer_email(
                     allocation_obj,
@@ -53,7 +51,6 @@ class Command(BaseCommand):
                     "email/allocation_activated.txt",
                     domain_url=CENTER_BASE_URL,
                 )
-                print(f"Approved allocation request: {allocation_obj.pk}")
-        except Exception as e:
-            print("Exception occured with traceback:")
-            traceback.print_exception(e)
+                logger.info(f"Approved allocation request: {allocation_obj.pk}")
+        except Exception:
+            logger.debug("Exception occured with traceback:", exc_info=True)
