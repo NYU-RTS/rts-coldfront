@@ -1,7 +1,7 @@
 {% load common_tags %}
 {% load crispy_forms_tags %}
 <details>
-	<summary>Details</summary>
+	<summary>Show staff login</summary>
 	<form method="post" action="{% url 'login' %}?next={{request.GET.next}}">
 		{% csrf_token %}
 		{{ form|crispy }}
