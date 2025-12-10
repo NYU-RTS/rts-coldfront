@@ -17,7 +17,7 @@ ENV XDMOD_API_URL="localhost"
 EXPOSE 8000
 EXPOSE 5678
 
-RUN uv sync --extra prod --extra dev
+RUN uv sync --extra prod --dev
 RUN echo "yes" | uv run manage.py initial_setup
 RUN uv run manage.py load_test_data
 
