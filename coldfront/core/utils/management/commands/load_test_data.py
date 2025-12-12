@@ -279,7 +279,7 @@ class Command(BaseCommand):
             justification="I need access to my nodes.",
         )
 
-        allocation_obj.resources.add(Resource.objects.get(name="Tandon"))
+        allocation_obj.resource = Resource.objects.get(name="Tandon")
         allocation_obj.save()
 
         allocation_attribute_type_obj = AllocationAttributeType.objects.get(
@@ -315,7 +315,7 @@ class Command(BaseCommand):
             justification="I need access to university cluster.",
         )
 
-        allocation_obj.resources.add(Resource.objects.get(name=GENERAL_RESOURCE_NAME))
+        allocation_obj.resource = Resource.objects.get(name=GENERAL_RESOURCE_NAME)
         allocation_obj.save()
 
         allocation_attribute_type_obj = AllocationAttributeType.objects.get(
@@ -363,67 +363,6 @@ class Command(BaseCommand):
             value="2022-01-01",
         )
 
-        allocation_user_obj = AllocationUser.objects.create(
-            allocation=allocation_obj,
-            user=pi1,
-            status=AllocationUserStatusChoice.objects.get(name="Active"),
-        )
-        # Add project storage
-        allocation_obj, _ = Allocation.objects.get_or_create(
-            project=project_obj,
-            status=AllocationStatusChoice.objects.get(name="Active"),
-            start_date=start_date,
-            end_date=end_date,
-            quantity=10,
-            is_changeable=True,
-            justification="I need extra storage.",
-        )
-
-        allocation_obj.resources.add(Resource.objects.get(name="Tandon"))
-        allocation_obj.save()
-
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="slurm_account_name"
-        )
-        AllocationAttribute.objects.get_or_create(
-            allocation_attribute_type=allocation_attribute_type_obj,
-            allocation=allocation_obj,
-            value=f"torch_pr_{allocation_obj.project.pk}_Tandon",
-        )
-
-        allocation_user_obj = AllocationUser.objects.create(
-            allocation=allocation_obj,
-            user=pi1,
-            status=AllocationUserStatusChoice.objects.get(name="Active"),
-        )
-
-        # Add metered allocation
-        allocation_obj, _ = Allocation.objects.get_or_create(
-            project=project_obj,
-            status=AllocationStatusChoice.objects.get(name="Active"),
-            start_date=start_date,
-            end_date=end_date,
-            is_changeable=True,
-            justification="I need compute time on metered cluster.",
-        )
-        allocation_obj.resources.add(Resource.objects.get(name="Tandon"))
-        allocation_obj.save()
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="slurm_account_name"
-        )
-        AllocationAttribute.objects.get_or_create(
-            allocation_attribute_type=allocation_attribute_type_obj,
-            allocation=allocation_obj,
-            value=f"torch_pr_{allocation_obj.project.pk}_Tandon",
-        )
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="Core Usage (Hours)"
-        )
-        AllocationAttribute.objects.get_or_create(
-            allocation_attribute_type=allocation_attribute_type_obj,
-            allocation=allocation_obj,
-            value="150000",
-        )
         allocation_user_obj = AllocationUser.objects.create(
             allocation=allocation_obj,
             user=pi1,
@@ -521,8 +460,7 @@ class Command(BaseCommand):
             is_changeable=True,
             justification="Need to host my own site.",
         )
-
-        allocation_obj.resources.add(Resource.objects.get(name=GENERAL_RESOURCE_NAME))
+        allocation_obj.resource = Resource.objects.get(name=GENERAL_RESOURCE_NAME)
         allocation_obj.save()
 
         allocation_attribute_type_obj = AllocationAttributeType.objects.get(
