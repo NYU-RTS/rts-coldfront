@@ -86,12 +86,8 @@ class Allocation(TimeStampedModel):
             ("can_review_allocation_requests", "Can review allocation requests"),
             ("can_manage_invoice", "Can manage invoice"),
         )
-
-    project = models.ForeignKey(
-        Project,
-        on_delete=models.CASCADE,
-    )
-    resources = models.ManyToManyField(Resource)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
     status = models.ForeignKey(
         AllocationStatusChoice, on_delete=models.CASCADE, verbose_name="Status"
     )

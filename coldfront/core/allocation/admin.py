@@ -70,7 +70,7 @@ class AllocationAdmin(SimpleHistoryAdmin):
     )
     fields_change = (
         "project",
-        "resources",
+        "resource",
         "quantity",
         "justification",
         "status",
@@ -102,24 +102,21 @@ class AllocationAdmin(SimpleHistoryAdmin):
         AllocationUserNoteInline,
     ]
     list_filter = (
-        "resources__resource_type__name",
+        "resource__resource_type__name",
         "status",
-        "resources__name",
+        "resource__name",
         "is_locked",
     )
     search_fields = [
         "project__pi__username",
         "project__pi__first_name",
         "project__pi__last_name",
-        "resources__name",
+        "resource__name",
         "allocationuser__user__first_name",
         "allocationuser__user__last_name",
         "allocationuser__user__username",
     ]
-    filter_horizontal = [
-        "resources",
-    ]
-    raw_id_fields = ("project",)
+    raw_id_fields = ("project",  "resource")
 
     def resource(self, obj):
         return obj.get_parent_resource
@@ -239,7 +236,7 @@ class AllocationAttributeAdmin(SimpleHistoryAdmin):
         UsageValueFilter,
         "allocation_attribute_type",
         "allocation__status",
-        "allocation__resources",
+        "allocation__resource",
     )
     search_fields = (
         "allocation__project__pi__first_name",
@@ -331,7 +328,7 @@ class AllocationUserAdmin(SimpleHistoryAdmin):
     list_filter = (
         "status",
         "allocation__status",
-        "allocation__resources",
+        "allocation__resource",
     )
     search_fields = (
         "user__first_name",
@@ -352,7 +349,7 @@ class AllocationUserAdmin(SimpleHistoryAdmin):
         )
 
     def resource(self, obj):
-        return obj.allocation.resources.first()
+        return obj.allocation.resource.first()
 
     def project_pi(self, obj):
         return obj.allocation.project.pi
@@ -442,12 +439,12 @@ class AllocationAttributeUsageAdmin(SimpleHistoryAdmin):
     )
     list_filter = (
         "allocation_attribute__allocation_attribute_type",
-        "allocation_attribute__allocation__resources",
+        "allocation_attribute__allocation__resource",
         ValueFilter,
     )
 
     def resource(self, obj):
-        return obj.allocation_attribute.allocation.resources.first().name
+        return obj.allocation_attribute.allocation.resource.first().name
 
     def project(self, obj):
         return obj.allocation_attribute.allocation.project.title
