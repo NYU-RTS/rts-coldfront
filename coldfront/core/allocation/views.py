@@ -719,6 +719,7 @@ class AllocationCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
             allocation_obj.save()
 
         allocation_obj.resource = resource_obj
+        allocation_obj.save(update_fields=["resource"])
 
         # Automatically create slurm_account_name AllocationAttribute
         allocation_attribute_type_obj = AllocationAttributeType.objects.get(
@@ -753,6 +754,7 @@ class AllocationCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
 
         for linked_resource in resource_obj.linked_resources.all():
             allocation_obj.resource = linked_resource
+            allocation_obj.save(update_fields=["resource"])
 
         allocation_user_active_status = AllocationUserStatusChoice.objects.get(
             name="Active"
