@@ -80,6 +80,7 @@ from coldfront.plugins.xdmod.utils import get_usage_data, XDMoDConnectivityError
 import plotly.express as px
 from plotly.offline import plot
 from django.http import HttpResponse, HttpResponseBadRequest
+from django.db import IntegrityError, transaction
 
 ALLOCATION_ENABLE_ALLOCATION_RENEWAL = import_from_settings(
     "ALLOCATION_ENABLE_ALLOCATION_RENEWAL", True
@@ -687,6 +688,14 @@ class AllocationCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
                 format_html(
                     'You need to create an account name. Create it by clicking the link under the "Allocation account" field.'
                 ),
+            )
+            return self.form_invalid(form)
+
+        # Prevent duplicate allocation for same (project, resource)
+        if Allocation.objects.filter(project=project_obj, resources=resource_obj).exists():
+            form.add_error(
+                "resource",
+                "An allocation for this project and resource already exists.",
             )
             return self.form_invalid(form)
 
