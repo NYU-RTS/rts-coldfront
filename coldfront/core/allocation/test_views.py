@@ -590,6 +590,32 @@ class AllocationCreateViewTest(AllocationViewBaseTest):
         self.assertContains(response, "Allocation requested.")
         self.assertEqual(len(self.project.allocation_set.all()), 2)
 
+    def test_allocationcreateview_post_duplicate_project_resource_shows_error(self):
+        """Posting an allocation for same project+resource should show error and not create a new allocation"""
+        self.post_data["resource"] = str(self.resource_tandon.pk)
+
+        # Create an existing allocation for (project, resource_tandon)
+        existing = Allocation.objects.create(
+            project=self.project,
+            justification="existing",
+            quantity=1,
+            status=AllocationStatusChoice.objects.get(name="New"),
+        )
+        existing.resources.add(self.resource_tandon)
+
+        initial_count = self.project.allocation_set.count()
+
+        response = self.client.post(self.url, data=self.post_data, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        # Should not create a new allocation
+        self.assertEqual(self.project.allocation_set.count(), initial_count)
+
+        # Should show the friendly error message you added in form_valid
+        self.assertContains(
+            response,
+            "An allocation for this project and resource already exists.",
+        )
 
 class AllocationAddUsersViewTest(AllocationViewBaseTest):
     """Tests for the AllocationAddUsersView"""
