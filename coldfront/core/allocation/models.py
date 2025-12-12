@@ -65,7 +65,7 @@ class Allocation(TimeStampedModel):
 
     Attributes:
         project (Project): links the project the allocation falls under
-        resources (Resource): links resources that this allocation allocates
+        resource (Resource): links resource that this allocation allocates
         status (AllocationStatusChoice): represents the status of the allocation
         quantity (int): indicates the quantity of the resource for the allocation, if applicable
         start_date (Date): indicates the start date of the allocation
@@ -87,7 +87,7 @@ class Allocation(TimeStampedModel):
             ("can_manage_invoice", "Can manage invoice"),
         )
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, null=True, blank=True)
     status = models.ForeignKey(
         AllocationStatusChoice, on_delete=models.CASCADE, verbose_name="Status"
     )
@@ -205,12 +205,7 @@ class Allocation(TimeStampedModel):
             str: the resources for the allocation
         """
 
-        return ", ".join(
-            [
-                ele.name
-                for ele in self.resources.all().order_by(*ALLOCATION_RESOURCE_ORDERING)
-            ]
-        )
+        return self.resource.name if self.resource else ""
 
     @property
     def get_resources_as_list(self):
@@ -219,7 +214,7 @@ class Allocation(TimeStampedModel):
             list[Resource]: the resources for the allocation
         """
 
-        return [ele for ele in self.resources.all().order_by("-is_allocatable")]
+        return [self.resource] if self.resource else []
 
     @property
     def get_parent_resource(self):
@@ -227,15 +222,11 @@ class Allocation(TimeStampedModel):
         Returns:
             Resource: the parent resource for the allocation
         """
+        if not self.resource:
+            return None
 
-        if self.resources.count() == 1:
-            return self.resources.first()
-        else:
-            parent = self.resources.order_by(*ALLOCATION_RESOURCE_ORDERING).first()
-            if parent:
-                return parent
-            # Fallback
-            return self.resources.first()
+        parent = getattr(self.resource, "parent", None)
+        return parent or self.resource
 
     def get_attribute(self, name, expand=True, typed=True, extra_allocations=[]):
         """
@@ -585,7 +576,7 @@ class AllocationAttribute(TimeStampedModel):
             return raw_value
 
         allocs = [self.allocation] + extra_allocations
-        resources = list(self.allocation.resources.all())
+        resources = [self.allocation.resource] if self.allocation.resource else []
         attrib_name = self.allocation_attribute_type.name
 
         attriblist = attribute_expansion.get_attriblist_str(
@@ -762,11 +753,7 @@ class AllocationChangeRequest(TimeStampedModel):
         Returns:
             Resource: the parent resource for the allocation
         """
-
-        if self.allocation.resources.count() == 1:
-            return self.allocation.resources.first()
-        else:
-            return self.allocation.resources.filter(is_allocatable=True).first()
+        return self.allocation.resource
 
     def __str__(self):
         return "%s (%s)" % (self.get_parent_resource.name, self.allocation.project.pi)
