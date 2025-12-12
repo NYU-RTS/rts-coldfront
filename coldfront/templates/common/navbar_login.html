@@ -4,8 +4,8 @@
     {{user.username}}
   </a>
   <div class="dropdown-menu">
-    <a id="navbar-user-user-profile" class="dropdown-item" href="{% url 'user-profile' %}"><i class="fas fa-user-circle" aria-hidden="true"></i>
-      User Profile</a>
+    <a id="navbar-user-user-profile" class="dropdown-item" href="{% url 'user-profile' %}"><i class="fas fa-user-circle" aria-hidden="true"></i> User Profile</a>
+    <button class="dropdown-item" hx-post="{% url 'logout' %}" hx-swap="none"><i class="fas fa-sign-out-alt" aria-hidden="true"></i> Log Out</button>
   </div>
 </li>
 <ul class="navbar-nav ml-auto">

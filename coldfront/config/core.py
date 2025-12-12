@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: (C) ColdFront Authors
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 from coldfront.config.base import SETTINGS_EXPORT
 from coldfront.config.env import ENV
 
@@ -29,6 +33,11 @@ PUBLICATION_ENABLE = ENV.bool("PUBLICATION_ENABLE", default=True)
 # Enable Project Review
 # ------------------------------------------------------------------------------
 PROJECT_ENABLE_PROJECT_REVIEW = ENV.bool("PROJECT_ENABLE_PROJECT_REVIEW", default=True)
+
+# ------------------------------------------------------------------------------
+# Enable EULA force agreement
+# ------------------------------------------------------------------------------
+ALLOCATION_EULA_ENABLE = ENV.bool("ALLOCATION_EULA_ENABLE", default=False)
 
 # ------------------------------------------------------------------------------
 # Maximum number of projects per PI
@@ -69,6 +78,8 @@ SETTINGS_EXPORT += [
     "RESEARCH_OUTPUT_ENABLE",
     "GRANT_ENABLE",
     "PUBLICATION_ENABLE",
+    "RESEARCH_OUTPUT_ENABLE",
+    "DJANGO_VITE",
 ]
 
 ADMIN_COMMENTS_SHOW_EMPTY = ENV.bool("ADMIN_COMMENTS_SHOW_EMPTY", default=True)
