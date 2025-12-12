@@ -279,7 +279,7 @@ class Command(BaseCommand):
             justification="I need access to my nodes.",
         )
 
-        allocation_obj.resources.add(Resource.objects.get(name="Tandon"))
+        allocation_obj.resource = Resource.objects.get(name="Tandon")
         allocation_obj.save()
 
         allocation_attribute_type_obj = AllocationAttributeType.objects.get(
@@ -315,7 +315,7 @@ class Command(BaseCommand):
             justification="I need access to university cluster.",
         )
 
-        allocation_obj.resources.add(Resource.objects.get(name=GENERAL_RESOURCE_NAME))
+        allocation_obj.resource = Resource.objects.get(name=GENERAL_RESOURCE_NAME)
         allocation_obj.save()
 
         allocation_attribute_type_obj = AllocationAttributeType.objects.get(
@@ -379,7 +379,7 @@ class Command(BaseCommand):
             justification="I need extra storage.",
         )
 
-        allocation_obj.resources.add(Resource.objects.get(name="Tandon"))
+        allocation_obj.resource = Resource.objects.get(name="Tandon")
         allocation_obj.save()
 
         allocation_attribute_type_obj = AllocationAttributeType.objects.get(
@@ -406,7 +406,7 @@ class Command(BaseCommand):
             is_changeable=True,
             justification="I need compute time on metered cluster.",
         )
-        allocation_obj.resources.add(Resource.objects.get(name="Tandon"))
+        allocation_obj.resource = Resource.objects.get(name="Tandon")
         allocation_obj.save()
         allocation_attribute_type_obj = AllocationAttributeType.objects.get(
             name="slurm_account_name"
@@ -521,8 +521,7 @@ class Command(BaseCommand):
             is_changeable=True,
             justification="Need to host my own site.",
         )
-
-        allocation_obj.resources.add(Resource.objects.get(name=GENERAL_RESOURCE_NAME))
+        allocation_obj.resource = Resource.objects.get(name=GENERAL_RESOURCE_NAME)
         allocation_obj.save()
 
         allocation_attribute_type_obj = AllocationAttributeType.objects.get(
