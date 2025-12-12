@@ -93,7 +93,8 @@ class Allocation(TimeStampedModel):
             )
         ]
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, null=True, blank=True)
+    resources = models.ManyToManyField(Resource, related_name="allocations_m2m") # keep it for now
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, null=True, blank=True) # migrate to this
     status = models.ForeignKey(
         AllocationStatusChoice, on_delete=models.CASCADE, verbose_name="Status"
     )
