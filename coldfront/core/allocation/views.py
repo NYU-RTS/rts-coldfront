@@ -19,7 +19,7 @@ from django.utils.html import format_html, mark_safe
 from django.views import View
 from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
-
+from django.db import IntegrityError, transaction
 from coldfront.core.allocation.forms import (
     AllocationAccountForm,
     AllocationAddUserForm,
@@ -707,19 +707,22 @@ class AllocationCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         else:
             allocation_status_obj = AllocationStatusChoice.objects.get(name="New")
 
-        allocation_obj = Allocation.objects.create(
-            project=project_obj,
-            justification=justification,
-            quantity=quantity,
-            status=allocation_status_obj,
-        )
-
-        if ALLOCATION_ENABLE_CHANGE_REQUESTS_BY_DEFAULT:
-            allocation_obj.is_changeable = True
-            allocation_obj.save()
-
-        allocation_obj.resource = resource_obj
-        allocation_obj.save(update_fields=["resource"])
+        try:
+            with transaction.atomic():
+                allocation_obj = Allocation.objects.create(
+                    project=project_obj,
+                    resource=resource_obj,
+                    justification=justification,
+                    quantity=quantity,
+                    status=allocation_status_obj,
+                    is_changeable=ALLOCATION_ENABLE_CHANGE_REQUESTS_BY_DEFAULT,
+                )
+        except IntegrityError:
+            form.add_error(
+                "resource",
+                "An allocation for this project and resource already exists.",
+            )
+            return self.form_invalid(form)
 
         # Automatically create slurm_account_name AllocationAttribute
         allocation_attribute_type_obj = AllocationAttributeType.objects.get(
@@ -753,8 +756,17 @@ class AllocationCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
             )
 
         for linked_resource in resource_obj.linked_resources.all():
-            allocation_obj.resource = linked_resource
-            allocation_obj.save(update_fields=["resource"])
+            try:
+                linked_alloc = Allocation.objects.create(
+                    project=project_obj,
+                    resource=linked_resource,
+                    justification=justification,
+                    quantity=quantity,
+                    status=allocation_status_obj,
+                    is_changeable=ALLOCATION_ENABLE_CHANGE_REQUESTS_BY_DEFAULT,
+                )
+            except IntegrityError:
+                continue  # already exists; skip
 
         allocation_user_active_status = AllocationUserStatusChoice.objects.get(
             name="Active"
