@@ -1,4 +1,5 @@
 import logging
+import httpx
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -22,6 +23,8 @@ from coldfront.core.utils.mail import send_email_template
 
 logger = logging.getLogger(__name__)
 EMAIL_ENABLED = import_from_settings("EMAIL_ENABLED", False)
+PI_STATUS_UPGRADE_URL = import_from_settings("PI_STATUS_UPGRADE_URL")
+PI_STATUS_UPGRADE_API_KEY = import_from_settings("PI_STATUS_UPGRADE_API_KEY")
 if EMAIL_ENABLED:
     EMAIL_TICKET_SYSTEM_ADDRESS = import_from_settings("EMAIL_TICKET_SYSTEM_ADDRESS")
 
@@ -41,16 +44,12 @@ class UserProfile(TemplateView):
 
                 # error if they tried to do something naughty
                 if not request.user.username == viewed_username:
-                    messages.error(
-                        request, "You aren't allowed to view other user profiles!"
-                    )
+                    messages.error(request, "You aren't allowed to view other user profiles!")
                 # if they used their own username, no need to provide an error - just redirect
 
                 return HttpResponseRedirect(reverse("user-profile"))
 
-        return super().dispatch(
-            request, *args, viewed_username=viewed_username, **kwargs
-        )
+        return super().dispatch(request, *args, viewed_username=viewed_username, **kwargs)
 
     def get_context_data(self, viewed_username=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -81,9 +80,7 @@ class UserProjectsManagersView(ListView):
 
                 # error if they tried to do something naughty
                 if not request.user.username == viewed_username:
-                    messages.error(
-                        request, "You aren't allowed to view projects for other users!"
-                    )
+                    messages.error(request, "You aren't allowed to view projects for other users!")
                 # if they used their own username, no need to provide an error - just redirect
 
                 return HttpResponseRedirect(reverse("user-projects-managers"))
@@ -94,9 +91,7 @@ class UserProjectsManagersView(ListView):
         else:
             self.viewed_user = self.request.user
 
-        return super().dispatch(
-            request, *args, viewed_username=viewed_username, **kwargs
-        )
+        return super().dispatch(request, *args, viewed_username=viewed_username, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
         viewed_user = self.viewed_user
@@ -229,6 +224,9 @@ class UserUpgradeAccount(LoginRequiredMixin, UserPassesTestMixin, View):
                 request.user.email,
                 [EMAIL_TICKET_SYSTEM_ADDRESS],
             )
+        httpx.post(
+            PI_STATUS_UPGRADE_URL, data={"Authorization": PI_STATUS_UPGRADE_API_KEY, "netid": request.user.username}
+        )
 
         messages.success(request, "Your request has been sent")
         return HttpResponseRedirect(reverse("user-profile"))
@@ -277,9 +275,9 @@ class UserListAllocations(LoginRequiredMixin, UserPassesTestMixin, TemplateView)
 
         for project in Project.objects.filter(pi=self.request.user):
             for allocation in project.allocation_set.filter(status__name="Active"):
-                for allocation_user in allocation.allocationuser_set.filter(
-                    status__name="Active"
-                ).order_by("user__username"):
+                for allocation_user in allocation.allocationuser_set.filter(status__name="Active").order_by(
+                    "user__username"
+                ):
                     if allocation_user.user not in user_dict:
                         user_dict[allocation_user.user] = []
 
