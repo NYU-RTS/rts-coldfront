@@ -216,9 +216,12 @@ class UserUpgradeAccount(LoginRequiredMixin, UserPassesTestMixin, View):
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request):
-        httpx.post(
-            PI_STATUS_UPGRADE_URL, data={"Authorization": PI_STATUS_UPGRADE_API_KEY, "netid": request.user.username}
-        )
+        try:
+            httpx.post(
+                PI_STATUS_UPGRADE_URL, data={"Authorization": PI_STATUS_UPGRADE_API_KEY, "netid": request.user.username}
+            )
+        except Exception as e:
+            logger.error(f"Could not send PI upgrade request due to {e}")
         logger.info(f"Sent PI status upgrade request for {request.user.username}")
 
         messages.success(request, "Your request has been sent")
