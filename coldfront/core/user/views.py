@@ -216,17 +216,10 @@ class UserUpgradeAccount(LoginRequiredMixin, UserPassesTestMixin, View):
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request):
-        if EMAIL_ENABLED:
-            send_email_template(
-                "Upgrade Account Request",
-                "email/upgrade_account_request.txt",
-                {"user": request.user},
-                request.user.email,
-                [EMAIL_TICKET_SYSTEM_ADDRESS],
-            )
         httpx.post(
             PI_STATUS_UPGRADE_URL, data={"Authorization": PI_STATUS_UPGRADE_API_KEY, "netid": request.user.username}
         )
+        logger.info(f"Sent PI status upgrade request for {request.user.username}")
 
         messages.success(request, "Your request has been sent")
         return HttpResponseRedirect(reverse("user-profile"))
