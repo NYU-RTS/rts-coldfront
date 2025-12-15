@@ -33,23 +33,17 @@ PROJECT_ENABLE_PROJECT_REVIEW = ENV.bool("PROJECT_ENABLE_PROJECT_REVIEW", defaul
 # ------------------------------------------------------------------------------
 # Allocation related
 # ------------------------------------------------------------------------------
-ALLOCATION_ENABLE_CHANGE_REQUESTS_BY_DEFAULT = ENV.bool(
-    "ALLOCATION_ENABLE_CHANGE_REQUESTS", default=True
-)
+ALLOCATION_ENABLE_CHANGE_REQUESTS_BY_DEFAULT = ENV.bool("ALLOCATION_ENABLE_CHANGE_REQUESTS", default=True)
 ALLOCATION_CHANGE_REQUEST_EXTENSION_DAYS = ENV.list(
     "ALLOCATION_CHANGE_REQUEST_EXTENSION_DAYS", cast=int, default=[30, 60, 90]
 )
-ALLOCATION_ENABLE_ALLOCATION_RENEWAL = ENV.bool(
-    "ALLOCATION_ENABLE_ALLOCATION_RENEWAL", default=True
-)
+ALLOCATION_ENABLE_ALLOCATION_RENEWAL = ENV.bool("ALLOCATION_ENABLE_ALLOCATION_RENEWAL", default=True)
 ALLOCATION_FUNCS_ON_EXPIRE = [
     "coldfront.core.allocation.utils.test_allocation_function",
 ]
 
 # This is in days
-ALLOCATION_DEFAULT_ALLOCATION_LENGTH = ENV.int(
-    "ALLOCATION_DEFAULT_ALLOCATION_LENGTH", default=365
-)
+ALLOCATION_DEFAULT_ALLOCATION_LENGTH = ENV.int("ALLOCATION_DEFAULT_ALLOCATION_LENGTH", default=365)
 
 
 # ------------------------------------------------------------------------------
@@ -114,3 +108,9 @@ ACCOUNT_CREATION_TEXT = """You need an active HPC account to access Coldfront.
 If you do not have an active HPC account, please refer to 
 <a href="https://services.rt.nyu.edu/docs/hpc/getting_started/getting_and_renewing_an_account/"> instructions on our website</a>.
 """
+
+# ------------------------------------------------------------------------------
+# Enable Open OnDemand integration
+# ------------------------------------------------------------------------------
+PI_STATUS_UPGRADE_URL = ENV.str("PI_STATUS_UPGRADE_URL", default=None)
+PI_STATUS_UPGRADE_API_KEY = ENV.str("PI_STATUS_UPGRADE_API_KEY", default=None)
