@@ -641,16 +641,24 @@ class AllocationCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         allocation_obj.resources.add(resource_obj)
 
         # Automatically create slurm_account_name AllocationAttribute
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(name="slurm_account_name")
+        alloc_attr_slurm_acct_name = AllocationAttributeType.objects.get(name="slurm_account_name")
         if resource_obj.name == GENERAL_RESOURCE_NAME:  # "University HPC"
             slurm_account_name = f"torch_pr_{allocation_obj.project.pk}_general"
         else:
             slurm_account_name = f"torch_pr_{allocation_obj.project.pk}_{resource_obj.name}"
 
         AllocationAttribute.objects.get_or_create(
-            allocation_attribute_type=allocation_attribute_type_obj,
+            allocation_attribute_type=alloc_attr_slurm_acct_name,
             allocation=allocation_obj,
             value=slurm_account_name,
+        )
+
+        # Automatically create slurm_specs AllocationAttribute
+        alloc_attr_slurm_specs = AllocationAttributeType.objects.get(name="slurm_specs")
+        AllocationAttribute.objects.get_or_create(
+            allocation_attribute_type=alloc_attr_slurm_specs,
+            allocation=allocation_obj,
+            value=f"Description='{allocation_obj.project.title.replace(':', ';').replace("'s", '').replace("'", '')}'",
         )
 
         if ALLOCATION_ACCOUNT_ENABLED and allocation_account and resource_obj.name in ALLOCATION_ACCOUNT_MAPPING:
