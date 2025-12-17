@@ -110,7 +110,7 @@ xxx@example.edu
 Phone: (xxx) xxx-xxx
 """
 
-ACCOUNT_CREATION_TEXT = """You need an active HPC account to access Coldfront.
+ACCOUNT_CREATION_TEXT = """You need an active HPC account to access the HPC project management portal.
 If you do not have an active HPC account, please refer to 
 <a href="https://services.rt.nyu.edu/docs/hpc/getting_started/getting_and_renewing_an_account/"> instructions on our website</a>.
 """
