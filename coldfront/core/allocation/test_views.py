@@ -433,6 +433,14 @@ class AllocationCreateViewTest(AllocationViewBaseTest):
             is_private=False,
         )
 
+        # Create AllocationAttributeType for slurm_account_name
+        self.slurm_specs_attr_type, _ = AllocationAttributeType.objects.get_or_create(
+            name="slurm_specs",
+            attribute_type=AttributeType.objects.create(name="Text"),
+            has_usage=False,
+            is_private=False,
+        )
+
     def test_allocationcreateview_post_school_resource(self):
         """Test POST to the AllocationCreateView with a standard resource and check slurm_account_name"""
         self.post_data["resource"] = str(self.resource_tandon.pk)
