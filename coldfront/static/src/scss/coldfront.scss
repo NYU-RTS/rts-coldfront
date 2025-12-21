@@ -1,0 +1,20 @@
+<<<<<<< conflict 1 of 1
++++++++ nkoxxyvz cc44d06e (rebase destination)
+%%%%%%% diff from: ztnwlylp e8eeb3d5 "Merge pull request #918 from coldfront/fix-gauge-chart" (parents of rebased revision)
+\\\\\\\        to: yplmrlks e8361909 "Upgrade to bootstrap5" (rebased revision)
+ /*
+  * SPDX-FileCopyrightText: (C) ColdFront Authors
+  *
+  * SPDX-License-Identifier: AGPL-3.0-or-later
+  */
+ 
+ @use 'overrides/fontawesome';
+ @use '~bootstrap/dist/css/bootstrap.min';
+ @use 'flatpickr/dist/flatpickr.min';
+ @use 'select2/dist/css/select2.min';
+-@use 'datatables.net-bs4/css/dataTables.bootstrap4';
++@use 'datatables.net-bs5/css/dataTables.bootstrap5';
+ 
+ // Custom styles
+ @use 'custom/portal';
+>>>>>>> conflict 1 of 1 ends
