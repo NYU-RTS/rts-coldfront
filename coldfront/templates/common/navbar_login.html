@@ -1,7 +1,6 @@
 <li id="navbar-user" class="nav-item dropdown">
-  <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-    <i class="fas fa-user" aria-hidden="true"></i>
-    {{user.username}}
+  <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+    <i class="fas fa-user" aria-hidden="true"></i> {{user.username}}
   </a>
   <div class="dropdown-menu">
     <a id="navbar-user-user-profile" class="dropdown-item" href="{% url 'user-profile' %}"><i class="fas fa-user-circle" aria-hidden="true"></i>

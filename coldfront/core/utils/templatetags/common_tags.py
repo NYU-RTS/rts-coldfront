@@ -15,7 +15,8 @@ def settings_value(name):
         "CENTER_HELP_URL",
         "EMAIL_PROJECT_REVIEW_CONTACT",
     ]
-    return mark_safe(getattr(settings, name, "") if name in allowed_names else "")
+    # FIXME: This is using mark_safe for now but settings should not contain HTML in the future
+    return mark_safe(getattr(settings, name, "") if name in allowed_names else "")  # noqa: S308
 
 
 @register.filter
@@ -28,14 +29,10 @@ def get_icon(expand_accordion):
 
 @register.filter
 def convert_boolean_to_icon(boolean):
-    if boolean == False:
-        return mark_safe(
-            '<span class="badge badge-success"><i class="fas fa-check"></i></span>'
-        )
+    if boolean is False:
+        return mark_safe('<span class="badge bg-success"><i class="fas fa-check"></i></span>')
     else:
-        return mark_safe(
-            '<span class="badge badge-danger"><i class="fas fa-times"></i></span>'
-        )
+        return mark_safe('<span class="badge bg-danger"><i class="fas fa-times"></i></span>')
 
 
 @register.filter
@@ -43,21 +40,13 @@ def convert_status_to_icon(project):
     if project.last_project_review:
         status = project.last_project_review.status.name
         if status == "Pending":
-            return mark_safe(
-                '<h4><span class="badge badge-info"><i class="fas fa-exclamation-circle"></i></span></h4>'
-            )
+            return mark_safe('<h4><span class="badge bg-info"><i class="fas fa-exclamation-circle"></i></span></h4>')
         elif status == "Completed":
-            return mark_safe(
-                '<h4><span class="badge badge-success"><i class="fas fa-check-circle"></i></span></h4>'
-            )
-    elif project.needs_review and not project.last_project_review:
-        return mark_safe(
-            '<h4><span class="badge badge-danger"><i class="fas fa-question-circle"></i></span></h4>'
-        )
-    elif not project.needs_review:
-        return mark_safe(
-            '<h4><span class="badge badge-success"><i class="fas fa-check-circle"></i></span></h4>'
-        )
+            return mark_safe('<h4><span class="badge bg-success"><i class="fas fa-check-circle"></i></span></h4>')
+    elif needs_review and not last_project_review:
+        return mark_safe('<h4><span class="badge bg-danger"><i class="fas fa-question-circle"></i></span></h4>')
+    elif not needs_review:
+        return mark_safe('<h4><span class="badge bg-success"><i class="fas fa-check-circle"></i></span></h4>')
 
 
 @register.filter("get_value_from_dict")

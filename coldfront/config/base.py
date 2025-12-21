@@ -55,7 +55,7 @@ INSTALLED_APPS = [
 sys.modules["fontawesome_free"] = __import__("fontawesome-free")
 INSTALLED_APPS += [
     "crispy_forms",
-    "crispy_bootstrap4",
+    "crispy_bootstrap5",
     "django_q",
     "simple_history",
     "fontawesome_free",
@@ -144,7 +144,9 @@ if len(SITE_TEMPLATES) > 0:
     else:
         raise ImproperlyConfigured("SITE_TEMPLATES should be a path to a directory")
 
-CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
 SETTINGS_EXPORT = []
 
 STATIC_URL = "/static/"
