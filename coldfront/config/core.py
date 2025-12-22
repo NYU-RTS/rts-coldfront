@@ -31,6 +31,11 @@ PUBLICATION_ENABLE = ENV.bool("PUBLICATION_ENABLE", default=True)
 PROJECT_ENABLE_PROJECT_REVIEW = ENV.bool("PROJECT_ENABLE_PROJECT_REVIEW", default=True)
 
 # ------------------------------------------------------------------------------
+# Maximum number of projects per PI
+# ------------------------------------------------------------------------------
+MAX_PROJECTS_PER_PI = ENV.int("MAX_PROJECTS_PER_PI", default=3)
+
+# ------------------------------------------------------------------------------
 # Allocation related
 # ------------------------------------------------------------------------------
 ALLOCATION_ENABLE_CHANGE_REQUESTS_BY_DEFAULT = ENV.bool(

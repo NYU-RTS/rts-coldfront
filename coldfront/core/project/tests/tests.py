@@ -20,7 +20,9 @@ from coldfront.core.project.models import (
     ProjectAttributeType,
     ProjectUser,
     ProjectPermission,
+    ProjectStatusChoice,
 )
+from django.urls import reverse
 
 logging.disable(logging.CRITICAL)
 
@@ -32,9 +34,15 @@ class TestProject(TestCase):
         def __init__(self):
             user = UserFactory(username="cgray")
             user.userprofile.is_pi = True
+            user.userprofile.save()
 
             school = SchoolFactory(description="Tandon School of Engineering")
             status = ProjectStatusChoiceFactory(name="Active")
+
+            # Ensure the status of "New" expects exists
+            ProjectStatusChoiceFactory(name="New")
+            ProjectUserRoleChoiceFactory(name="Manager")
+            ProjectUserStatusChoiceFactory(name="Active")
 
             self.initial_fields = {
                 "pi": user,
@@ -47,8 +55,51 @@ class TestProject(TestCase):
 
             self.unsaved_object = Project(**self.initial_fields)
 
+            # POST payload for the CreateView (fields = title, description, school)
+            self.create_post_data = {
+                "title": "P4 attempt",
+                "description": "desc",
+                "school": school.pk,
+            }
+
+            self.user = user
+            self.school = school
+
     def setUp(self):
         self.data = self.Data()
+
+    def test_pi_cannot_create_more_than_three_projects(self):
+        """Test that a PI cannot create more than MAX_PROJECTS_PER_PI projects."""
+        user = self.data.initial_fields["pi"]
+
+        # Create 3 existing projects for this PI
+        for i in range(3):
+            Project.objects.create(
+                pi=user,
+                title=f"Existing {i}",
+                description="d",
+                school=self.data.initial_fields["school"],
+                status=ProjectStatusChoice.objects.get(name="New"),
+            )
+
+        self.assertEqual(3, Project.objects.filter(pi=user).count())
+
+        self.client.force_login(user)
+
+        post_data = {
+            "title": "P4 attempt",
+            "description": "desc",
+            "school": self.data.initial_fields["school"].pk,
+        }
+
+        resp = self.client.post(reverse("project-create"), data=post_data)
+
+        # You are redirecting on failure (Location should show /project/)
+        self.assertEqual(302, resp.status_code)
+        self.assertEqual("/project/", resp["Location"])
+
+        # Core requirement: still only 3 projects
+        self.assertEqual(3, Project.objects.filter(pi=user).count())
 
     def test_fields_generic(self):
         """Test that generic project fields save correctly"""
