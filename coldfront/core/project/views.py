@@ -592,7 +592,7 @@ class ProjectArchiveProjectView(LoginRequiredMixin, UserPassesTestMixin, Templat
         return redirect(reverse("project-detail", kwargs={"pk": project.pk}))
 
 
-MAX_PROJECTS_PER_PI = 3
+MAX_PROJECTS_PER_PI = import_from_settings("MAX_PROJECTS_PER_PI")
 
 class ProjectCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Project
