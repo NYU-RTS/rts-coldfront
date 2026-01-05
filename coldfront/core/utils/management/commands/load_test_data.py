@@ -269,43 +269,7 @@ class Command(BaseCommand):
         start_date = datetime.datetime.now()
         end_date = datetime.datetime.now() + relativedelta(days=365)
 
-        # Add PI cluster
-        allocation_obj, _ = Allocation.objects.get_or_create(
-            project=project_obj,
-            status=AllocationStatusChoice.objects.get(name="Active"),
-            start_date=start_date,
-            end_date=end_date,
-            is_changeable=True,
-            justification="I need access to my nodes.",
-        )
-
-        allocation_obj.resources.add(Resource.objects.get(name="Tandon"))
-        allocation_obj.save()
-
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="slurm_account_name"
-        )
-        AllocationAttribute.objects.get_or_create(
-            allocation_attribute_type=allocation_attribute_type_obj,
-            allocation=allocation_obj,
-            value=f"torch_pr_{allocation_obj.project.pk}_Tandon",
-        )
-
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="slurm_user_specs"
-        )
-        AllocationAttribute.objects.get_or_create(
-            allocation_attribute_type=allocation_attribute_type_obj,
-            allocation=allocation_obj,
-            value="Fairshare=parent",
-        )
-
-        allocation_user_obj = AllocationUser.objects.create(
-            allocation=allocation_obj,
-            user=pi1,
-            status=AllocationUserStatusChoice.objects.get(name="Active"),
-        )
-        # Add university cluster
+        # Add university allocation
         allocation_obj, _ = Allocation.objects.get_or_create(
             project=project_obj,
             status=AllocationStatusChoice.objects.get(name="Active"),
@@ -368,36 +332,8 @@ class Command(BaseCommand):
             user=pi1,
             status=AllocationUserStatusChoice.objects.get(name="Active"),
         )
-        # Add project storage
-        allocation_obj, _ = Allocation.objects.get_or_create(
-            project=project_obj,
-            status=AllocationStatusChoice.objects.get(name="Active"),
-            start_date=start_date,
-            end_date=end_date,
-            quantity=10,
-            is_changeable=True,
-            justification="I need extra storage.",
-        )
 
-        allocation_obj.resources.add(Resource.objects.get(name="Tandon"))
-        allocation_obj.save()
-
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="slurm_account_name"
-        )
-        AllocationAttribute.objects.get_or_create(
-            allocation_attribute_type=allocation_attribute_type_obj,
-            allocation=allocation_obj,
-            value=f"torch_pr_{allocation_obj.project.pk}_Tandon",
-        )
-
-        allocation_user_obj = AllocationUser.objects.create(
-            allocation=allocation_obj,
-            user=pi1,
-            status=AllocationUserStatusChoice.objects.get(name="Active"),
-        )
-
-        # Add metered allocation
+        # Add Tandon allocation
         allocation_obj, _ = Allocation.objects.get_or_create(
             project=project_obj,
             status=AllocationStatusChoice.objects.get(name="Active"),
