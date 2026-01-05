@@ -20,7 +20,7 @@ from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
-
+from django.db import transaction
 from coldfront.core.allocation.models import (
     Allocation,
     AllocationStatusChoice,
@@ -591,10 +591,11 @@ class ProjectArchiveProjectView(LoginRequiredMixin, UserPassesTestMixin, Templat
         return redirect(reverse("project-detail", kwargs={"pk": project.pk}))
 
 
+MAX_PROJECTS_PER_PI = import_from_settings("MAX_PROJECTS_PER_PI")
+
 class ProjectCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Project
     template_name_suffix = "_create_form"
-    # Add one more field here
     fields = [
         "title",
         "description",
@@ -608,16 +609,40 @@ class ProjectCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
         if self.request.user.userprofile.is_pi:
             return True
+        return False
+
+    def dispatch(self, request, *args, **kwargs):
+        # Block early for nicer UX (still keep the check in form_valid for safety)
+        user = request.user
+        if (
+            user.is_authenticated
+            and not user.is_superuser
+            and hasattr(user, "userprofile")
+            and user.userprofile.is_pi
+            and Project.objects.filter(pi=user).count() >= MAX_PROJECTS_PER_PI
+        ):
+            messages.error(request, f"You can only create up to {MAX_PROJECTS_PER_PI} projects.")
+            return redirect("project-list")  # change to wherever you want to send them
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        project_obj = form.save(commit=False)
-        form.instance.pi = self.request.user
-        form.instance.status = ProjectStatusChoice.objects.get(name="New")
-        project_obj.save()
-        self.object = project_obj
+        user = self.request.user
 
-        project_user_obj = ProjectUser.objects.create(
-            user=self.request.user,
+        with transaction.atomic():
+            current_count = Project.objects.select_for_update().filter(pi=user).count()
+            if current_count >= MAX_PROJECTS_PER_PI:
+                form.add_error(None, f"You can only create up to {MAX_PROJECTS_PER_PI} projects.")
+                return self.form_invalid(form)
+
+            project_obj = form.save(commit=False)
+            project_obj.pi = user
+            project_obj.status = ProjectStatusChoice.objects.get(name="New")
+            project_obj.save()
+            self.object = project_obj
+
+
+        ProjectUser.objects.create(
+            user=user,
             project=project_obj,
             role=ProjectUserRoleChoice.objects.get(name="Manager"),
             status=ProjectUserStatusChoice.objects.get(name="Active"),

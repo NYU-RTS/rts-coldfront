@@ -2,6 +2,7 @@ import logging
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.urls import reverse
 
 from coldfront.core.test_helpers.factories import (
     UserFactory,
@@ -20,7 +21,12 @@ from coldfront.core.project.models import (
     ProjectAttributeType,
     ProjectUser,
     ProjectPermission,
+    ProjectStatusChoice,
 )
+from coldfront.core.utils.common import import_from_settings
+
+
+MAX_PROJECTS_PER_PI = import_from_settings("MAX_PROJECTS_PER_PI")
 
 logging.disable(logging.CRITICAL)
 
@@ -32,9 +38,15 @@ class TestProject(TestCase):
         def __init__(self):
             user = UserFactory(username="cgray")
             user.userprofile.is_pi = True
+            user.userprofile.save()
 
             school = SchoolFactory(description="Tandon School of Engineering")
             status = ProjectStatusChoiceFactory(name="Active")
+
+            # Ensure the status of "New" expects exists
+            ProjectStatusChoiceFactory(name="New")
+            ProjectUserRoleChoiceFactory(name="Manager")
+            ProjectUserStatusChoiceFactory(name="Active")
 
             self.initial_fields = {
                 "pi": user,
@@ -47,8 +59,51 @@ class TestProject(TestCase):
 
             self.unsaved_object = Project(**self.initial_fields)
 
+            # POST payload for the CreateView (fields = title, description, school)
+            self.create_post_data = {
+                "title": "P4 attempt",
+                "description": "desc",
+                "school": school.pk,
+            }
+
+            self.user = user
+            self.school = school
+
     def setUp(self):
         self.data = self.Data()
+
+    def test_pi_cannot_create_more_than_three_projects(self):
+        """Test that a PI cannot create more than MAX_PROJECTS_PER_PI projects."""
+        user = self.data.initial_fields["pi"]
+
+        # Create MAX_PROJECTS_PER_PI (3 by default) existing projects for this PI
+        for i in range(MAX_PROJECTS_PER_PI):
+            Project.objects.create(
+                pi=user,
+                title=f"Existing {i}",
+                description="d",
+                school=self.data.initial_fields["school"],
+                status=ProjectStatusChoice.objects.get(name="New"),
+            )
+
+        self.assertEqual(MAX_PROJECTS_PER_PI, Project.objects.filter(pi=user).count())
+
+        self.client.force_login(user)
+
+        post_data = {
+            "title": "P4 attempt",
+            "description": "desc",
+            "school": self.data.initial_fields["school"].pk,
+        }
+
+        resp = self.client.post(reverse("project-create"), data=post_data)
+
+        # You are redirecting on failure (Location should show /project/)
+        self.assertEqual(302, resp.status_code)
+        self.assertEqual("/project/", resp["Location"])
+
+        # Core requirement: still only MAX_PROJECTS_PER_PI projects
+        self.assertEqual(MAX_PROJECTS_PER_PI, Project.objects.filter(pi=user).count())
 
     def test_fields_generic(self):
         """Test that generic project fields save correctly"""
@@ -179,9 +234,7 @@ class TestProject(TestCase):
         active_status = ProjectUserStatusChoiceFactory(name="Active")
 
         # Step 4: Assign the user as a manager to the project
-        ProjectUser.objects.create(
-            project=project, user=manager_user, role=manager_role, status=active_status
-        )
+        ProjectUser.objects.create(project=project, user=manager_user, role=manager_role, status=active_status)
 
         # Step 5: Assert that the manager has the MANAGER permission
         permissions = project.user_permissions(manager_user)
@@ -221,8 +274,6 @@ class TestProjectAttribute(TestCase):
         """Test that the attribute value must match the attribute type"""
 
         proj_attr_type = ProjectAttributeType.objects.get(name="Account Number")
-        new_attr = ProjectAttribute(
-            project=self.project, proj_attr_type=proj_attr_type, value="abc"
-        )
+        new_attr = ProjectAttribute(project=self.project, proj_attr_type=proj_attr_type, value="abc")
         with self.assertRaises(ValidationError):
             new_attr.clean()
