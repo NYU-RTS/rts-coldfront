@@ -4,6 +4,10 @@ from django.test import TestCase
 
 from coldfront.core.test_helpers import utils
 from coldfront.core.test_helpers.factories import (
+    AllocationFactory,
+    AllocationStatusChoiceFactory,
+    AllocationUserFactory,
+    AllocationUserStatusChoiceFactory,
     UserFactory,
     ProjectFactory,
     ProjectUserFactory,
@@ -32,17 +36,18 @@ class ProjectViewTestBase(TestCase):
         cls.project_user = project_user.user
 
         manager_role = ProjectUserRoleChoiceFactory(name="Manager")
-        pi_user = ProjectUserFactory(
-            project=cls.project, role=manager_role, user=cls.project.pi
-        )
+        pi_user = ProjectUserFactory(project=cls.project, role=manager_role, user=cls.project.pi)
         cls.pi_user = pi_user.user
+        cls.manager_user = ProjectUserFactory(project=cls.project, role=manager_role)
         cls.admin_user = UserFactory(is_staff=True, is_superuser=True)
         cls.nonproject_user = UserFactory(is_staff=False, is_superuser=False)
 
         attributetype = PAttributeTypeFactory(name="string")
-        cls.projectattributetype = ProjectAttributeTypeFactory(
-            attribute_type=attributetype
-        )
+        cls.projectattributetype = ProjectAttributeTypeFactory(attribute_type=attributetype)
+
+        cls.allocation = AllocationFactory(status=AllocationStatusChoiceFactory(name="active"), project=cls.project)
+        active_ausc = AllocationUserStatusChoiceFactory(name="Active")
+        cls.pi_as_alloc_user = AllocationUserFactory(allocation=cls.allocation, status=active_ausc)
 
     def project_access_tstbase(self, url):
         """Test basic access control for project views. For all project views:
@@ -94,9 +99,7 @@ class ProjectDetailViewTest(ProjectViewTestBase):
         # pi can see request allocation button
         utils.page_contains_for_user(self, self.pi_user, self.url, button_text)
         # non-manager user cannot see request allocation button
-        utils.page_does_not_contain_for_user(
-            self, self.project_user, self.url, button_text
-        )
+        utils.page_does_not_contain_for_user(self, self.project_user, self.url, button_text)
 
     def test_projectdetail_edituser_button_visibility(self):
         """Test visibility of projectdetail edit button across user levels"""
@@ -105,24 +108,22 @@ class ProjectDetailViewTest(ProjectViewTestBase):
         # pi can see edit button
         utils.page_contains_for_user(self, self.pi_user, self.url, "fa-user-edit")
         # non-manager user cannot see edit button
-        utils.page_does_not_contain_for_user(
-            self, self.project_user, self.url, "fa-user-edit"
-        )
+        utils.page_does_not_contain_for_user(self, self.project_user, self.url, "fa-user-edit")
 
     def test_projectdetail_addnotification_button_visibility(self):
         """Test visibility of projectdetail add notification button across user levels"""
         # admin can see add notification button
-        utils.page_contains_for_user(
-            self, self.admin_user, self.url, "Add Notification"
-        )
+        utils.page_contains_for_user(self, self.admin_user, self.url, "Add Notification")
         # pi cannot see add notification button
-        utils.page_does_not_contain_for_user(
-            self, self.pi_user, self.url, "Add Notification"
-        )
+        utils.page_does_not_contain_for_user(self, self.pi_user, self.url, "Add Notification")
         # non-manager user cannot see add notification button
-        utils.page_does_not_contain_for_user(
-            self, self.project_user, self.url, "Add Notification"
-        )
+        utils.page_does_not_contain_for_user(self, self.project_user, self.url, "Add Notification")
+
+    def test_manager_can_view_allocations(self):
+        """Project Manager should be able to view allocations on the project
+        without being a user on the Allocation"""
+        response = utils.login_and_get_page(self.client, self.manager_user.user, self.url)
+        self.assertEqual(len(response.context["allocations"]), 1)
 
 
 class ProjectCreateTest(ProjectViewTestBase):
@@ -152,9 +153,7 @@ class ProjectAttributeCreateTest(ProjectViewTestBase):
         """Set up users and project for testing"""
         super(ProjectAttributeCreateTest, cls).setUpTestData()
         int_attributetype = PAttributeTypeFactory(name="Int")
-        cls.int_projectattributetype = ProjectAttributeTypeFactory(
-            attribute_type=int_attributetype
-        )
+        cls.int_projectattributetype = ProjectAttributeTypeFactory(attribute_type=int_attributetype)
         cls.url = f"/project/{cls.project.pk}/project-attribute-create/"
 
     def test_project_access(self):
@@ -180,9 +179,7 @@ class ProjectAttributeCreateTest(ProjectViewTestBase):
             },
         )
         redirect_url = f"/project/{self.project.pk}/"
-        self.assertRedirects(
-            response, redirect_url, status_code=302, target_status_code=200
-        )
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_project_attribute_create_post_required_values(self):
         """ProjectAttributeCreate correctly flags missing project or value"""
@@ -195,9 +192,7 @@ class ProjectAttributeCreateTest(ProjectViewTestBase):
                 "value": "test_value",
             },
         )
-        self.assertFormError(
-            response.context["form"], "project", "This field is required."
-        )
+        self.assertFormError(response.context["form"], "project", "This field is required.")
         # missing value
         response = self.client.post(
             self.url,
@@ -206,9 +201,7 @@ class ProjectAttributeCreateTest(ProjectViewTestBase):
                 "project": self.project.pk,
             },
         )
-        self.assertFormError(
-            response.context["form"], "value", "This field is required."
-        )
+        self.assertFormError(response.context["form"], "value", "This field is required.")
 
     def test_project_attribute_create_value_type_match(self):
         """ProjectAttributeCreate correctly flags value-type mismatch"""
@@ -223,9 +216,7 @@ class ProjectAttributeCreateTest(ProjectViewTestBase):
                 "project": self.project.pk,
             },
         )
-        self.assertFormError(
-            response.context["form"], None, "Invalid Value True. Value must be an int."
-        )
+        self.assertFormError(response.context["form"], None, "Invalid Value True. Value must be an int.")
 
 
 class ProjectAttributeUpdateTest(ProjectViewTestBase):
@@ -281,9 +272,7 @@ class ProjectListViewTest(ProjectViewTestBase):
         super(ProjectListViewTest, cls).setUpTestData()
         # add 100 projects to test pagination, permissions, search functionality
         additional_projects = [ProjectFactory() for i in list(range(100))]
-        cls.additional_projects = [
-            p for p in additional_projects if p.pi.last_name != cls.project.pi.last_name
-        ]
+        cls.additional_projects = [p for p in additional_projects if p.pi.last_name != cls.project.pi.last_name]
         cls.url = "/project/"
 
     ### ProjectListView access tests ###
@@ -305,9 +294,7 @@ class ProjectListViewTest(ProjectViewTestBase):
         response = utils.login_and_get_page(self.client, self.project_user, self.url)
         self.assertEqual(len(response.context["object_list"]), 1)
         proj_user = self.project.projectuser_set.get(user=self.project_user)
-        proj_user.status, _ = ProjectUserStatusChoice.objects.get_or_create(
-            name="Removed"
-        )
+        proj_user.status, _ = ProjectUserStatusChoice.objects.get_or_create(name="Removed")
         proj_user.save()
         response = utils.login_and_get_page(self.client, self.project_user, self.url)
         self.assertEqual(len(response.context["object_list"]), 0)
@@ -335,10 +322,7 @@ class ProjectListViewTest(ProjectViewTestBase):
     def test_project_list_search(self):
         """Test that project list search works."""
         url_base = self.url + "?show_all_projects=on"
-        url = (
-            f"{url_base}&last_name={self.project.pi.last_name}"
-            + f"&school={self.project.school.description}"
-        )
+        url = f"{url_base}&last_name={self.project.pi.last_name}" + f"&school={self.project.school.description}"
         # search by project project_title
         response = utils.login_and_get_page(self.client, self.admin_user, url)
         self.assertEqual(len(response.context["object_list"]), 1)
