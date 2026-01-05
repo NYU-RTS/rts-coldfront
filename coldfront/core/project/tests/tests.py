@@ -2,6 +2,7 @@ import logging
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.urls import reverse
 
 from coldfront.core.test_helpers.factories import (
     UserFactory,
@@ -22,7 +23,10 @@ from coldfront.core.project.models import (
     ProjectPermission,
     ProjectStatusChoice,
 )
-from django.urls import reverse
+from coldfront.core.utils.common import import_from_settings
+
+
+MAX_PROJECTS_PER_PI = import_from_settings("MAX_PROJECTS_PER_PI")
 
 logging.disable(logging.CRITICAL)
 
@@ -72,8 +76,8 @@ class TestProject(TestCase):
         """Test that a PI cannot create more than MAX_PROJECTS_PER_PI projects."""
         user = self.data.initial_fields["pi"]
 
-        # Create 3 existing projects for this PI
-        for i in range(3):
+        # Create MAX_PROJECTS_PER_PI (3 by default) existing projects for this PI
+        for i in range(MAX_PROJECTS_PER_PI):
             Project.objects.create(
                 pi=user,
                 title=f"Existing {i}",
@@ -82,7 +86,7 @@ class TestProject(TestCase):
                 status=ProjectStatusChoice.objects.get(name="New"),
             )
 
-        self.assertEqual(3, Project.objects.filter(pi=user).count())
+        self.assertEqual(MAX_PROJECTS_PER_PI, Project.objects.filter(pi=user).count())
 
         self.client.force_login(user)
 
@@ -98,8 +102,8 @@ class TestProject(TestCase):
         self.assertEqual(302, resp.status_code)
         self.assertEqual("/project/", resp["Location"])
 
-        # Core requirement: still only 3 projects
-        self.assertEqual(3, Project.objects.filter(pi=user).count())
+        # Core requirement: still only MAX_PROJECTS_PER_PI projects
+        self.assertEqual(MAX_PROJECTS_PER_PI, Project.objects.filter(pi=user).count())
 
     def test_fields_generic(self):
         """Test that generic project fields save correctly"""
@@ -230,9 +234,7 @@ class TestProject(TestCase):
         active_status = ProjectUserStatusChoiceFactory(name="Active")
 
         # Step 4: Assign the user as a manager to the project
-        ProjectUser.objects.create(
-            project=project, user=manager_user, role=manager_role, status=active_status
-        )
+        ProjectUser.objects.create(project=project, user=manager_user, role=manager_role, status=active_status)
 
         # Step 5: Assert that the manager has the MANAGER permission
         permissions = project.user_permissions(manager_user)
@@ -272,8 +274,6 @@ class TestProjectAttribute(TestCase):
         """Test that the attribute value must match the attribute type"""
 
         proj_attr_type = ProjectAttributeType.objects.get(name="Account Number")
-        new_attr = ProjectAttribute(
-            project=self.project, proj_attr_type=proj_attr_type, value="abc"
-        )
+        new_attr = ProjectAttribute(project=self.project, proj_attr_type=proj_attr_type, value="abc")
         with self.assertRaises(ValidationError):
             new_attr.clean()
