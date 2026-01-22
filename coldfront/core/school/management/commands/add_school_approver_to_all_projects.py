@@ -1,9 +1,9 @@
-import logging
 import argparse
+import logging
 
 from django.core.management.base import BaseCommand
 
-from coldfront.core.project.models import Project, ProjectUser
+from coldfront.core.project.models import Project, ProjectUser, ProjectUserRoleChoice
 from coldfront.core.school.models import School
 from coldfront.core.user.models import User
 from coldfront.core.utils.common import import_from_settings
@@ -49,6 +49,7 @@ class Command(BaseCommand):
             approver: User = User.objects.get(username=options["username"])
             school: School = School.objects.get(description=options["school"])
             dry_run: bool = options["dry_run"]
+            manager_role: ProjectUserRoleChoice = ProjectUserRoleChoice.objects.get(name="manager")
 
             schools_for_approver = approver.userprofile.schools.all()
             if school not in schools_for_approver:
@@ -64,6 +65,10 @@ class Command(BaseCommand):
                         approver_in_project = True
                 if not approver_in_project:
                     logger.info(f"approver {approver} not in project {project} and will be added")
+                    if not dry_run:
+                        approver_as_manager, status = ProjectUser.objects.get_or_create(
+                            ProjectUser(user=approver, project=project, role=manager_role)
+                        )
 
         except Exception:
             logger.warning("Exception occurred with traceback:", exc_info=True)
