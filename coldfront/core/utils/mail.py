@@ -106,10 +106,12 @@ def send_allocation_admin_email(allocation_obj, subject, template_name, url_path
     pi = allocation_obj.project.pi
     pi_name = f"{pi.first_name} {pi.last_name} ({pi.username})"
     resource_name = allocation_obj.get_parent_resource
+    project_name = allocation_obj.project.title
     project_school = allocation_obj.project.school
 
     ctx = email_template_context()
     ctx["pi"] = pi_name
+    ctx["project"] = project_name
     ctx["resource"] = resource_name
     ctx["url"] = url
 
