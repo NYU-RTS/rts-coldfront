@@ -106,10 +106,12 @@ def send_allocation_admin_email(allocation_obj, subject, template_name, url_path
     pi = allocation_obj.project.pi
     pi_name = f"{pi.first_name} {pi.last_name} ({pi.username})"
     resource_name = allocation_obj.get_parent_resource
+    project_name = allocation_obj.project.title
     project_school = allocation_obj.project.school
 
     ctx = email_template_context()
     ctx["pi"] = pi_name
+    ctx["project"] = project_name
     ctx["resource"] = resource_name
     ctx["url"] = url
 
@@ -151,10 +153,18 @@ def send_allocation_customer_email(allocation_obj, subject, template_name, url_p
     ctx["resource"] = allocation_obj.get_parent_resource
     ctx["url"] = url
 
+    # Get all approvers whose schools include this project's school
+    project_school = allocation_obj.project.school
+    approvers = User.objects.filter(userprofile__approver_profile__schools=project_school, is_active=True).distinct()
+
     allocation_users = allocation_obj.allocationuser_set.exclude(status__name__in=["Removed", "Error"])
     email_receiver_list = []
     for allocation_user in allocation_users:
         if allocation_user.allocation.project.projectuser_set.get(user=allocation_user.user).enable_notifications:
             email_receiver_list.append(allocation_user.user.email)
+
+    # also let the school approvers know that an allocation was approved
+    for approver in approvers:
+        email_receiver_list.append(approver.email)
 
     send_email_template(subject, template_name, ctx, EMAIL_SENDER, email_receiver_list)
