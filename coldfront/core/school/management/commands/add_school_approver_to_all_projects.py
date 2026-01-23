@@ -42,14 +42,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             logger.info(
-                f"received a request to add {options['username']} to all \
-                projects associated with school {options['school']}. \
-                Value of dry run arg is {options['dry_run']}"
+                f"""received a request to add {options["username"]} to all \
+                projects associated with school {options["school"]}. \
+                Value of dry run arg is {options["dry_run"]}"""
             )
             approver: User = User.objects.get(username=options["username"])
             school: School = School.objects.get(description=options["school"])
             dry_run: bool = options["dry_run"]
-            manager_role: ProjectUserRoleChoice = ProjectUserRoleChoice.objects.get(name="manager")
+            manager_role: ProjectUserRoleChoice = ProjectUserRoleChoice.objects.get(name="Manager")
 
             schools_for_approver = approver.userprofile.schools.all()
             if school not in schools_for_approver:
@@ -67,7 +67,7 @@ class Command(BaseCommand):
                     logger.info(f"approver {approver} not in project {project} and will be added")
                     if not dry_run:
                         approver_as_manager, status = ProjectUser.objects.get_or_create(
-                            ProjectUser(user=approver, project=project, role=manager_role)
+                            user=approver, project=project, role=manager_role
                         )
                         logger.info(f"Status of adding approver {approver} to project {project} is {status}")
 
