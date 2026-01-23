@@ -1,21 +1,21 @@
 from io import StringIO
 
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import Permission
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.test import TestCase
 
+from coldfront.core.project.models import ProjectUser
 from coldfront.core.school.models import School
-from coldfront.core.project.models import Project, ProjectUser, ProjectUserRoleChoice, ProjectUserStatusChoice
-from coldfront.core.user.models import UserProfile, ApproverProfile
 from coldfront.core.test_helpers.factories import (
-    SchoolFactory,
     ProjectFactory,
-    UserFactory,
+    ProjectStatusChoiceFactory,
     ProjectUserRoleChoiceFactory,
     ProjectUserStatusChoiceFactory,
-    ProjectStatusChoiceFactory,
+    SchoolFactory,
+    UserFactory,
 )
+from coldfront.core.user.models import ApproverProfile
 
 
 class TestSchool(TestCase):
