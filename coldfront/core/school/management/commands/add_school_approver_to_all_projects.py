@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 
 from coldfront.core.project.models import Project, ProjectUser, ProjectUserRoleChoice, ProjectUserStatusChoice
 from coldfront.core.school.models import School
-from coldfront.core.user.models import User
+from coldfront.core.user.models import User, ApproverProfile
 from coldfront.core.utils.common import import_from_settings
 
 logger = logging.getLogger(__name__)
@@ -52,18 +52,16 @@ class Command(BaseCommand):
             manager_role: ProjectUserRoleChoice = ProjectUserRoleChoice.objects.get(name="Manager")
             active_status: ProjectUserStatusChoice = ProjectUserStatusChoice.objects.get(name="Active")
 
-            schools_for_approver = approver.userprofile.schools.all()
+            approver_profile = approver.userprofile.approverprofile
+            schools_for_approver = approver_profile.schools.all()
+
             if school not in schools_for_approver:
-                logger.warn(f"User {approver} is not school approver for {school}")
+                logger.warning(f"User {approver} is not school approver for {school}")
                 return
 
             projects_for_school = Project.objects.filter(school=school)
             for project in projects_for_school:
-                approver_in_project: bool = False
-                project_members = ProjectUser.objects.filter(project=project)
-                for member in project_members:
-                    if approver.username == member.user.username:
-                        approver_in_project = True
+                approver_in_project = ProjectUser.objects.filter(project=project, user=approver).exists()
                 if not approver_in_project:
                     logger.info(f"approver {approver} not in project {project} and will be added")
                     if not dry_run:
