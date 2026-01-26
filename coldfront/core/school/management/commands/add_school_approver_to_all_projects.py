@@ -52,7 +52,7 @@ class Command(BaseCommand):
             manager_role: ProjectUserRoleChoice = ProjectUserRoleChoice.objects.get(name="Manager")
             active_status: ProjectUserStatusChoice = ProjectUserStatusChoice.objects.get(name="Active")
 
-            approver_profile = approver.userprofile.approverprofile
+            approver_profile = approver.userprofile.approver_profile
             schools_for_approver = approver_profile.schools.all()
 
             if school not in schools_for_approver:
