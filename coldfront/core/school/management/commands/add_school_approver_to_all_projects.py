@@ -42,9 +42,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             logger.info(
-                f"""received a request to add {options["username"]} to all \
-                projects associated with school {options["school"]}. \
-                Value of dry run arg is {options["dry_run"]}"""
+                f"""received a request to add '{options["username"]}' to all \
+                projects associated with school '{options["school"]}'. \
+                Value of dry run arg is '{options["dry_run"]}'."""
             )
             approver: User = User.objects.get(username=options["username"])
             school: School = School.objects.get(description=options["school"])
@@ -63,7 +63,7 @@ class Command(BaseCommand):
             for project in projects_for_school:
                 approver_in_project = ProjectUser.objects.filter(project=project, user=approver).exists()
                 if not approver_in_project:
-                    logger.info(f"approver {approver} not in project {project} and will be added")
+                    logger.info(f"approver '{approver}' not in project '{project}' and will be added")
                     if not dry_run:
                         approver_as_manager, status = ProjectUser.objects.get_or_create(
                             user=approver,
@@ -71,7 +71,7 @@ class Command(BaseCommand):
                             role=manager_role,
                             status=active_status,
                         )
-                        logger.info(f"Status of adding approver {approver} to project {project} is {status}")
+                        logger.info(f"Status of adding approver '{approver}' to project '{project}' is '{status}'")
 
         except Exception:
             logger.warning("Exception occurred with traceback:", exc_info=True)
