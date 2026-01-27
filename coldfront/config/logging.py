@@ -24,7 +24,7 @@ MESSAGE_TAGS = {
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "root": {"level": "INFO", "handlers": ["file"]},
+    "root": {"level": "INFO", "handlers": ["console", "file"]},
     "formatters": {
         "standard": {
             "format": "{levelname} {asctime} {module} {thread:d} {message}",

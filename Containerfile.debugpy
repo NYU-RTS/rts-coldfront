@@ -1,12 +1,20 @@
-FROM debian:bookworm-slim
+FROM python:3.12-slim-trixie
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /usr/src/app
-COPY ../../. .
+WORKDIR /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project
+COPY . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --extra prod --dev
 
 ENV DEBUG=True
 ENV PYTHONUNBUFFERED=1
@@ -17,7 +25,6 @@ ENV XDMOD_API_URL="localhost"
 EXPOSE 8000
 EXPOSE 5678
 
-RUN uv sync --extra prod --dev
 RUN echo "yes" | uv run manage.py initial_setup
 RUN uv run manage.py load_test_data
 
