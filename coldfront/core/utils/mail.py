@@ -149,8 +149,15 @@ def send_allocation_customer_email(allocation_obj, subject, template_name, url_p
         url_path = reverse("allocation-detail", kwargs={"pk": allocation_obj.pk})
 
     url = build_link(url_path, domain_url=domain_url)
+
+    resource_name = allocation_obj.get_parent_resource
+    project_name = allocation_obj.project.title
+    project_school = allocation_obj.project.school
+
     ctx = email_template_context()
-    ctx["resource"] = allocation_obj.get_parent_resource
+    ctx["project"] = project_name
+    ctx["resource"] = resource_name
+    ctx["school"] = project_school
     ctx["url"] = url
 
     # Get all approvers whose schools include this project's school
