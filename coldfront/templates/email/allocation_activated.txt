@@ -1,15 +1,12 @@
 Dear {{center_name}} user,
 
-Your allocation request for {{resource}} has been activated. The changes
-will be synced to Torch HPC cluster in two hours.
+Your allocation for {{resource}} as part of the project {{project}} associated with the school {{school}} has been activated. The changes will be synced to Torch HPC cluster in two hours.
 
-To view your allocations information, please go to:
+To view your allocation details, please go to:
 
 {{url}}
 
-If you are a student or collaborator under this project, you are receiving this
-notice as a courtesy. If you would like to opt out of future notifications,
-instructions can be found here: {{opt_out_instruction_url}}
+If you are a student or collaborator under this project, you are receiving this notice as a courtesy. 
 
 Thank you,
 {{signature}}
