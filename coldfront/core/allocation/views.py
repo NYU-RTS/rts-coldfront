@@ -667,7 +667,7 @@ class AllocationCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         AllocationAttribute.objects.get_or_create(
             allocation_attribute_type=alloc_attr_slurm_specs,
             allocation=allocation_obj,
-            value=f"Description='{allocation_obj.project.title.replace(':', ';').replace("'s", '').replace("'", '')}'",
+            value=f"Description='{allocation_obj.project.title.replace(':', ';').replace("'s", '').replace("'", ''):.96}'",
         )
 
         if ALLOCATION_ACCOUNT_ENABLED and allocation_account and resource_obj.name in ALLOCATION_ACCOUNT_MAPPING:
