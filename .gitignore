@@ -1,3 +1,6 @@
+#jujutsu
+.jj/*
+
 *.py[cod]
 *.swp
 coldfront.egg-info
