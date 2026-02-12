@@ -1,0 +1,1 @@
+import{$ as a,D as t,a as l}from"./util.js";a(document).ready(function(){n()});function n(){a.ajax({headers:{"X-CSRFToken":l("csrftoken")},type:"GET",url:"/allocation-summary",success:function(o){a("#allocation-summary").html(o);const e=a("#allocation-summary-table");e!==null&&new t(e[0],{pageLength:10,orderClasses:!1,order:[[1,"desc"]]})}})}

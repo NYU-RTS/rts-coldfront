@@ -1,0 +1,13 @@
+/*
+ * SPDX-FileCopyrightText: (C) ColdFront Authors
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+// Import only what we need from font awesome
+@use '~fontawesome/scss/fontawesome';
+@use '~fontawesome/scss/solid';
+@use '~fontawesome/scss/regular';
+@use '~fontawesome/scss/brands';
+
+$fa-font-path: '/static' !default;

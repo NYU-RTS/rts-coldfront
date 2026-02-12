@@ -3,7 +3,6 @@ Base Django settings for ColdFront project.
 """
 
 import os
-import sys
 import coldfront
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management.utils import get_random_secret_key
@@ -50,15 +49,13 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
 ]
 
-# Additional Apps
-# Hack to fix fontawesome. Will be fixed in version 6
-sys.modules["fontawesome_free"] = __import__("fontawesome-free")
 INSTALLED_APPS += [
     "crispy_forms",
     "crispy_bootstrap4",
     "django_q",
     "simple_history",
-    "fontawesome_free",
+    "django_vite",
+    "django_htmx",
 ]
 
 # ColdFront Apps
@@ -148,9 +145,18 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 SETTINGS_EXPORT = []
 
 STATIC_URL = "/static/"
+
+DJANGO_VITE = {
+    "default": {
+        "dev_mode": ENV.bool("DJANGO_VITE_DEV_MODE", default=False),
+        "dev_server_port": ENV.int("DJANGO_VITE_SERVER_PORT", default=5173),
+    }
+}
+
 STATIC_ROOT = ENV.str("STATIC_ROOT", default=PROJECT_ROOT("static_root"))
 STATICFILES_DIRS = [
-    PROJECT_ROOT("coldfront/static"),
+    PROJECT_ROOT("coldfront/static/bundles"),
+    PROJECT_ROOT("coldfront/static/assets"),
 ]
 
 # Add local site static files if set

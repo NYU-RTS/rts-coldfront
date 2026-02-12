@@ -30,6 +30,8 @@ class GrantForm(ModelForm):
         self.fields["funding_agency"].queryset = self.fields[
             "funding_agency"
         ].queryset.order_by("name")
+        self.fields["grant_start"].widget.attrs["class"] = "datepicker"
+        self.fields["grant_end"].widget.attrs["class"] = "datepicker"
 
 
 class GrantDeleteForm(forms.Form):
