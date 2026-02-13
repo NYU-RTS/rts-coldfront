@@ -75,34 +75,7 @@ Request New Allocation
   $(document).ready(function () {
     $('<br><input id="selectAll" class="check" type="checkbox"> <strong>Select All Users</strong>').insertAfter($("#div_id_users > label"))
     $("#id_resource").trigger('change');
-
-    $("#selectAll").click(function () {
-      $("input[name^='users']").prop('checked', $(this).prop('checked'));
-    });
-
-    $("input[name^='users']").click(function (ele) {
-      var id = $(this).attr('id');
-      if (id != "selectAll") {
-        $("#selectAll").prop('checked', false);
-      }
-    });
   });
-
-  function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-      var cookies = document.cookie.split(';');
-      for (var i = 0; i < cookies.length; i++) {
-        var cookie = jQuery.trim(cookies[i]);
-        // Does this cookie string begin with the name we want?
-        if (cookie.substring(0, name.length + 1) == (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  }
   $('#modal_link').on("click", function () {
     $('#Modal').modal('show');
   });

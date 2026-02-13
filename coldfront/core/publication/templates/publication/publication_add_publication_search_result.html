@@ -51,15 +51,3 @@
   </div>
 {% endif %}
 
-<script>
-  $("#selectAll").click(function() {
-    $("input[name^='pubform-']").prop('checked', $(this).prop('checked'));
-  });
-
-  $("input[name^='pubform-']").click(function(ele) {
-    var id = $(this).attr('id');
-    if (id != "selectAll") {
-      $("#selectAll").prop('checked', false);
-    }
-  });
-</script>

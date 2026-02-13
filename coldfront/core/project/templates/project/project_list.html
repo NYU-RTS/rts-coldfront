@@ -114,19 +114,5 @@ Project List
   $("#navbar-main > ul > li.active").removeClass("active");
   $("#navbar-project-menu").addClass("active");
   $("#navbar-project").addClass("active");
-
-  $(document).on('click', '#form_reset_button', function() {
-    resetForm($('#filter_form'));
-  });
-
-  function resetForm($form) {
-    $form.find('input:text, textarea').val('');
-  };
-
-  $("#expand_button").click(function() {
-    $('#collapseOne').collapse();
-    icon = $("#plus_minus");
-    icon.toggleClass("fa-plus fa-minus");
-  });
 </script>
 {% endblock %}

@@ -31,13 +31,6 @@
   $(document).ready(function () {
     drawAllocations();
     drawResources();
-    $('#resource-table').DataTable({
-      "iDisplayLength": 10,
-      "bSortClasses": false,
-      "order": [
-        [1, "desc"]
-      ]
-    });
   });
 
   function drawAllocations() {

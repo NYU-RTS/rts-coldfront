@@ -98,17 +98,6 @@ Renew Allocation
       $('#eula-div').show();
       $('#eula').show();
     }
-
-    $("#selectAll").click(function () {
-      $("input[name^='userform-']").prop('checked', $(this).prop('checked'));
-    });
-
-    $("input[name^='userform-']").click(function (ele) {
-      var id = $(this).attr('id');
-      if (id != "selectAll") {
-        $("#selectAll").prop('checked', false);
-      }
-    });
   });
 </script>
 {% endblock %}

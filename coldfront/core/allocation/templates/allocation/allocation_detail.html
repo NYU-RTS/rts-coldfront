@@ -448,44 +448,7 @@ Allocation Detail
     // Initialize Gauges
     var guage_data = {{ guage_data | safe }};
     drawGauges(guage_data);
-
-    // Initialize DataTables
-    $('#allocation_change_table').DataTable({
-      lengthMenu: [5, 10, 20, 50, 100],
-      "pageLength": 5,
-      "ordering": false,
-      'aoColumnDefs': [{
-        'bSortable': false,
-        'aTargets': ['nosort']
-      }]
-    });
-    $('#allocationuser_table').DataTable({
-      'aoColumnDefs': [{
-        'bSortable': false,
-        'aTargets': ['nosort']
-      }]
-    });
-
-    // MOVED THIS LINE INSIDE
-    $(".datepicker").flatpickr();
   });
-
-
-  function drawGauges(guage_data) {
-    var arrayLength = guage_data.length;
-    for (var i = 0; i < arrayLength; i++) {
-      c3.generate({
-        bindto: '#gauge-' + i,
-        data: guage_data[i],
-        legend: {
-          item: {
-            onclick: function (id) { }
-          }
-        }
-      });
-    }
-  }
-  $(".datepicker").flatpickr();
   $(document).on('click', '.confirm-activate', function(){
     var attributes_num = {{ attributes | length }};
     if (attributes_num == 0) {

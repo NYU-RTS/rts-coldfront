@@ -72,25 +72,5 @@ Grants Report
   $("#navbar-admin").addClass("active")
   $("#navbar-director").addClass("active")
   $("#navbar-grant-report").addClass("active")
-  $(document).ready(function() {
-    $('#grants-table').DataTable({
-      "iDisplayLength": 50,
-      "bSortClasses": false,
-      "order": [[ 5, "desc" ]],
-      "columnDefs": [{ 'orderable': false, 'targets': 0 }],
-      "aaSorting": [[1, 'asc']] 
-    });
-  });
-
-  $("#selectAll").click(function () {
-    $("input[name^='grantdownloadform-']").prop('checked', $(this).prop('checked'));
-  });
-
-  $("input[name^='grantdownloadform-']").click(function (ele) {
-    var id = $(this).attr('id');
-    if (id != "selectAll") {
-      $("#selectAll").prop('checked', false);
-    }
-  });
 </script>
 {% endblock %}

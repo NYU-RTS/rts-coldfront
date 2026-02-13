@@ -56,19 +56,4 @@ Delete Publications from Project
   </div>
 {% endif %}
 
-<script>
-  $(document).ready(function () {
-    $("input[name^='publicationform-']").click(function (ele) {
-      var id = $(this).attr('id');
-      if ( id != "selectAll") {
-        $("#selectAll").prop('checked', false);
-      }
-    });
-
-    $('#selectAll').click(function(e){
-      var table= $(e.target).closest('table');
-      $('td input:checkbox',table).prop('checked',this.checked);
-    });
-  });
-</script>
 {% endblock %}

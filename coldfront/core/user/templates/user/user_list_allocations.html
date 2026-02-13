@@ -36,18 +36,6 @@
         </div>
     </div>
   </div>
-  <script>
-    $(document).ready(function(){
-      $('#user-table').DataTable({
-        "iDisplayLength": 25,
-        "bSortClasses": false,
-        "columnDefs": [ {
-        "targets": 4,
-        "orderable": false
-      } ]
-      });
-    });
-  </script>
 {% else %}
   <div class="alert alert-secondary">
     You are not a PI on any project with an allocation!
