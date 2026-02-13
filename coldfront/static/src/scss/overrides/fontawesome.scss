@@ -4,10 +4,14 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+// Override font path before importing
+@use 'sass:meta';
+@use '~fontawesome/scss/variables' as fa-vars with (
+  $font-path: './webfonts'
+);
+
 // Import only what we need from font awesome
 @use '~fontawesome/scss/fontawesome';
 @use '~fontawesome/scss/solid';
 @use '~fontawesome/scss/regular';
 @use '~fontawesome/scss/brands';
-
-$fa-font-path: '/static' !default;

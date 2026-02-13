@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from "vite";
 import eslint from 'vite-plugin-eslint';
 import path from "path";
+import fs from "fs-extra";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -20,7 +21,17 @@ export default defineConfig(({ mode }) => {
         ),
       },
     },
-    plugins: [eslint()],
+    plugins: [
+      eslint(),
+      {
+        name: 'copy-webfonts',
+        writeBundle() {
+          const webfontsSource = path.resolve(__dirname, 'node_modules/@fortawesome/fontawesome-free/webfonts');
+          const webfontsDest = path.resolve(__dirname, 'bundles/webfonts');
+          fs.copySync(webfontsSource, webfontsDest);
+        }
+      }
+    ],
     base: "/static", // This should match django settings.STATIC_URL
     build: {
       // Where Vite will save its output files.
