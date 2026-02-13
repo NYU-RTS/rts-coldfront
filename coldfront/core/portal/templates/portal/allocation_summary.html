@@ -27,42 +27,7 @@
 </div>
 <!-- End Allocation Charts -->
 
-<script>
-  $(document).ready(function () {
-    drawAllocations();
-    drawResources();
-  });
+{{ allocations_chart_data|json_script:"allocations-chart-data" }}
+{{ resources_chart_data|json_script:"resources-chart-data" }}
 
-  function drawAllocations() {
-    var chart = c3.generate({
-      bindto: '#chartAllocations',
-      donut: {
-        title: "Allocations"
-      },
-      data: allocations_chart_data,
-      legend: {
-        item: {
-          onclick: function (id) { }
-        }
-      }
-    });
-  }
-
-  function drawResources() {
-    var chart = c3.generate({
-      bindto: '#chartResources',
-      data: resources_chart_data,
-      donut: {
-        title: "Active by Type"
-      },
-      legend: {
-        item: {
-          onclick: function (id) { }
-        }
-      }
-    });
-  }
-
-  var allocations_chart_data = {{ allocations_chart_data | safe }}
-  var resources_chart_data = {{ resources_chart_data | safe }}
-</script>
+{% include "common/bundle_snippet.html" with asset_name_ts="allocationSummary.ts" asset_name_js="coldfront-allocation-summary.js" %}

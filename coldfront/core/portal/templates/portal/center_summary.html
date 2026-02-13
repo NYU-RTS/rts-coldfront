@@ -105,84 +105,12 @@ Center Summary
   </div>
 </div>
 <!-- End Allocation Charts -->
-<script>
-  $("#navbar-main > ul > li.active").removeClass("active")
-  $("#navbar-center-summary").addClass("active")
 
-  $(document).ready(function () {
-    drawPublications();
-    drawGrantsByAgency();
-    // get_allocation_by_fos()
-    get_allocation_summary();
-  });
+{{ grants_agency_chart_data|json_script:"grants-agency-chart-data" }}
+{{ publication_by_year_bar_chart_data|json_script:"publication-by-year-bar-chart-data" }}
+{% endblock %}
 
-  function drawPublications() {
-    if (publication_by_year_bar_chart_data['columns'].length != 0) {
-      var chart = c3.generate({
-        bindto: '#chartPublications',
-        data: publication_by_year_bar_chart_data,
-        legend: {
-          show: false,
-          item: {
-            onclick: function (id) { }
-          }
-        },
-        axis: {
-          x: {
-            label: {
-              text: 'Year',
-              position: 'outer-center'
-            }
-          },
-          y: {
-            label: 'Number of Publications',
-            position: 'outer-middle'
-          }
-        }
-      });
-    };
-  }
-
-  function drawGrantsByAgency() {
-    if (grants_agency_chart_data['columns'].length != 0) {
-      var chart = c3.generate({
-        bindto: '#chartGrants',
-        data: grants_agency_chart_data,
-        donut: {
-          title: "Grants"
-        },
-        legend: {
-          item: {
-            onclick: function (id) { }
-          }
-        }
-      });
-    }
-  }
-
-  var grants_agency_chart_data = {{ grants_agency_chart_data | safe }}
-  var publication_by_year_bar_chart_data = {{ publication_by_year_bar_chart_data | safe }}
-
-  function get_allocation_summary() {
-    $.ajax({
-      headers: { 'X-CSRFToken': getCookie('csrftoken') },
-      type: "GET",
-      url: "/allocation-summary",
-      success: function (data) {
-        $('#allocation-summary').html(data);
-      }
-    });
-  };
-
-  function get_allocation_by_fos() {
-    $.ajax({
-      headers: { 'X-CSRFToken': getCookie('csrftoken') },
-      type: "GET",
-      url: "/allocation-by-fos",
-      success: function (data) {
-        $('#allocation-by-fos').html(data);
-      }
-    });
-  };
-</script>
+{% block javascript %}
+{{ block.super }}
+{% include "common/bundle_snippet.html" with asset_name_ts="centerSummary.ts" asset_name_js="coldfront-center-summary.js" %}
 {% endblock %}
