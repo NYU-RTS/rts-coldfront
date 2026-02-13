@@ -1,17 +1,9 @@
 <li id="navbar-user" class="nav-item dropdown">
   <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-    <i class="fas fa-user" aria-hidden="true"></i>
-    {{user.username}}
+    <i class="fas fa-user" aria-hidden="true"></i> {{user.username}}
   </a>
   <div class="dropdown-menu">
-    <a id="navbar-user-user-profile" class="dropdown-item" href="{% url 'user-profile' %}"><i class="fas fa-user-circle" aria-hidden="true"></i>
-      User Profile</a>
+    <a id="navbar-user-user-profile" class="dropdown-item" href="{% url 'user-profile' %}"><i class="fas fa-user-circle" aria-hidden="true"></i> User Profile</a>
+    <button class="dropdown-item" hx-post="{% url 'logout' %}" hx-swap="none"><i class="fas fa-sign-out-alt" aria-hidden="true"></i> Log Out</button>
   </div>
 </li>
-<ul class="navbar-nav ml-auto">
-  <form class="form-inline" action="{% url 'logout' %}" method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn-nyu-primary-violet"><i class="fas fa-sign-out-alt" aria-hidden="true"></i>
-      Log Out</button>
-  </form>
-</ul>
