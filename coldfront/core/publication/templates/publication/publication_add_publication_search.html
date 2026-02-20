@@ -69,6 +69,12 @@ Add Publication to Project
         }
     });
   };
+
+  // Bootstrap 5 popovers
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
+      new bootstrap.Popover(el);
+    });
 });
 </script>
 {% endblock %}

@@ -98,9 +98,13 @@ Add Users to Project
     });
   };
 
-  $(document).ready(function(){
-    $('#search_results').hide();
-    $('#selected_users').hide();
-});
+  $(function () {
+      $('#search_results').hide();
+      $('#selected_users').hide();
+
+      document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
+        new bootstrap.Popover(el);
+      });
+  });
 </script>
 {% endblock %}
