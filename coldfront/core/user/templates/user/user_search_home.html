@@ -9,8 +9,10 @@
     <form method="post" action="/search-ldap" id="post-form">
     {% csrf_token %}
     {{ user_search_form|crispy }}
-    <button id="search-button" type="submit" class="btn btn-success btn-block"><i class="fas fa-search" aria-hidden="true"></i> Search</button>
+    <div class="d-grid gap-2">
+      <button id="search-button" type="submit" class="btn btn-success"><i class="fas fa-search" aria-hidden="true"></i> Search</button>
     </form>
+    </div>
   </div>
 </div>
 
@@ -52,9 +54,9 @@
     $.ajax({
         url : "/user/user-search-results/", // the endpoint
         type : "POST", // http method
-        data : { 
-          q : q, 
-          search_by : search_by, 
+        data : {
+          q : q,
+          search_by : search_by,
           csrfmiddlewaretoken: "{{ csrf_token }}"
         }, // data sent with the post request
         // handle a successful response
@@ -73,10 +75,13 @@
           console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
         }
     });
-  };
+  }
 
-  $(document).ready(function(){
-      $('[data-toggle="popover"]').popover();
+  // Bootstrap 5 popovers (no jQuery plugin)
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
+      new bootstrap.Popover(el);
+    });
   });
 </script>
 {% endblock %}
