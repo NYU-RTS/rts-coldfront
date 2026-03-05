@@ -7,11 +7,14 @@ XDMOD_API_URL = import_from_settings("XDMOD_API_URL", "https://localhost")
 
 logger = logging.getLogger(__name__)
 
+
 class XDMoDConnectivityError(Exception):
     pass
 
+
 class XDMoDFetchError(Exception):
     pass
+
 
 def _worker(q: Queue, url: str, metric: str, account: str) -> None:
     try:
@@ -28,6 +31,7 @@ def _worker(q: Queue, url: str, metric: str, account: str) -> None:
     except Exception as e:
         # Send back a lightweight, picklable error payload
         q.put(("err", (e.__class__.__name__, str(e))))
+
 
 def fetch_xdmod_with_timeout(url: str, metric: str, account: str, timeout_s: float = 15.0):
     q: Queue = Queue()
@@ -55,6 +59,7 @@ def fetch_xdmod_with_timeout(url: str, metric: str, account: str, timeout_s: flo
             raise XDMoDConnectivityError(f"XDMoD get_data timeout: {exc_msg}")
         raise XDMoDFetchError(f"XDMoD get_data error: {exc_name}: {exc_msg}")
 
+
 def check_connectivity(url: str, timeout: float = 5.0) -> None:
     from urllib.parse import urlparse
     import requests
@@ -72,22 +77,15 @@ def check_connectivity(url: str, timeout: float = 5.0) -> None:
     except requests.exceptions.RequestException as e:
         raise XDMoDConnectivityError(str(e)) from e
 
+
 def get_usage_data(_metric: str, _slurm_acccount_name: str):
     logger.info(
-        f"attempting to fetch usage \
+        f"attempting to fetch {_metric} data \
                 associated with {_slurm_acccount_name}"
     )
     try:
         check_connectivity(XDMOD_API_URL)
-        dw = DataWarehouse(XDMOD_API_URL)
-        with dw:
-            data = fetch_xdmod_with_timeout(
-                XDMOD_API_URL,
-                metric=_metric,
-                account=_slurm_acccount_name,
-                timeout_s=15.0
-            )
-            return data
+        return fetch_xdmod_with_timeout(XDMOD_API_URL, metric=_metric, account=_slurm_acccount_name, timeout_s=15.0)
     except XDMoDConnectivityError as e:
         logger.error("XDMOD connectivity error: %s", e)
         raise XDMoDConnectivityError(str(e)) from e
