@@ -1,0 +1,8 @@
+Dear {{pi_first_name}},
+
+Your project within the HPC projects portal, {{project}} currently has no grants associated with it. 
+
+Please add grants that are associated with this project as it will enable us to justify the necessity of offering the HPC service.
+
+Thank you,
+{{ signature }}
