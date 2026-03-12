@@ -22,7 +22,7 @@ class Command(BaseCommand):
         try:
             for pi_profile in UserProfile.objects.filter(is_pi=True):
                 logger.info(f"processing projects for PI: {pi_profile.user.username}")
-                projects_for_pi = Project.objects.filter(pi=pi_profile)
+                projects_for_pi = Project.objects.filter(pi=pi_profile.user)
                 for project in projects_for_pi:
                     logger.info(f"processing project: {project}")
                     if Grant.objects.filter(project=project).count() == 0:
