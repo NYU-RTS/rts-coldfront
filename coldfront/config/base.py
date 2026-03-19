@@ -160,6 +160,7 @@ DJANGO_VITE = {
     "default": {
         "dev_mode": ENV.bool("DJANGO_VITE_DEV_MODE", default=False),
         "dev_server_port": ENV.int("DJANGO_VITE_SERVER_PORT", default=5173),
+        "manifest_path": PROJECT_ROOT("coldfront/static/bundles/manifest.json"),
     }
 }
 
@@ -167,6 +168,7 @@ STATIC_ROOT = ENV.str("STATIC_ROOT", default=PROJECT_ROOT("static_root"))
 STATICFILES_DIRS = [
     PROJECT_ROOT("coldfront/static/bundles"),
     PROJECT_ROOT("coldfront/static/assets"),
+    PROJECT_ROOT("coldfront/static/branding"),
 ]
 
 # Add local site static files if set
