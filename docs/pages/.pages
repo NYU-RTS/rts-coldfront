@@ -1,9 +1,0 @@
-nav:
-  - index.md
-  - install.md
-  - config.md
-  - upgrading.md
-  - Plugins: plugin
-  - Deployment: deploy.md
-  - How To: howto
-  - API: apidocs

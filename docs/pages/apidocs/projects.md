@@ -1,1 +1,0 @@
-::: coldfront.core.project.models
