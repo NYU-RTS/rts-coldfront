@@ -61,7 +61,7 @@ class Command(BaseCommand):
                         "email/request_to_add_grants.txt",
                         grant_notification_context,
                         EMAIL_SENDER,
-                        pi_profile.user.email,
+                        [pi_profile.user.email],
                     )
 
                 publication_notification_context = {
@@ -77,7 +77,7 @@ class Command(BaseCommand):
                         "email/request_to_add_publications.txt",
                         publication_notification_context,
                         EMAIL_SENDER,
-                        pi_profile.user.email,
+                        [pi_profile.user.email],
                     )
             except Exception:
                 logger.exception("Exception occurred with traceback:", exc_info=True)
