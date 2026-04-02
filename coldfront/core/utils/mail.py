@@ -21,7 +21,7 @@ EMAIL_CENTER_NAME = import_from_settings("CENTER_NAME")
 CENTER_BASE_URL = import_from_settings("CENTER_BASE_URL")
 
 
-def send_email(subject, body, sender, receiver_list, cc=[]):
+def send_email(subject, body, sender, receiver_list, cc=None):
     """Helper function for sending emails"""
 
     if not EMAIL_ENABLED:
