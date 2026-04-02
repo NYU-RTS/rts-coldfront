@@ -5,8 +5,7 @@ The following projects within the HPC projects portal currently have no grants a
   Project Title: {{ project_key }}
   Project URL: {{ project_url }}
 {% endfor %}
-
-Please add grants that are associated with your project(s) as it will enable us to justify the necessity of offering the HPC service.
+Please add grants that are associated with your project(s) as it will enable us to justify the necessity of offering the HPC service. You can find detailed instructions at https://services.rt.nyu.edu/docs/hpc/getting_started/adding_publications_grants/#enter-grants
 
 Thank you,
 {{ signature }}
