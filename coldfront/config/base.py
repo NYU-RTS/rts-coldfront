@@ -102,13 +102,14 @@ AUTHENTICATION_BACKENDS = []
 # Django Q2
 # ------------------------------------------------------------------------------
 Q_CLUSTER = {
+    "name": "DjangORM",
     "workers": ENV.int("Q_CLUSTER_WORKERS", default=4),
     "timeout": ENV.int("Q_CLUSTER_TIMEOUT", default=120),
     "retry": ENV.int("Q_CLUSTER_RETRY", default=120),
-    "redis": {
-        "host": ENV.str("REDIS_HOSTNAME", default="localhost"),
-        "password": ENV.str("REDIS_PASSWORD", default="password"),
-    },
+    "queue_limit":ENV.int("Q_CLUSTER_QUEUE_LIMIT", default=100),
+    "bulk": ENV.int("Q_CLUSTER_BULK", default=20),
+    "orm": "default"
+
 }
 
 
@@ -166,6 +167,4 @@ if os.path.isdir("/usr/share/coldfront/site/static"):
     STATICFILES_DIRS.insert(0, "/usr/share/coldfront/site/static")
 
 # Logfile location
-COLDFRONT_DJANGO_LOG_FILE = ENV.str(
-    "COLDFRONT_DJANGO_LOG_FILE", default="coldfront-django"
-)
+COLDFRONT_DJANGO_LOG_FILE = ENV.str("COLDFRONT_DJANGO_LOG_FILE", default="coldfront-django")
