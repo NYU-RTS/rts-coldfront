@@ -40,6 +40,7 @@ button.bg-nyu-primary-violet:focus {
     border-color: #57068c !important;
 }
 
+.btn-nyu-primary-violet,
 .btn.btn-nyu-primary-violet {
     color: #fff;
     background-color: #57068c;
