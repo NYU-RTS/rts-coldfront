@@ -43,6 +43,11 @@ class Command(BaseCommand):
             ("RackUnits", "Int"),
             ("InstallDate", "Date"),
             ("WarrantyExpirationDate", "Date"),
+            ("H200_quantity", "Int"),
+            ("H100_quantity", "Int"),
+            ("A100_quantity", "Int"),
+            ("L40s_quantity", "Int"),
+            ("RTX6000_quantity", "Int"),
         ):
             ResourceAttributeType.objects.get_or_create(
                 name=resource_attribute_type,
@@ -59,6 +64,4 @@ class Command(BaseCommand):
             ("Storage", "NAS storage"),
             ("Generic", "Generic resource associated with a school"),
         ):
-            ResourceType.objects.get_or_create(
-                name=resource_type, description=description
-            )
+            ResourceType.objects.get_or_create(name=resource_type, description=description)

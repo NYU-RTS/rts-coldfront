@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 from coldfront.core.allocation.models import Allocation, AllocationAttribute, AllocationChangeRequest, AllocationUser
 from coldfront.core.project.models import Project, ProjectAttribute, ProjectUser
-from coldfront.core.resource.models import Resource
+from coldfront.core.resource.models import Resource, ResourceAttribute
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -27,10 +27,25 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ResourceSerializer(serializers.ModelSerializer):
     resource_type = serializers.SlugRelatedField(slug_field="name", read_only=True)
+    resource_attributes = serializers.SerializerMethodField()
 
     class Meta:
         model = Resource
-        fields = ("id", "resource_type", "name", "description", "is_allocatable")
+        fields = ("id", "resource_type", "name", "description", "is_allocatable", "resource_attributes")
+
+    def get_resource_attributes(self, obj):
+        request = self.context.get("request", None)
+        if request and request.query_params.get("resource_attributes") in ["true", "True"]:
+            return ResourceAttributeSerializer(obj.resourceattribute_set, many=True, read_only=True).data
+        return None
+
+
+class ResourceAttributeSerializer(serializers.ModelSerializer):
+    resource_attribute_type = serializers.SlugRelatedField(slug_field="name", read_only=True)
+
+    class Meta:
+        model = ResourceAttribute
+        fields = ("resource_attribute_type", "value")
 
 
 class AllocationSerializer(serializers.ModelSerializer):
