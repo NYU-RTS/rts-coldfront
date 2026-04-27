@@ -38,23 +38,17 @@ MAX_PROJECTS_PER_PI = ENV.int("MAX_PROJECTS_PER_PI", default=3)
 # ------------------------------------------------------------------------------
 # Allocation related
 # ------------------------------------------------------------------------------
-ALLOCATION_ENABLE_CHANGE_REQUESTS_BY_DEFAULT = ENV.bool(
-    "ALLOCATION_ENABLE_CHANGE_REQUESTS", default=True
-)
+ALLOCATION_ENABLE_CHANGE_REQUESTS_BY_DEFAULT = ENV.bool("ALLOCATION_ENABLE_CHANGE_REQUESTS", default=True)
 ALLOCATION_CHANGE_REQUEST_EXTENSION_DAYS = ENV.list(
     "ALLOCATION_CHANGE_REQUEST_EXTENSION_DAYS", cast=int, default=[30, 60, 90]
 )
-ALLOCATION_ENABLE_ALLOCATION_RENEWAL = ENV.bool(
-    "ALLOCATION_ENABLE_ALLOCATION_RENEWAL", default=True
-)
+ALLOCATION_ENABLE_ALLOCATION_RENEWAL = ENV.bool("ALLOCATION_ENABLE_ALLOCATION_RENEWAL", default=True)
 ALLOCATION_FUNCS_ON_EXPIRE = [
     "coldfront.core.allocation.utils.test_allocation_function",
 ]
 
 # This is in days
-ALLOCATION_DEFAULT_ALLOCATION_LENGTH = ENV.int(
-    "ALLOCATION_DEFAULT_ALLOCATION_LENGTH", default=365
-)
+ALLOCATION_DEFAULT_ALLOCATION_LENGTH = ENV.int("ALLOCATION_DEFAULT_ALLOCATION_LENGTH", default=365)
 
 
 # ------------------------------------------------------------------------------
@@ -117,5 +111,5 @@ Phone: (xxx) xxx-xxx
 
 ACCOUNT_CREATION_TEXT = """You need an active HPC account to access the HPC project management portal.
 If you do not have an active HPC account, please refer to 
-<a href="https://services.rt.nyu.edu/docs/hpc/getting_started/getting_and_renewing_an_account/"> instructions on our website</a>.
+<a href="https://services.rt.nyu.edu/docs/hpc/getting_started/HPC_Accounts/getting_and_renewing_an_account/"> instructions on our website</a>.
 """
