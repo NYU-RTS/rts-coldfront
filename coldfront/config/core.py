@@ -113,3 +113,9 @@ ACCOUNT_CREATION_TEXT = """You need an active HPC account to access the HPC proj
 If you do not have an active HPC account, please refer to 
 <a href="https://services.rt.nyu.edu/docs/hpc/getting_started/HPC_Accounts/getting_and_renewing_an_account/"> instructions on our website</a>.
 """
+
+# ------------------------------------------------------------------------------
+# Enable Open OnDemand integration
+# ------------------------------------------------------------------------------
+PI_STATUS_UPGRADE_URL = ENV.str("PI_STATUS_UPGRADE_URL", default=None)
+PI_STATUS_UPGRADE_API_KEY = ENV.str("PI_STATUS_UPGRADE_API_KEY", default=None)
