@@ -13,19 +13,28 @@ on:
 
 env:
   PLUGIN_API: True
+  DJANGO_VITE_DEV_MODE: True
     
 jobs:
   django-tests:
     name: django-tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v5
+        with:
+          version: latest
 
       - name: Enable caching and define a custom cache key suffix
         id: setup-uv
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
+
+      - name: Install frontend packages
+        run: pnpm --prefix coldfront/static install
 
       - name: Test
         run: |
