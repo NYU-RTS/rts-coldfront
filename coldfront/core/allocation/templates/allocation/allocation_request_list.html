@@ -14,12 +14,12 @@ Allocation Review New and Pending Requests
 
 <hr>
 
-<p class="text-justify"> 
+<p class="text-justify">
   For each allocation request below, there is the option to activate the allocation request and to view the allocation's detail page.
 </p>
 
-<p class="text-justify"> 
-  By default, activating an allocation will make it active for {{ ALLOCATION_DEFAULT_ALLOCATION_LENGTH }} days.
+<p class="text-justify">
+  By default, activating an allocation will make it active for {{ settings.ALLOCATION_DEFAULT_ALLOCATION_LENGTH }} days.
 </p>
 
 {% if allocation_list %}
@@ -32,7 +32,7 @@ Allocation Review New and Pending Requests
           <th scope="col">Project Title</th>
           <th scope="col">PI</th>
           <th scope="col">Resource</th>
-          {% if PROJECT_ENABLE_PROJECT_REVIEW %}
+          {% if settings.PROJECT_ENABLE_PROJECT_REVIEW %}
             <th scope="col" class="text-nowrap">Project Review Status</th>
           {% endif %}
           <th scope="col">Status</th>
@@ -71,12 +71,15 @@ Allocation Review New and Pending Requests
   </div>
 {% endif %}
 
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
 <script>
-  $("#navbar-main > ul > li.active").removeClass("active");
-  $("#navbar-admin").addClass("active");
-  $("#navbar-allocation-requests").addClass("active");
+document.addEventListener('DOMContentLoaded', function() {
   $(document).on('click', '.confirm-activate', function(){
       return confirm('Are you sure you want to activate this allocation request without setting any allocation attributes?');
   })
+});
 </script>
 {% endblock %}
