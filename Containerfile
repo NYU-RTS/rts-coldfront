@@ -5,7 +5,7 @@ LABEL name="coldfront" \
       description="For production use to deploy Coldfront in RTC" 
 
 # Build Python as superuser!
-RUN dnf install -y python3.12 && dnf update -y
+RUN dnf install -y python3.12 git && dnf update -y
 
 COPY . /app
 
