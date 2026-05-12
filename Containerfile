@@ -64,8 +64,7 @@ COPY --from=frontend /app/coldfront/static/bundles /app/coldfront/static/bundles
 COPY --from=builder /app /app
 
 # Copy uv cache as it cannot be created in a shell-less container
-ARG MODE="-R g=u"
-COPY --chmod=$MODE --from builder /tmp/uv /tmp/uv
+COPY --chmod=g=u --from builder /tmp/uv /tmp/uv
 
 # Need this to prevent os13 errors on shipwright.
 ENV UV_CACHE_DIR=/tmp/uv
