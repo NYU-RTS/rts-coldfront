@@ -31,7 +31,9 @@ jobs:
           enable-cache: true
 
       - name: Install frontend packages
-        run: npm --prefix coldfront/static run build
+        run: |
+          npm --prefix coldfront/static ci
+          npm --prefix coldfront/static run build
 
       - name: Test
         run: |
