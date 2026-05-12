@@ -4,6 +4,8 @@
 FROM registry.access.redhat.com/hi/nodejs:latest-builder AS frontend
 WORKDIR /app
 
+USER root
+
 # Copy only npm manifests first for caching
 COPY coldfront/static/package.json coldfront/static/package-lock.json ./coldfront/static/
 WORKDIR /app/coldfront/static
@@ -12,9 +14,10 @@ RUN npm ci
 # Copy the rest of the frontend sources
 COPY coldfront/static ./
 
-
 # Build (should output bundles + manifest)
 RUN npm run build
+
+USER ${CONTAINER_DEFAULT_USER}
 
 ########################
 # 2) Build Coldfront app
@@ -69,6 +72,9 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 WORKDIR /app
 
 RUN mkdir -p /tmp/uv
+
+RUN chgrp -R 0 /tmp/uv && \
+    chmod -R g=u /tmp/uv
 
 # Need this to prevent os13 errors on shipwright.
 ENV UV_CACHE_DIR=/tmp/uv
