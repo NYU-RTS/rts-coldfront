@@ -22,10 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v5
-        with:
-          version: latest
+      - uses: actions/setup-node@v6
 
       - name: Enable caching and define a custom cache key suffix
         id: setup-uv
@@ -34,7 +31,7 @@ jobs:
           enable-cache: true
 
       - name: Install frontend packages
-        run: pnpm --prefix coldfront/static install
+        run: npm --prefix coldfront/static run build
 
       - name: Test
         run: |
