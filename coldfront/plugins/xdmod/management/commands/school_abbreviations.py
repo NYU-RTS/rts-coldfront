@@ -23,4 +23,5 @@ sch_abbrv: dict = {
     "Center for Data Science": "CDS",
     "NYU Langone": "LANGONE",
     "Courant Institute School of Mathematics, Computing, and Data Science": "CISMCDS",
+    "Marron Institute": "MARRON",
 }

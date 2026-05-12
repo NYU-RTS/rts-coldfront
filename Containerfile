@@ -12,6 +12,7 @@ RUN npm ci
 # Copy the rest of the frontend sources
 COPY coldfront/static ./
 
+
 # Build (should output bundles + manifest)
 RUN npm run build
 

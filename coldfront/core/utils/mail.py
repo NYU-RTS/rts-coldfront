@@ -21,7 +21,7 @@ EMAIL_CENTER_NAME = import_from_settings("CENTER_NAME")
 CENTER_BASE_URL = import_from_settings("CENTER_BASE_URL")
 
 
-def send_email(subject, body, sender, receiver_list, cc=[]):
+def send_email(subject, body, sender, receiver_list, cc=None):
     """Helper function for sending emails"""
 
     if not EMAIL_ENABLED:
@@ -41,6 +41,8 @@ def send_email(subject, body, sender, receiver_list, cc=[]):
     if settings.DEBUG:
         receiver_list.append(EMAIL_DEVELOPMENT_EMAIL_LIST)
 
+    # if cc is None, initialize it to an empty list []
+    cc = cc or []
     # Always CC to EMAIL_TICKET_SYSTEM_ADDRESS to keep us in the loop
     cc.append(EMAIL_TICKET_SYSTEM_ADDRESS)
 

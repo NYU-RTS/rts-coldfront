@@ -23,8 +23,21 @@ logger = logging.getLogger(__name__)
 
 
 class ResourceViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Query parameters:
+    - resource_attributes (default false)
+        Show related attributes.
+    """
+
     serializer_class = serializers.ResourceSerializer
-    queryset = Resource.objects.all()
+
+    def get_queryset(self):
+        resources = Resource.objects.all()
+
+        if self.request.query_params.get("resource_attributes") in ["True", "true"]:
+            resources = resources.prefetch_related("resourceattribute_set")
+
+        return resources
 
 
 class AllocationViewSet(viewsets.ReadOnlyModelViewSet):
@@ -40,14 +53,9 @@ class AllocationViewSet(viewsets.ReadOnlyModelViewSet):
     # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        allocations = Allocation.objects.prefetch_related(
-            "project", "project__pi", "status"
-        )
+        allocations = Allocation.objects.prefetch_related("project", "project__pi", "status")
 
-        if not (
-            self.request.user.is_superuser
-            or self.request.user.has_perm("allocation.can_view_all_allocations")
-        ):
+        if not (self.request.user.is_superuser or self.request.user.has_perm("allocation.can_view_all_allocations")):
             allocations = allocations.filter(
                 Q(project__status__name__in=["New", "Active"])
                 & (
@@ -79,9 +87,7 @@ class AllocationRequestFilter(filters.FilterSet):
     created = filters.DateFromToRangeFilter()
     fulfilled = filters.BooleanFilter(method="filter_fulfilled", label="Fulfilled")
     fulfilled_date = filters.DateFromToRangeFilter(label="Date fulfilled")
-    time_to_fulfillment = filters.NumericRangeFilter(
-        method="filter_time_to_fulfillment", label="Time to fulfillment"
-    )
+    time_to_fulfillment = filters.NumericRangeFilter(method="filter_time_to_fulfillment", label="Time to fulfillment")
 
     class Meta:
         model = Allocation
@@ -100,13 +106,9 @@ class AllocationRequestFilter(filters.FilterSet):
 
     def filter_time_to_fulfillment(self, queryset, name, value):
         if value.start is not None:
-            queryset = queryset.filter(
-                time_to_fulfillment__gte=timedelta(days=int(value.start))
-            )
+            queryset = queryset.filter(time_to_fulfillment__gte=timedelta(days=int(value.start)))
         if value.stop is not None:
-            queryset = queryset.filter(
-                time_to_fulfillment__lte=timedelta(days=int(value.stop))
-            )
+            queryset = queryset.filter(time_to_fulfillment__lte=timedelta(days=int(value.stop)))
         return queryset
 
 
@@ -143,15 +145,11 @@ class AllocationRequestViewSet(viewsets.ReadOnlyModelViewSet):
 
         # Subquery to get the earliest historical record for each allocation
         earliest_history = (
-            HistoricalAllocation.objects.filter(id=OuterRef("pk"))
-            .order_by("history_date")
-            .values("status__name")[:1]
+            HistoricalAllocation.objects.filter(id=OuterRef("pk")).order_by("history_date").values("status__name")[:1]
         )
 
         fulfilled_date = (
-            HistoricalAllocation.objects.filter(
-                id=OuterRef("pk"), status__name="Active"
-            )
+            HistoricalAllocation.objects.filter(id=OuterRef("pk"), status__name="Active")
             .order_by("history_date")
             .values("modified")[:1]
         )
@@ -183,9 +181,7 @@ class AllocationChangeRequestFilter(filters.FilterSet):
     created = filters.DateFromToRangeFilter()
     fulfilled = filters.BooleanFilter(method="filter_fulfilled", label="Fulfilled")
     fulfilled_date = filters.DateFromToRangeFilter(label="Date fulfilled")
-    time_to_fulfillment = filters.NumericRangeFilter(
-        method="filter_time_to_fulfillment", label="Time to fulfillment"
-    )
+    time_to_fulfillment = filters.NumericRangeFilter(method="filter_time_to_fulfillment", label="Time to fulfillment")
 
     class Meta:
         model = AllocationChangeRequest
@@ -204,13 +200,9 @@ class AllocationChangeRequestFilter(filters.FilterSet):
 
     def filter_time_to_fulfillment(self, queryset, name, value):
         if value.start is not None:
-            queryset = queryset.filter(
-                time_to_fulfillment__gte=timedelta(days=int(value.start))
-            )
+            queryset = queryset.filter(time_to_fulfillment__gte=timedelta(days=int(value.start)))
         if value.stop is not None:
-            queryset = queryset.filter(
-                time_to_fulfillment__lte=timedelta(days=int(value.stop))
-            )
+            queryset = queryset.filter(time_to_fulfillment__lte=timedelta(days=int(value.stop)))
         return queryset
 
 
@@ -248,23 +240,17 @@ class AllocationChangeRequestViewSet(viewsets.ReadOnlyModelViewSet):
                 Q(allocation__project__status__name__in=["New", "Active"])
                 & (
                     (
-                        Q(
-                            allocation__project__projectuser__role__name__contains="Manager"
-                        )
+                        Q(allocation__project__projectuser__role__name__contains="Manager")
                         & Q(allocation__project__projectuser__user=self.request.user)
                     )
                     | Q(allocation__project__pi=self.request.user)
                 )
             ).distinct()
 
-        HistoricalAllocationChangeRequest = get_history_model_for_model(
-            AllocationChangeRequest
-        )
+        HistoricalAllocationChangeRequest = get_history_model_for_model(AllocationChangeRequest)
 
         fulfilled_date = (
-            HistoricalAllocationChangeRequest.objects.filter(
-                id=OuterRef("pk"), status__name="Approved"
-            )
+            HistoricalAllocationChangeRequest.objects.filter(id=OuterRef("pk"), status__name="Approved")
             .order_by("history_date")
             .values("modified")[:1]
         )
@@ -307,10 +293,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
                 projects.filter(
                     Q(status__name__in=["New", "Active"])
                     & (
-                        (
-                            Q(projectuser__role__name__contains="Manager")
-                            & Q(projectuser__user=self.request.user)
-                        )
+                        (Q(projectuser__role__name__contains="Manager") & Q(projectuser__user=self.request.user))
                         | Q(pi=self.request.user)
                     )
                 )

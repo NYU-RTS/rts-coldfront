@@ -574,19 +574,18 @@ class ProjectCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             and not user.is_superuser
             and hasattr(user, "userprofile")
             and user.userprofile.is_pi
-            and Project.objects.filter(pi=user).count() >= MAX_PROJECTS_PER_PI
+            and Project.objects.filter(pi=user).exclude(status__name="Archived").count() >= MAX_PROJECTS_PER_PI
         ):
-            messages.error(request, f"You can only create up to {MAX_PROJECTS_PER_PI} projects.")
+            messages.error(request, f"You can only have up to {MAX_PROJECTS_PER_PI} active projects. To create a new project, you can archive an existing project")
             return redirect("project-list")  # change to wherever you want to send them
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         user = self.request.user
-
         with transaction.atomic():
-            current_count = Project.objects.select_for_update().filter(pi=user).count()
+            current_count = Project.objects.select_for_update().filter(pi=user).exclude(status__name="Archived").count()
             if current_count >= MAX_PROJECTS_PER_PI:
-                form.add_error(None, f"You can only create up to {MAX_PROJECTS_PER_PI} projects.")
+                form.add_error(None, f"You can only have up to {MAX_PROJECTS_PER_PI} active projects. To create a new project, you can archive an existing project")
                 return self.form_invalid(form)
 
             project_obj = form.save(commit=False)
