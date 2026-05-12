@@ -25,6 +25,7 @@ classifiers = [
 ]
 
 dependencies = [
+    "coldfront-plugin-slurmrest",
     "crispy-bootstrap4>=2024.10",
     "django>5.2,<6",
     "django-crispy-forms>=2.3",
@@ -110,3 +111,6 @@ plugins = ["mypy_django_plugin.main"]
 
 [tool.django-stubs]
 django_settings_module = "coldfront.config.settings"
+
+[tool.uv.sources]
+coldfront-plugin-slurmrest = { git = "https://github.com/NYU-RTS/rts-coldfront-slurm-plugin" }
