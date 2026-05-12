@@ -63,18 +63,17 @@ COPY --from=frontend /app/coldfront/static/bundles /app/coldfront/static/bundles
 # Copy the django app
 COPY --from=builder /app /app
 
-# Default port for gunicorn
-EXPOSE 8000
+# Copy uv cache as it cannot be created in a shell-less container
+ARG MODE="-R g=u"
+COPY --chmod=$MODE --from builder /tmp/uv /tmp/uv
+
+# Need this to prevent os13 errors on shipwright.
+ENV UV_CACHE_DIR=/tmp/uv
 
 # Need uv binary in the final image as well
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
+# Default port for gunicorn
+EXPOSE 8000
+
 WORKDIR /app
-
-RUN mkdir -p /tmp/uv
-
-RUN chgrp -R 0 /tmp/uv && \
-    chmod -R g=u /tmp/uv
-
-# Need this to prevent os13 errors on shipwright.
-ENV UV_CACHE_DIR=/tmp/uv
