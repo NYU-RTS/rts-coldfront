@@ -72,6 +72,9 @@ COPY --from=builder /app /app
 # Keep uv's runtime cache off /tmp for OpenShift compatibility.
 ENV UV_CACHE_DIR=/app/.cache/uv
 
+# psycopg[binary] links against libstdc++ which the distroless runtime image omits
+COPY --from=builder /usr/lib64/libstdc++.so* /usr/lib64/
+
 # Need uv binary in the final image as well
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
