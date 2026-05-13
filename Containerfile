@@ -46,7 +46,7 @@ RUN mkdir -p /tmp/uv
 ENV UV_CACHE_DIR=/tmp/uv
 
 RUN uv sync --locked --extra prod && \
-    chown -R ${CONTAINER_DEFAULT_USER}:0 /tmp/uv && \
+    chown -R 1001:0 /tmp/uv && \
     chmod -R 775 /tmp/uv
 
 USER ${CONTAINER_DEFAULT_USER}
