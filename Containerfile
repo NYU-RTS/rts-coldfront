@@ -45,7 +45,9 @@ RUN mkdir -p /tmp/uv
 # Need this to prevent os13 errors on shipwright.
 ENV UV_CACHE_DIR=/tmp/uv
 
-RUN uv sync --locked --extra prod
+RUN uv sync --locked --extra prod && \
+    chown -R ${CONTAINER_DEFAULT_USER}:${CONTAINER_DEFAULT_USER} /tmp/uv && \
+    chmod -R 755 /tmp/uv
 
 USER ${CONTAINER_DEFAULT_USER}
 
@@ -64,8 +66,7 @@ COPY --from=frontend /app/coldfront/static/bundles /app/coldfront/static/bundles
 COPY --from=builder /app /app
 
 # Copy uv cache as it cannot be created in a shell-less container
-ARG MODE="-R g=u"
-COPY --chown=$MODE --chmod=775 --from=builder /tmp/uv /tmp/uv
+COPY --from=builder /tmp/uv /tmp/uv
 
 # Need this to prevent os13 errors on shipwright.
 ENV UV_CACHE_DIR=/tmp/uv
