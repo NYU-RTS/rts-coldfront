@@ -40,10 +40,10 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-RUN mkdir -p /tmp/uv
+RUN mkdir -p /app/.cache/uv
 
-# Need this to prevent os13 errors on shipwright.
-ENV UV_CACHE_DIR=/tmp/uv
+# OpenShift can mount /tmp with noexec; keep uv temp executables on /app.
+ENV UV_CACHE_DIR=/app/.cache/uv
 
 RUN whoami
 RUN groups
@@ -51,8 +51,8 @@ RUN id
 RUN id -g
 
 RUN uv sync --locked --extra prod && \
-    chown -R 1001:0 /tmp/uv && \
-    chmod -R 775 /tmp/uv
+    chgrp -R 0 /app/.cache && \
+    chmod -R g=u /app/.cache
 
 USER ${CONTAINER_DEFAULT_USER}
 
@@ -70,11 +70,8 @@ COPY --from=frontend /app/coldfront/static/bundles /app/coldfront/static/bundles
 # Copy the django app
 COPY --from=builder /app /app
 
-# Copy uv cache as it cannot be created in a shell-less container
-COPY --from=builder /tmp/uv /tmp/uv
-
-# Need this to prevent os13 errors on shipwright.
-ENV UV_CACHE_DIR=/tmp/uv
+# Keep uv's runtime cache off /tmp for OpenShift compatibility.
+ENV UV_CACHE_DIR=/app/.cache/uv
 
 # Need uv binary in the final image as well
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
