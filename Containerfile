@@ -46,6 +46,7 @@ RUN mkdir -p /tmp/uv
 ENV UV_CACHE_DIR=/tmp/uv
 
 RUN whoami
+RUN groups
 
 RUN uv sync --locked --extra prod && \
     chown -R 1001:0 /tmp/uv && \
