@@ -45,9 +45,13 @@ RUN mkdir -p /app/.cache/uv
 # OpenShift can mount /tmp with noexec; keep uv temp executables on /app.
 ENV UV_CACHE_DIR=/app/.cache/uv
 
-RUN uv sync --locked --extra prod && \
-    chgrp -R 0 /app/.cache && \
+RUN uv sync --locked --extra prod
+
+RUN chgrp -R 0 /app/.cache && \
     chmod -R g=u /app/.cache
+
+RUN chgrp -R 0 /app/.venv && \
+    chmod -R g=u /app/.venv
 
 USER ${CONTAINER_DEFAULT_USER}
 
