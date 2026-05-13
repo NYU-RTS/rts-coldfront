@@ -45,6 +45,8 @@ RUN mkdir -p /tmp/uv
 # Need this to prevent os13 errors on shipwright.
 ENV UV_CACHE_DIR=/tmp/uv
 
+RUN whoami
+
 RUN uv sync --locked --extra prod && \
     chown -R 1001:0 /tmp/uv && \
     chmod -R 775 /tmp/uv
