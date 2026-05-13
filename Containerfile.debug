@@ -47,7 +47,7 @@ ENV UV_CACHE_DIR=/tmp/uv
 
 RUN uv sync --locked --extra prod && \
     chown -R ${CONTAINER_DEFAULT_USER}:${CONTAINER_DEFAULT_USER} /tmp/uv && \
-    chmod -R 755 /tmp/uv
+    chmod -R 775 /tmp/uv
 
 USER ${CONTAINER_DEFAULT_USER}
 
