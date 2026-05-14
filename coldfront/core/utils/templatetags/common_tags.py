@@ -33,7 +33,7 @@ def get_icon(expand_accordion):
 
 @register.filter
 def convert_boolean_to_icon(boolean):
-    if boolean == False:
+    if boolean is False:
         return mark_safe(
             '<span class="badge badge-success"><i class="fas fa-check"></i></span>'
         )
@@ -83,7 +83,7 @@ def get_value_by_index(array, index):
 
 
 @register.simple_tag
-def navbar_active_item(menu_item, request):
+def navbar_active_item(menu_item, request=None):
     view_map = {
         "center-summary": ["center-summary"],
         "home": ["home"],
@@ -107,7 +107,10 @@ def navbar_active_item(menu_item, request):
             "grant-report",
         ],
     }
-    view_name = request.resolver_match.view_name
+    resolver_match = getattr(request, "resolver_match", None)
+    view_name = getattr(resolver_match, "view_name", None)
+    if view_name is None:
+        return ""
 
     if menu_item in view_map:
         if view_name in view_map[menu_item]:
