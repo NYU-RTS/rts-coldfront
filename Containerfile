@@ -1,18 +1,34 @@
-FROM registry.cloud.rt.nyu.edu/nyu-rts/ubi/ubi9
+########################
+# 1) Frontend build stage
+########################
+FROM registry.access.redhat.com/hi/nodejs:latest-builder AS frontend
+WORKDIR /app
 
-LABEL name="coldfront" \
-      vendor="NYU RTS" \
-      description="For production use to deploy Coldfront in RTC" 
+USER root
 
-# Build Python as superuser!
-RUN dnf install -y python3.12 git && dnf update -y
+# Copy only npm manifests first for caching
+COPY coldfront/static/package.json coldfront/static/package-lock.json ./coldfront/static/
+WORKDIR /app/coldfront/static
+RUN npm ci
+
+# Copy the rest of the frontend sources
+COPY coldfront/static ./
+
+# Build (should output bundles + manifest)
+RUN npm run build
+
+USER ${CONTAINER_DEFAULT_USER}
+
+########################
+# 2) Build Coldfront app
+########################
+FROM registry.access.redhat.com/hi/python:3.12-builder AS builder
+
+USER root
+
+RUN dnf install -y git && dnf update -y
 
 COPY . /app
-
-RUN chown -R 1001:0 /app && \
-    chmod -R g+rwx /app
-
-USER 1001
 
 # Enable bytecode compilation
 ENV UV_COMPILE_BYTECODE=1
@@ -20,29 +36,49 @@ ENV UV_COMPILE_BYTECODE=1
 # Copy from the cache instead of linking since it's a mounted volume
 ENV UV_LINK_MODE=copy
 
-
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-RUN mkdir -p /tmp/uv
-# Need this to prevent os13 errors on shipwright.
-ENV UV_CACHE_DIR=/tmp/uv
+RUN mkdir -p /app/.cache/uv
+
+# OpenShift can mount /tmp with noexec; keep uv temp executables on /app.
+ENV UV_CACHE_DIR=/app/.cache/uv
 
 RUN uv sync --locked --extra prod
+
+RUN chgrp -R 0 /app/.cache && \
+    chmod -R g=u /app/.cache
+
+RUN chgrp -R 0 /app/.venv && \
+    chmod -R g=u /app/.venv
+
+USER ${CONTAINER_DEFAULT_USER}
+
+########################
+# 3) Final stage
+########################
+FROM registry.access.redhat.com/hi/python:3.12
+LABEL name="coldfront" \
+      vendor="NYU RTS" \
+      description="For production use to deploy Coldfront in RTC" 
+
+# Copy built bundles/manifest from frontend stage into the backend image
+COPY --from=frontend /app/coldfront/static/bundles /app/coldfront/static/bundles
+
+# Copy the django app
+COPY --from=builder /app /app
+
+# Keep uv's runtime cache off /tmp for OpenShift compatibility.
+ENV UV_CACHE_DIR=/app/.cache/uv
+
+# psycopg[binary] links against libstdc++ which the distroless runtime image omits
+COPY --from=builder /usr/lib64/libstdc++.so* /usr/lib64/
+
+# Need uv binary in the final image as well
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # Default port for gunicorn
 EXPOSE 8000
 
-# Remove when we get users, but keep it for testing for now
-ENV PYTHONUNBUFFERED=1
-EXPOSE 5678
-
-RUN chown -R 1001:0 /tmp/uv && \
-    chmod -R g=u /tmp/uv
-
-# Terrible hack for now :(
-USER 0
-RUN chown -R 1001:0 /app && \
-    chmod -R g+rwx /app
-USER 1001
+WORKDIR /app

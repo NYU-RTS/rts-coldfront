@@ -51,10 +51,10 @@ Allocation Detail
       </div>
     </div>
     {% else %}
-      <h3><i class="fas fa-list" aria-hidden="true"></i> Allocation Information</h3>   
+      <h3><i class="fas fa-list" aria-hidden="true"></i> Allocation Information</h3>
     {% endif %}
   </div>
-  
+
   <div class="card-body">
     <form method="post">
       {% csrf_token %}
@@ -65,16 +65,18 @@ Allocation Detail
             <td><a href="{% url 'project-detail' allocation.project.pk %}">{{ allocation.project }}</a></td>
           </tr>
           <tr>
-            <th scope="row" class="text-nowrap">Resource{{ allocation.resources.all|pluralize }} in allocation:</th>
+            {% with allocation.get_resources_as_list as resources_as_list %}
+            <th scope="row" class="text-nowrap">Resource{{ resources_as_list|pluralize }} in allocation:</th>
             <td>
-              {% if allocation.get_resources_as_list %}
-                {% for resource in allocation.get_resources_as_list %}
+              {% if resources_as_list %}
+                {% for resource in resources_as_list %}
                   <a href="{% url 'resource-detail' resource.pk %}">{{ resource }}</a> <br>
                 {% endfor %}
               {% else %}
                 None
               {% endif %}
             </td>
+            {% endwith %}
           </tr>
           {% if request.user.is_superuser %}
             <tr>
@@ -249,12 +251,19 @@ Allocation Detail
 <div class="card mb-3">
   <div class="card-header">
     <h3 class="d-inline"><i class="fas fa-info-circle" aria-hidden="true"></i> Allocation Change Requests</h3> <span class="badge badge-secondary">{{allocation_changes.count}}</span>
+    <div class="float-right">
+      {% if request.user.is_superuser and allocation.is_changeable and not allocation.is_locked and is_allowed_to_update_project and allocation.status.name in 'Active, Renewal Requested, Payment Pending, Payment Requested, Paid' %}
+        <a class="btn btn-primary float-right" href="{% url 'allocation-change' allocation.pk %}" role="button">
+          Request Change
+        </a>
+      {% endif %}
+    </div>
   </div>
-  
+
   <div class="card-body">
     {% if allocation_changes %}
       <div class="table-responsive">
-        <table id="allocation_change_table" class="table table-bordered table-sm">
+        <table id="allocation_change_table" class="table table-bordered table-sm datatable">
           <thead>
             <tr>
               <th scope="col">Date Requested</th>
@@ -274,7 +283,6 @@ Allocation Detail
                   {% else %}
                     <td class="text-info">{{ change_request.status.name }}</td>
                   {% endif %}
-                  </td>
                   {% if change_request.notes %}
                     <td>{{change_request.notes}}</td>
                   {% else %}
@@ -313,7 +321,7 @@ Allocation Detail
   </div>
   <div class="card-body">
     <div class="table-responsive">
-      <table id="allocationuser_table" class="table table-hover">
+      <table id="allocationuser_table" class="table table-hover datatable">
         <thead>
           <tr>
             <th scope="col" class="text-nowrap">Username</th>
@@ -321,7 +329,7 @@ Allocation Detail
             <th scope="col" class="text-nowrap">Last Name</th>
             <th scope="col" class="text-nowrap">Email</th>
             <th scope="col" class="text-nowrap" >Status</th>
-            <th scope="col" class="nosort">Last Modified</th>
+            <th scope="col" data-dt-order="disable">Last Modified</th>
           </tr>
         </thead>
         <tbody>
@@ -443,60 +451,29 @@ Allocation Detail
   </div>
 </div>
 
+{{ guage_data|json_script:"guage-data" }}
+
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
 <script>
-  $(document).ready(function () {
-    // Initialize Gauges
-    var guage_data = {{ guage_data | safe }};
-    drawGauges(guage_data);
+document.addEventListener('DOMContentLoaded', function() {
+  var guage_data = JSON.parse(document.getElementById('guage-data').textContent);
+  drawGauges(guage_data);
 
-    // Initialize DataTables
-    $('#allocation_change_table').DataTable({
-      lengthMenu: [5, 10, 20, 50, 100],
-      "pageLength": 5,
-      "ordering": false,
-      'aoColumnDefs': [{
-        'bSortable': false,
-        'aTargets': ['nosort']
-      }]
-    });
-    $('#allocationuser_table').DataTable({
-      'aoColumnDefs': [{
-        'bSortable': false,
-        'aTargets': ['nosort']
-      }]
-    });
-
-    // MOVED THIS LINE INSIDE
-    $(".datepicker").flatpickr();
-  });
-
-
-  function drawGauges(guage_data) {
-    var arrayLength = guage_data.length;
-    for (var i = 0; i < arrayLength; i++) {
-      c3.generate({
-        bindto: '#gauge-' + i,
-        data: guage_data[i],
-        legend: {
-          item: {
-            onclick: function (id) { }
-          }
-        }
-      });
-    }
-  }
-  $(".datepicker").flatpickr();
   $(document).on('click', '.confirm-activate', function(){
     var attributes_num = {{ attributes | length }};
     if (attributes_num == 0) {
       return confirm('Are you sure you want to activate this allocation request without setting any allocation attributes?');
     }
-  })
+  });
   $(document).on('click', '.confirm-deny', function(){
     var notes_num = {{ notes | length }};
     if (notes_num == 0) {
       return confirm('Are you sure you want to deny this allocation request without setting a notification?');
     }
-  })
+  });
+});
 </script>
 {% endblock %}

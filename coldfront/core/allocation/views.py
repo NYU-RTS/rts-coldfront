@@ -664,10 +664,11 @@ class AllocationCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
 
         # Automatically create slurm_specs AllocationAttribute
         alloc_attr_slurm_specs = AllocationAttributeType.objects.get(name="slurm_specs")
+        title = allocation_obj.project.title.replace(':', ';').replace("'s", '').replace("'", '')
         AllocationAttribute.objects.get_or_create(
             allocation_attribute_type=alloc_attr_slurm_specs,
             allocation=allocation_obj,
-            value=f"Description='{allocation_obj.project.title.replace(':', ';').replace("'s", '').replace("'", ''):.96}'",
+            value=f"Description='{title:.96}'"
         )
 
         if ALLOCATION_ACCOUNT_ENABLED and allocation_account and resource_obj.name in ALLOCATION_ACCOUNT_MAPPING:

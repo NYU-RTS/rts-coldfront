@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: (C) ColdFront Authors
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 from django import forms
 from django.forms import ModelForm
 
@@ -27,9 +31,9 @@ class GrantForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(GrantForm, self).__init__(*args, **kwargs)
-        self.fields["funding_agency"].queryset = self.fields[
-            "funding_agency"
-        ].queryset.order_by("name")
+        self.fields["funding_agency"].queryset = self.fields["funding_agency"].queryset.order_by("name")
+        self.fields["grant_start"].widget.attrs["class"] = "datepicker"
+        self.fields["grant_end"].widget.attrs["class"] = "datepicker"
 
 
 class GrantDeleteForm(forms.Form):

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: (C) ColdFront Authors
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
@@ -15,7 +19,8 @@ def settings_value(name):
         "CENTER_HELP_URL",
         "EMAIL_PROJECT_REVIEW_CONTACT",
     ]
-    return mark_safe(getattr(settings, name, "") if name in allowed_names else "")
+    # FIXME: This is using mark_safe for now but settings should not contain HTML in the future
+    return mark_safe(getattr(settings, name, "") if name in allowed_names else "")  # noqa: S308
 
 
 @register.filter
@@ -67,3 +72,44 @@ def get_value_from_dict(dict_data, key):
     """
     if key:
         return dict_data.get(key)
+
+
+@register.filter("get_value_by_index")
+def get_value_by_index(array, index):
+    """
+    usage example {{ your_list|get_value_by_index:your_index }}
+    """
+    return array[index]
+
+
+@register.simple_tag
+def navbar_active_item(menu_item, request):
+    view_map = {
+        "center-summary": ["center-summary"],
+        "home": ["home"],
+        "invoice": ["allocation-invoice-list"],
+        "project": ["project-list", "allocation-list", "allocation-account-list", "resource-list"],
+        "admin": [
+            "user-search-home",
+            "project-review-list",
+            "allocation-request-list",
+            "allocation-change-list",
+            "grant-report",
+        ],
+        "staff": [
+            "user-search-home",
+            "project-review-list",
+            "allocation-request-list",
+            "grant-report",
+        ],
+        "director": [
+            "project-review-list",
+            "grant-report",
+        ],
+    }
+    view_name = request.resolver_match.view_name
+
+    if menu_item in view_map:
+        if view_name in view_map[menu_item]:
+            return "active"
+    return ""
