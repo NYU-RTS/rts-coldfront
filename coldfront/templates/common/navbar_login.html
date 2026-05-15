@@ -7,8 +7,8 @@
     <button class="dropdown-item" hx-post="{% url 'logout' %}" hx-swap="none"><i class="fas fa-sign-out-alt" aria-hidden="true"></i> Log Out</button>
   </div>
 </li>
-<ul class="navbar-nav ml-auto">
-  <form class="form-inline">
+<ul class="navbar-nav ms-auto">
+  <form class="d-flex flex-wrap align-items-center gap-2">
     {% csrf_token %}
     <button type="button" class="btn-nyu-primary-violet" hx-post="/user/logout" hx-swap="none"><i class="fas fa-sign-out-alt" aria-hidden="true"></i>
       Log Out</button>
