@@ -47,9 +47,9 @@ def convert_status_to_icon(project):
             return mark_safe('<h4><span class="badge bg-info"><i class="fas fa-exclamation-circle"></i></span></h4>')
         elif status == "Completed":
             return mark_safe('<h4><span class="badge bg-success"><i class="fas fa-check-circle"></i></span></h4>')
-    elif needs_review and not last_project_review:
+    elif project.needs_review and not project.last_project_review:
         return mark_safe('<h4><span class="badge bg-danger"><i class="fas fa-question-circle"></i></span></h4>')
-    elif not needs_review:
+    elif not project.needs_review:
         return mark_safe('<h4><span class="badge bg-success"><i class="fas fa-check-circle"></i></span></h4>')
 
 
