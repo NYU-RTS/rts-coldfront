@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import $ from 'jquery';
-import DataTable from 'datatables.net-bs4';
+import DataTable from 'datatables.net-bs5';
 import c3 from 'c3';
 
 $(document).ready(function () {

@@ -10,10 +10,7 @@ import { initSelect2 } from './select2';
 import { initForm } from './form';
 import { initDataTable } from './dataTable';
 import { getCookie, drawGauges } from './util';
-import { initCharts } from './charts';
-import { initHtmx } from './htmx';
 import { initBootstrap } from './bs';
-import { getCookie } from './util';
 import jQuery from 'jquery';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -36,8 +33,6 @@ function initDocument(): void {
     initForm,
     initDataTable,
     initBootstrap,
-    initCharts,
-    initHtmx,
   ]) {
     init();
   }
