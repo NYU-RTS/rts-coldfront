@@ -9,6 +9,21 @@
   background: #e2e2e2;
 }
 
+// Restore BS4-style link decoration: underline only on hover
+a {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Restore BS4-style table cell padding (BS5 default is more compact)
+.table {
+  --bs-table-cell-padding-y: 0.75rem;
+  --bs-table-cell-padding-x: 0.75rem;
+}
+
 html {
   position: relative;
   min-height: 100%;
