@@ -269,7 +269,9 @@ Allocation Detail
               <th scope="col">Date Requested</th>
               <th scope="col">Status</th>
               <th scope="col">Notes</th>
-              <th scope="col">Actions</th>
+              {% if can_edit_allocation_changes %}
+                <th scope="col">Actions</th>
+              {% endif %}
             </tr>
           </thead>
           <tbody>
