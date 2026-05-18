@@ -15,6 +15,7 @@ coldfront_configs = [
 # ColdFront plugin settings
 plugin_configs = {
     "PLUGIN_SLURM": "plugins/slurm.py",
+    "PLUGIN_SLURMREST": "plugins/slurmrest.py",
     "PLUGIN_IQUOTA": "plugins/iquota.py",
     "PLUGIN_FREEIPA": "plugins/freeipa.py",
     "PLUGIN_SYSMON": "plugins/system_monitor.py",
