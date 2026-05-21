@@ -1,3 +1,4 @@
+.memsearch/
 *.py[cod]
 *.swp
 coldfront.egg-info
