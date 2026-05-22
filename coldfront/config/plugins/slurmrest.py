@@ -1,3 +1,5 @@
+import sys
+
 from coldfront.config.base import INSTALLED_APPS
 from coldfront.config.env import ENV  # noqa: F401
 from coldfront.config.logging import LOGGING
@@ -20,7 +22,9 @@ SLURMREST_IGNORE_ACCOUNTS = ENV.list("SLURM_IGNORE_ACCOUNTS", default=[])
 SLURMREST_CLUSTERS = {}
 for cluster in filter(None, ENV.str("SLURMREST_CLUSTERS", "").split(",")):
     cluster_name = f"SLURM_{cluster.upper()}"
-    cluster_type = ENV.str(f"{cluster_name}_TYPE")
+    if (ENV.str(f"{cluster_name}_ENDPOINT") is None) or (ENV.str(f"{cluster_name}_TOKEN") is None):
+        sys.exit(1)
+
     SLURMREST_CLUSTERS[cluster] = {
         "name": cluster,
         "base_url": ENV.str(f"{cluster_name}_ENDPOINT"),
