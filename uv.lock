@@ -316,7 +316,7 @@ dev = [
 [[package]]
 name = "coldfront-plugin-slurmrest"
 version = "0.0.1"
-source = { git = "https://github.com/NYU-RTS/rts-coldfront-slurm-plugin#74f4ee9e5cc193155aed35ef0d0b2f9dc2ec71ef" }
+source = { git = "https://github.com/NYU-RTS/rts-coldfront-slurm-plugin#ff1de657bc9c1faee29e68fb24478ca798b02cfe" }
 dependencies = [
     { name = "coldfront" },
     { name = "slurmrest-python" },
