@@ -1,9 +1,10 @@
+import logging
 import sys
 
 from coldfront.config.base import INSTALLED_APPS
 from coldfront.config.env import ENV  # noqa: F401
-from coldfront.config.logging import LOGGING
 
+logger = logging.getLogger(__name__)
 
 if "coldfront_plugin_slurmrest" not in INSTALLED_APPS:
     INSTALLED_APPS += [
@@ -22,11 +23,23 @@ SLURMREST_IGNORE_ACCOUNTS = ENV.list("SLURM_IGNORE_ACCOUNTS", default=[])
 SLURMREST_CLUSTERS = {}
 for cluster in filter(None, ENV.str("SLURMREST_CLUSTERS", "").split(",")):
     cluster_name = f"SLURM_{cluster.upper()}"
-    if (ENV.str(f"{cluster_name}_ENDPOINT") is None) or (ENV.str(f"{cluster_name}_TOKEN") is None):
-        sys.exit(1)
+    endpoint = ENV.str(f"{cluster_name}_ENDPOINT", default=None)
+    token = ENV.str(f"{cluster_name}_TOKEN", default=None)
+    if endpoint is None or token is None:
+        # this is an informational logging entry, but since this occurs
+        # before the log handlers are configured, it needs to be at the
+        # warn level for the output to be visible in the build logs
+        logger.warn(
+            "Configuring slurmrest cluster %r: %s and %s missing, adding dummy values",
+            cluster,
+            f"{cluster_name}_ENDPOINT",
+            f"{cluster_name}_TOKEN",
+        )
+        endpoint = "dummy"
+        token = "dummy"
 
     SLURMREST_CLUSTERS[cluster] = {
         "name": cluster,
-        "base_url": ENV.str(f"{cluster_name}_ENDPOINT"),
-        "token": ENV.str(f"{cluster_name}_TOKEN"),
+        "base_url": endpoint,
+        "token": token,
     }
