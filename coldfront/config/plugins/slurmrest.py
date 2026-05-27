@@ -24,8 +24,8 @@ SLURMREST_CLUSTERS = {}
 for cluster in filter(None, ENV.str("SLURMREST_CLUSTERS", "").split(",")):
     cluster_name = f"SLURM_{cluster.upper()}"
     endpoint = ENV.str(f"{cluster_name}_ENDPOINT", default=None)
-    token = ENV.str(f"{cluster_name}_TOKEN", default=None)
-    if endpoint is None or token is None:
+    user_token = ENV.str(f"{cluster_name}_USERTOKEN", default=None)
+    if endpoint is None or user_token is None:
         # this is an informational logging entry, but since this occurs
         # before the log handlers are configured, it needs to be at the
         # warn level for the output to be visible in the build logs
@@ -33,13 +33,13 @@ for cluster in filter(None, ENV.str("SLURMREST_CLUSTERS", "").split(",")):
             "Configuring slurmrest cluster %r: %s and %s missing, adding dummy values",
             cluster,
             f"{cluster_name}_ENDPOINT",
-            f"{cluster_name}_TOKEN",
+            f"{cluster_name}_USERTOKEN",
         )
         endpoint = "dummy"
-        token = "dummy"
+        user_token = "dummy"
 
     SLURMREST_CLUSTERS[cluster] = {
         "name": cluster,
         "base_url": endpoint,
-        "token": token,
+        "user_token": user_token,
     }
