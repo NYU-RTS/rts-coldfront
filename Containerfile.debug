@@ -64,8 +64,8 @@ LABEL name="coldfront" \
       description="To gain inteactive access for a deployment of Coldfront in RTC" 
 
 USER root
-# debug image: vim for editing, tar for kubectl cp, git for re-installing deps
-RUN dnf update -y && dnf install -y vim-minimal tar git && dnf clean all
+# debug image: tar for kubectl cp, git for re-installing deps
+RUN dnf update -y && dnf install -y tar git && dnf clean all
 USER ${CONTAINER_DEFAULT_USER}
 
 # Copy built bundles/manifest from frontend stage into the backend image
