@@ -74,6 +74,12 @@ COPY --from=frontend /app/coldfront/static/bundles /app/coldfront/static/bundles
 # Copy the django app
 COPY --from=builder /app /app
 
+# Debug image should allow editing the checked-out app tree at runtime.
+USER root
+RUN chgrp -R 0 /app && \
+    chmod -R g=u /app
+USER ${CONTAINER_DEFAULT_USER}
+
 # Keep uv's runtime cache off /tmp for OpenShift compatibility.
 ENV UV_CACHE_DIR=/app/.cache/uv
 
