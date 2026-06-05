@@ -20,7 +20,7 @@ CENTER_BASE_URL = ENV.str("CENTER_BASE_URL", default="")
 # ------------------------------------------------------------------------------
 # Default HPC resource configuration
 # ------------------------------------------------------------------------------
-GENERAL_RESOURCE_NAME = ENV.str("GENERAL_RESOURCE_NAME", default="University HPC")
+GENERAL_RESOURCE_NAME = ENV.str("GENERAL_RESOURCE_NAME", default="UniversityHPC")
 
 # ------------------------------------------------------------------------------
 # Enable Research Outputs, Grants, Publications

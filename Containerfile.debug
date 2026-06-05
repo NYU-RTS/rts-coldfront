@@ -26,7 +26,7 @@ FROM registry.access.redhat.com/hi/python:3.12-builder AS builder
 
 USER root
 
-RUN dnf install -y git && dnf update -y
+RUN dnf update -y && dnf install -y git && dnf clean all
 
 COPY . /app
 
@@ -63,11 +63,22 @@ LABEL name="coldfront" \
       vendor="NYU RTS" \
       description="To gain inteactive access for a deployment of Coldfront in RTC" 
 
+USER root
+# debug image: tar for kubectl cp, git for re-installing deps
+RUN dnf update -y && dnf install -y tar git && dnf clean all
+USER ${CONTAINER_DEFAULT_USER}
+
 # Copy built bundles/manifest from frontend stage into the backend image
 COPY --from=frontend /app/coldfront/static/bundles /app/coldfront/static/bundles
 
 # Copy the django app
 COPY --from=builder /app /app
+
+# Debug image should allow editing the checked-out app tree at runtime.
+USER root
+RUN chgrp -R 0 /app && \
+    chmod -R g=u /app
+USER ${CONTAINER_DEFAULT_USER}
 
 # Keep uv's runtime cache off /tmp for OpenShift compatibility.
 ENV UV_CACHE_DIR=/app/.cache/uv

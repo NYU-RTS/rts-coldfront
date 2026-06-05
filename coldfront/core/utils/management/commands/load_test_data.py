@@ -219,6 +219,12 @@ class Command(BaseCommand):
                 is_allocatable=is_allocatable,
             )
 
+        ResourceAttribute.objects.get_or_create(
+            resource_attribute_type=ResourceAttributeType.objects.get(name="slurm_cluster"),
+            resource=Resource.objects.get(name=GENERAL_RESOURCE_NAME),
+            value=GENERAL_RESOURCE_NAME,
+        )
+
         pi1 = User.objects.get(username="cgray")
         pi1.userprofile.is_pi = True
         pi1.save()
@@ -282,45 +288,35 @@ class Command(BaseCommand):
         allocation_obj.resources.add(Resource.objects.get(name=GENERAL_RESOURCE_NAME))
         allocation_obj.save()
 
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="slurm_specs"
-        )
+        allocation_attribute_type_obj = AllocationAttributeType.objects.get(name="slurm_specs")
         AllocationAttribute.objects.get_or_create(
             allocation_attribute_type=allocation_attribute_type_obj,
             allocation=allocation_obj,
             value="Fairshare=100:QOS+=supporters",
         )
 
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="slurm_user_specs"
-        )
+        allocation_attribute_type_obj = AllocationAttributeType.objects.get(name="slurm_user_specs")
         AllocationAttribute.objects.get_or_create(
             allocation_attribute_type=allocation_attribute_type_obj,
             allocation=allocation_obj,
             value="Fairshare=parent",
         )
 
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="slurm_account_name"
-        )
+        allocation_attribute_type_obj = AllocationAttributeType.objects.get(name="slurm_account_name")
         AllocationAttribute.objects.get_or_create(
             allocation_attribute_type=allocation_attribute_type_obj,
             allocation=allocation_obj,
             value=f"torch_pr_{allocation_obj.project.pk}_general",
         )
 
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="SupportersQOS"
-        )
+        allocation_attribute_type_obj = AllocationAttributeType.objects.get(name="SupportersQOS")
         AllocationAttribute.objects.get_or_create(
             allocation_attribute_type=allocation_attribute_type_obj,
             allocation=allocation_obj,
             value="Yes",
         )
 
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="SupportersQOSExpireDate"
-        )
+        allocation_attribute_type_obj = AllocationAttributeType.objects.get(name="SupportersQOSExpireDate")
         AllocationAttribute.objects.get_or_create(
             allocation_attribute_type=allocation_attribute_type_obj,
             allocation=allocation_obj,
@@ -344,17 +340,13 @@ class Command(BaseCommand):
         )
         allocation_obj.resources.add(Resource.objects.get(name="Tandon"))
         allocation_obj.save()
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="slurm_account_name"
-        )
+        allocation_attribute_type_obj = AllocationAttributeType.objects.get(name="slurm_account_name")
         AllocationAttribute.objects.get_or_create(
             allocation_attribute_type=allocation_attribute_type_obj,
             allocation=allocation_obj,
             value=f"torch_pr_{allocation_obj.project.pk}_Tandon",
         )
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="Core Usage (Hours)"
-        )
+        allocation_attribute_type_obj = AllocationAttributeType.objects.get(name="Core Usage (Hours)")
         AllocationAttribute.objects.get_or_create(
             allocation_attribute_type=allocation_attribute_type_obj,
             allocation=allocation_obj,
@@ -437,9 +429,7 @@ class Command(BaseCommand):
             grant_number="12345",
             role="PI",
             grant_pi_full_name="Stephanie Foster",
-            funding_agency=GrantFundingAgency.objects.get(
-                name="Department of Defense (DoD)"
-            ),
+            funding_agency=GrantFundingAgency.objects.get(name="Department of Defense (DoD)"),
             grant_start=start_date,
             grant_end=end_date,
             percent_credit=20.0,
@@ -461,18 +451,14 @@ class Command(BaseCommand):
         allocation_obj.resources.add(Resource.objects.get(name=GENERAL_RESOURCE_NAME))
         allocation_obj.save()
 
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="slurm_account_name"
-        )
+        allocation_attribute_type_obj = AllocationAttributeType.objects.get(name="slurm_account_name")
         AllocationAttribute.objects.get_or_create(
             allocation_attribute_type=allocation_attribute_type_obj,
             allocation=allocation_obj,
             value=f"torch_pr_{allocation_obj.project.pk}_general",
         )
 
-        allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-            name="Core Usage (Hours)"
-        )
+        allocation_attribute_type_obj = AllocationAttributeType.objects.get(name="Core Usage (Hours)")
         allocation_attribute_obj, _ = AllocationAttribute.objects.get_or_create(
             allocation_attribute_type=allocation_attribute_type_obj,
             allocation=allocation_obj,
