@@ -23,9 +23,6 @@ class UserSearch(abc.ABC):
         if len(self.user_search_string.split()) > 1:
             search_by = "username_only"
             matches = []
-            number_of_usernames_found = 0
-            users_not_found = []
-
             user_search_string = sorted(list(set(self.user_search_string.split())))
             for username in user_search_string:
                 match = self.search_a_user(username, search_by)
@@ -71,17 +68,13 @@ class LocalUserSearch(UserSearch):
                 }
                 users.append(user_dict)
 
-        logger.info(
-            "Local user search for %s found %s results", user_search_string, len(users)
-        )
+        logger.info("Local user search for %s found %s results", user_search_string, len(users))
         return users
 
 
 class CombinedUserSearch:
     def __init__(self, user_search_string, search_by, usernames_names_to_exclude=[]):
-        self.USER_SEARCH_CLASSES = import_from_settings(
-            "ADDITIONAL_USER_SEARCH_CLASSES", []
-        )
+        self.USER_SEARCH_CLASSES = list(import_from_settings("ADDITIONAL_USER_SEARCH_CLASSES", []))
         self.USER_SEARCH_CLASSES.insert(0, "coldfront.core.user.utils.LocalUserSearch")
         self.user_search_string = user_search_string
         self.search_by = search_by
@@ -99,10 +92,7 @@ class CombinedUserSearch:
 
             for user in users:
                 username = user.get("username")
-                if (
-                    username not in usernames_found
-                    and username not in self.usernames_names_to_exclude
-                ):
+                if username not in usernames_found and username not in self.usernames_names_to_exclude:
                     usernames_found.append(username)
                     matches.append(user)
 
@@ -110,9 +100,7 @@ class CombinedUserSearch:
             number_of_usernames_searched = len(self.user_search_string.split())
             number_of_usernames_found = len(usernames_found)
             usernames_not_found = list(
-                set(self.user_search_string.split())
-                - set(usernames_found)
-                - set(self.usernames_names_to_exclude)
+                set(self.user_search_string.split()) - set(usernames_found) - set(self.usernames_names_to_exclude)
             )
         else:
             number_of_usernames_searched = None
