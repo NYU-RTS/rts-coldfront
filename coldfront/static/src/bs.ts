@@ -1,3 +1,4 @@
+import { Popover, Tooltip } from 'bootstrap';
 import { getElementsByQueryGenerator } from './util';
 
 function buildNativeHelpText(element: HTMLElement): string | null {
@@ -13,7 +14,7 @@ function buildNativeHelpText(element: HTMLElement): string | null {
 
 export function initBootstrap(): void {
   for (const element of getElementsByQueryGenerator(
-    '[data-bs-toggle="tooltip"], [data-bs-toggle="popover"]'
+    '[data-bs-toggle="tooltip"]'
   )) {
     const helpText = buildNativeHelpText(element);
     if (!helpText) {
@@ -22,5 +23,19 @@ export function initBootstrap(): void {
 
     element.setAttribute('title', helpText);
     element.setAttribute('aria-label', helpText);
+    Tooltip.getOrCreateInstance(element);
+  }
+
+  for (const element of getElementsByQueryGenerator(
+    '[data-bs-toggle="popover"]'
+  )) {
+    const helpText = buildNativeHelpText(element);
+    if (!helpText) {
+      continue;
+    }
+
+    element.setAttribute('title', helpText);
+    element.setAttribute('aria-label', helpText);
+    Popover.getOrCreateInstance(element);
   }
 }
