@@ -9,6 +9,42 @@
   background: #e2e2e2;
 }
 
+// Restore BS4-style link decoration: underline only on hover
+a {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Restore BS4-style table cell padding (BS5 default is more compact)
+.table {
+  --bs-table-cell-padding-y: 0.75rem;
+  --bs-table-cell-padding-x: 0.75rem;
+}
+
+// BS5 expects .active on .nav-link, but navbar_active_item puts it on .nav-item.
+// Active highlight (full-opacity color)
+.navbar-nav .nav-item.active > .nav-link {
+  color: #fff;
+}
+// Navbar links shouldn't get the global hover underline.
+.navbar-nav .nav-link:hover {
+  text-decoration: none;
+}
+
+// Cap container at BS4's xl max-width (BS5 added xxl=1320px on wide screens)
+@media (min-width: 1400px) {
+  .container,
+  .container-lg,
+  .container-md,
+  .container-sm,
+  .container-xl {
+    max-width: 1140px;
+  }
+}
+
 html {
   position: relative;
   min-height: 100%;

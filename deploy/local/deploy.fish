@@ -1,6 +1,11 @@
 #!/usr/bin/env fish
 
 # Run this from the project root directory
+
+# ----- Uncomment this when making frontend changes ------
+# pushd coldfront/static; and npm run build; and popd
+# --------------------------------------------------------
+
 uv run manage.py collectstatic --noinput
 podman build --tag "coldfront:debugpy" -f Containerfile.debugpy
 podman pod rm -f django-caddy-gunicorn

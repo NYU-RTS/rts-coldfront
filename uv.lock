@@ -207,7 +207,7 @@ version = "1.1.6"
 source = { editable = "." }
 dependencies = [
     { name = "coldfront-plugin-slurmrest" },
-    { name = "crispy-bootstrap4" },
+    { name = "crispy-bootstrap5" },
     { name = "django" },
     { name = "django-crispy-forms" },
     { name = "django-environ" },
@@ -264,7 +264,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "coldfront-plugin-slurmrest", git = "https://github.com/NYU-RTS/rts-coldfront-slurm-plugin" },
-    { name = "crispy-bootstrap4", specifier = ">=2024.10" },
+    { name = "crispy-bootstrap5", specifier = ">=2026.3" },
     { name = "django", specifier = ">5.2,<6" },
     { name = "django-auth-ldap", marker = "extra == 'auth'", specifier = "==5.1.0" },
     { name = "django-crispy-forms", specifier = ">=2.3" },
@@ -323,16 +323,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "crispy-bootstrap4"
-version = "2026.2"
+name = "crispy-bootstrap5"
+version = "2026.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
     { name = "django-crispy-forms" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5b/cc/638d36595da9fbb2c9d0be98bf6007442a65a521b614cf4645d04311b061/crispy_bootstrap4-2026.2.tar.gz", hash = "sha256:66f8f14bf9c2c16ed94243236ed253a94e5a625afa1ee64022ce29db98c6cd85", size = 34645, upload-time = "2026-02-11T22:45:05.422Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ab/e8/05e1170f6b8fbfe4098392bdca813c2094659853a438919234d4663009b1/crispy_bootstrap5-2026.3.tar.gz", hash = "sha256:e7f5adb36acfbb456444c46e82c436931c796c539e9c620be4fa9dc9c9d6679c", size = 23452, upload-time = "2026-03-01T10:08:00.459Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ad/6d/b90d601ea2449cc6b35b4b08be90fb1f6ca1baf2be383ed195f7bfa91a32/crispy_bootstrap4-2026.2-py3-none-any.whl", hash = "sha256:4b2b99dfe3e3cacb548702159462110901bd38792b650b770e50c62284ac2227", size = 23178, upload-time = "2026-02-11T22:45:04.108Z" },
+    { url = "https://files.pythonhosted.org/packages/9d/2d/93f78072f203aa28d961add6a130b929b47f7aa3fef6905898b4bb9a637d/crispy_bootstrap5-2026.3-py3-none-any.whl", hash = "sha256:e0fff85c0503e9aed610a0ee31368e2191d340657f813669491c288c1c2e2dfa", size = 24770, upload-time = "2026-03-01T10:07:59.058Z" },
 ]
 
 [[package]]
