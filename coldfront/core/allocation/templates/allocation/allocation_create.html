@@ -139,17 +139,17 @@ document.addEventListener('DOMContentLoaded', function() {
   $("#id_resource").change(function () {
     var resource_id = $("#id_resource option:selected").val();
     if (resources_form_description[resource_id]) {
-      $('#resource_description').html(resources_form_description[resource_id])
+      $('#resource_description').text(resources_form_description[resource_id])
       $('#resource_description').show()
     } else {
-      $('#resource_description').html("")
+      $('#resource_description').text("")
       $('#resource_description').hide()
     }
 
     if (resources_form_default_quantities[resource_id]) {
       var label = $('label[for="id_quantity"]');
       if (resources_form_label_texts[resource_id]) {
-        label.html(resources_form_label_texts[resource_id])
+        label.empty().append($('<strong>').text(resources_form_label_texts[resource_id] + '*'))
       } else {
         label.html('<strong>Quantity*</strong>')
       }
