@@ -19,11 +19,3 @@ SLURMREST_USER_SPECS_ATTRIBUTE_NAME = ENV.str("SLURM_USER_SPECS_ATTRIBUTE_NAME",
 SLURMREST_NOOP = ENV.bool("SLURM_NOOP", default=False)
 SLURMREST_IGNORE_USERS = ENV.list("SLURM_IGNORE_USERS", default=["root"])
 SLURMREST_IGNORE_ACCOUNTS = ENV.list("SLURM_IGNORE_ACCOUNTS", default=[])
-
-SLURMREST_CLUSTERS = {}
-for cluster in filter(None, ENV.str("SLURMREST_CLUSTERS", "").split(",")):
-    cluster_name = f"SLURM_{cluster.upper()}"
-
-    SLURMREST_CLUSTERS[cluster] = {
-        "name": cluster,
-    }
