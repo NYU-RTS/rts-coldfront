@@ -305,6 +305,7 @@ Project Detail
   <div class="card-header">
     <h3 class="d-inline" id="grants"><i class="fas fa-trophy" aria-hidden="true"></i> Grants</h3> <span class="badge bg-secondary">{{grants.count}}</span>
     <div class="float-end">
+      {% with project.latest_grant as latest_grant %}
       {% if latest_grant.modified %}
         <span class="badge bg-info text-dark">Last Updated: {{latest_grant.modified|date:"M. d, Y"}}</span>
       {% endif %}
