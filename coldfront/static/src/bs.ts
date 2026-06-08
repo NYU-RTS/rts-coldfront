@@ -1,32 +1,26 @@
-import { Collapse, Tooltip, Popover } from 'bootstrap';
 import { getElementsByQueryGenerator } from './util';
 
-export function initTooltips() {
-  for (const tooltip of getElementsByQueryGenerator(
-    '[data-bs-toggle="tooltip"]'
-  )) {
-    new Tooltip(tooltip, { container: 'body' });
-  }
-}
+function buildNativeHelpText(element: HTMLElement): string | null {
+  const title = element.getAttribute('title') || element.dataset.bsTitle || '';
+  const content = element.dataset.bsContent || '';
 
-export function initPopovers() {
-  for (const popover of getElementsByQueryGenerator(
-    '[data-bs-toggle="popover"]'
-  )) {
-    new Popover(popover);
+  if (title && content && title !== content) {
+    return `${title}: ${content}`;
   }
-}
 
-export function initCollapse() {
-  for (const collapse of getElementsByQueryGenerator(
-    '[data-bs-toggle="collapse"]'
-  )) {
-    new Collapse(collapse);
-  }
+  return content || title || null;
 }
 
 export function initBootstrap(): void {
-  for (const func of [initTooltips, initPopovers]) {
-    func();
+  for (const element of getElementsByQueryGenerator(
+    '[data-bs-toggle="tooltip"], [data-bs-toggle="popover"]'
+  )) {
+    const helpText = buildNativeHelpText(element);
+    if (!helpText) {
+      continue;
+    }
+
+    element.setAttribute('title', helpText);
+    element.setAttribute('aria-label', helpText);
   }
 }
