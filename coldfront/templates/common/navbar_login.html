@@ -1,5 +1,5 @@
 <li id="navbar-user" class="nav-item dropdown">
-  <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
     <i class="fas fa-user" aria-hidden="true"></i> {{user.username}}
   </a>
   <div class="dropdown-menu">
@@ -7,10 +7,3 @@
     <button class="dropdown-item" hx-post="{% url 'logout' %}" hx-swap="none"><i class="fas fa-sign-out-alt" aria-hidden="true"></i> Log Out</button>
   </div>
 </li>
-<ul class="navbar-nav ms-auto">
-  <form class="d-flex flex-wrap align-items-center gap-2">
-    {% csrf_token %}
-    <button type="button" class="btn-nyu-primary-violet" hx-post="/user/logout" hx-swap="none"><i class="fas fa-sign-out-alt" aria-hidden="true"></i>
-      Log Out</button>
-  </form>
-</ul>

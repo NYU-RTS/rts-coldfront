@@ -24,9 +24,9 @@ a {
   --bs-table-cell-padding-x: 0.75rem;
 }
 
-// BS5 expects .active on .nav-link, but navbar_active_item puts it on .nav-item.
-// Active highlight (full-opacity color)
-.navbar-nav .nav-item.active > .nav-link {
+// Keep active styling working whether .active is placed on the nav item or link.
+.navbar-nav .nav-item.active > .nav-link,
+.navbar-nav .nav-link.active {
   color: #fff;
 }
 // Navbar links shouldn't get the global hover underline.
