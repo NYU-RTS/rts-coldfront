@@ -16,7 +16,6 @@ $(document).ready(function () {
 
   drawPublications();
   drawGrantsByAgency();
-  get_allocation_by_fos();
   get_allocation_summary();
 });
 
@@ -70,22 +69,6 @@ function get_allocation_summary() {
     url: '/allocation-summary',
     success: function (data) {
       $('#allocation-summary').html(data);
-    },
-  });
-}
-
-function get_allocation_by_fos() {
-  $.ajax({
-    headers: { 'X-CSRFToken': getCookie('csrftoken') },
-    type: 'GET',
-    url: '/allocation-by-fos',
-    success: function (data) {
-      $('#allocation-by-fos').html(data);
-      new DataTable('#fos-table', {
-        pageLength: 10,
-        orderClasses: false,
-        order: [[1, 'desc']],
-      });
     },
   });
 }

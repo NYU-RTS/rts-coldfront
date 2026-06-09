@@ -21,10 +21,7 @@ urlpatterns = [
     ),
     path("", portal_views.home, name="home"),
     path("center-summary", portal_views.center_summary, name="center-summary"),
-    path(
-        "allocation-summary", portal_views.allocation_summary, name="allocation-summary"
-    ),
-    # path('allocation-by-fos', portal_views.allocation_by_fos, name='allocation-by-fos'),
+    path("allocation-summary", portal_views.allocation_summary, name="allocation-summary"),
     path("user/", include("coldfront.core.user.urls")),
     path("project/", include("coldfront.core.project.urls")),
     path("allocation/", include("coldfront.core.allocation.urls")),
@@ -38,9 +35,7 @@ if settings.PUBLICATION_ENABLE:
     urlpatterns.append(path("publication/", include("coldfront.core.publication.urls")))
 
 if settings.RESEARCH_OUTPUT_ENABLE:
-    urlpatterns.append(
-        path("research-output/", include("coldfront.core.research_output.urls"))
-    )
+    urlpatterns.append(path("research-output/", include("coldfront.core.research_output.urls")))
 
 if "coldfront.plugins.iquota" in settings.INSTALLED_APPS:
     urlpatterns.append(path("iquota/", include("coldfront.plugins.iquota.urls")))
