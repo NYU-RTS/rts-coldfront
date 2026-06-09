@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import './scss/coldfront.scss';
-import { Alert, Collapse, Dropdown, Modal, Popover, Tooltip } from 'bootstrap';
+import * as bootstrap from 'bootstrap';
 import 'htmx.org';
 import { initDateSelector } from './dateSelector';
 import { initSelect2 } from './select2';
@@ -24,7 +24,7 @@ Object.assign(window, {
   },
   $: jQuery,
   jQuery,
-  bootstrap: { Alert, Collapse, Dropdown, Modal, Popover, Tooltip },
+  bootstrap,
 });
 
 function initDocument(): void {
