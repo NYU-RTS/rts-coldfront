@@ -47,16 +47,20 @@ class GrantCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
             "New",
         ]:
             messages.error(request, "You cannot add grants to an archived project.")
-            return HttpResponseRedirect(
-                reverse("project-detail", kwargs={"pk": project_obj.pk})
-            )
+            return HttpResponseRedirect(reverse("project-detail", kwargs={"pk": project_obj.pk}))
         else:
             return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         form_data = form.cleaned_data
         project_obj = get_object_or_404(Project, pk=self.kwargs.get("project_pk"))
-        grant_obj = Grant.objects.create(
+        if form_data.get("grant_end") < form_data.get("grant_start"):
+            form.add_error(
+                None,
+                f"Grant end date: {form_data.get('grant_end')} is before the start date: {form_data.get('grant_start')}!",
+            )
+            return self.form_invalid(form)
+        _ = Grant.objects.create(
             project=project_obj,
             title=form_data.get("title"),
             grant_number=form_data.get("grant_number"),
@@ -200,16 +204,12 @@ class GrantDeleteGrantsView(LoginRequiredMixin, UserPassesTestMixin, TemplateVie
                     grant_obj.delete()
                     grants_deleted_count += 1
 
-            messages.success(
-                request, "Deleted {} grants from project.".format(grants_deleted_count)
-            )
+            messages.success(request, "Deleted {} grants from project.".format(grants_deleted_count))
         else:
             for error in formset.errors:
                 messages.error(request, error)
 
-        return HttpResponseRedirect(
-            reverse("project-detail", kwargs={"pk": project_obj.pk})
-        )
+        return HttpResponseRedirect(reverse("project-detail", kwargs={"pk": project_obj.pk}))
 
     def get_success_url(self):
         return reverse("project-detail", kwargs={"pk": self.object.project.id})
@@ -229,11 +229,7 @@ class GrantReportView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         messages.error(self.request, "You do not have permission to view all grants.")
 
     def get_grants(self):
-        grants = (
-            Grant.objects.prefetch_related("project", "project__pi")
-            .all()
-            .order_by("-total_amount_awarded")
-        )
+        grants = Grant.objects.prefetch_related("project", "project__pi").all().order_by("-total_amount_awarded")
         grants = [
             {
                 "pk": grant.pk,
@@ -296,9 +292,7 @@ class GrantReportView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
                     row = [
                         grant.title,
-                        " ".join(
-                            (grant.project.pi.first_name, grant.project.pi.last_name)
-                        ),
+                        " ".join((grant.project.pi.first_name, grant.project.pi.last_name)),
                         grant.role,
                         grant.grant_pi_full_name,
                         grant.total_amount_awarded,
@@ -315,16 +309,12 @@ class GrantReportView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
             if grants_selected_count == 0:
                 grants = (
-                    Grant.objects.prefetch_related("project", "project__pi")
-                    .all()
-                    .order_by("-total_amount_awarded")
+                    Grant.objects.prefetch_related("project", "project__pi").all().order_by("-total_amount_awarded")
                 )
                 for grant in grants:
                     row = [
                         grant.title,
-                        " ".join(
-                            (grant.project.pi.first_name, grant.project.pi.last_name)
-                        ),
+                        " ".join((grant.project.pi.first_name, grant.project.pi.last_name)),
                         grant.role,
                         grant.grant_pi_full_name,
                         grant.total_amount_awarded,
@@ -340,9 +330,7 @@ class GrantReportView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             rows.insert(0, header)
             pseudo_buffer = Echo()
             writer = csv.writer(pseudo_buffer)
-            response = StreamingHttpResponse(
-                (writer.writerow(row) for row in rows), content_type="text/csv"
-            )
+            response = StreamingHttpResponse((writer.writerow(row) for row in rows), content_type="text/csv")
             response["Content-Disposition"] = 'attachment; filename="grants.csv"'
             return response
         else:
@@ -362,9 +350,7 @@ class GrantDownloadView(LoginRequiredMixin, UserPassesTestMixin, View):
         if self.request.user.has_perm("grant.can_view_all_grants"):
             return True
 
-        messages.error(
-            self.request, "You do not have permission to download all grants."
-        )
+        messages.error(self.request, "You do not have permission to download all grants.")
 
     def get(self, request):
         header = [
@@ -382,11 +368,7 @@ class GrantDownloadView(LoginRequiredMixin, UserPassesTestMixin, View):
         ]
 
         rows = []
-        grants = (
-            Grant.objects.prefetch_related("project", "project__pi")
-            .all()
-            .order_by("-total_amount_awarded")
-        )
+        grants = Grant.objects.prefetch_related("project", "project__pi").all().order_by("-total_amount_awarded")
         for grant in grants:
             row = [
                 grant.title,
@@ -406,8 +388,6 @@ class GrantDownloadView(LoginRequiredMixin, UserPassesTestMixin, View):
         rows.insert(0, header)
         pseudo_buffer = Echo()
         writer = csv.writer(pseudo_buffer)
-        response = StreamingHttpResponse(
-            (writer.writerow(row) for row in rows), content_type="text/csv"
-        )
+        response = StreamingHttpResponse((writer.writerow(row) for row in rows), content_type="text/csv")
         response["Content-Disposition"] = 'attachment; filename="grants.csv"'
         return response
