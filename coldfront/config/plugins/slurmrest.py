@@ -3,7 +3,7 @@ from coldfront.config.env import ENV  # noqa: F401
 
 
 INSTALLED_APPS += [
-    "coldfront_plugin_slurmrest",
+    "coldfront.plugins.slurmrest",
 ]
 
 SLURMREST_CLUSTER_ATTRIBUTE_NAME = ENV.str("SLURM_CLUSTER_ATTRIBUTE_NAME", default="slurm_cluster")
