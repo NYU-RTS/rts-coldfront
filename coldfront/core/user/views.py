@@ -6,8 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LogoutView
-from django.db.models import BooleanField, Prefetch
-from django.db.models.expressions import ExpressionWrapper, F, Q
+from django.db.models import BooleanField, Prefetch, Q
+from django.db.models.expressions import ExpressionWrapper, F
 from django.db.models.functions import Lower
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render

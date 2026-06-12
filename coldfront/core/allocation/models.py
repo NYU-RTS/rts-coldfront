@@ -6,7 +6,7 @@ from enum import Enum
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.html import mark_safe
+from django.utils.safestring import mark_safe
 from django.utils.module_loading import import_string
 from model_utils.models import TimeStampedModel
 from simple_history.models import HistoricalRecords
