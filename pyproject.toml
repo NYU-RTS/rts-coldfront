@@ -52,13 +52,6 @@ dependencies = [
     "xdmod-data>=1.1.0",
 ]
 
-[project.optional-dependencies]
-auth = [
-  "django-auth-ldap==5.1.0",
-  "ldap3==2.9.1",
-  "python-ldap==3.4.4",
-]
-
 prod = [
   "gunicorn==23.0.0",
   "mozilla-django-oidc>=4.0.1",
