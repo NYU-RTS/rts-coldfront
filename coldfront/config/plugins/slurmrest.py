@@ -1,5 +1,4 @@
 import logging
-import sys
 
 from coldfront.config.base import INSTALLED_APPS
 from coldfront.config.env import ENV  # noqa: F401
