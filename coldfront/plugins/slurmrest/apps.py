@@ -6,4 +6,4 @@ from django.apps import AppConfig
 
 
 class SlurmRestConfig(AppConfig):
-    name = "coldfront_plugin_slurmrest"
+    name = "coldfront.plugins.slurmrest"
