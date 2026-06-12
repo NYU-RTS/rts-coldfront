@@ -47,6 +47,11 @@ ENV UV_CACHE_DIR=/app/.cache/uv
 
 RUN uv sync --locked --extra prod
 
+# Installed separately (not in pyproject.toml) because the plugin depends on coldfront,
+# creating a circular dependency if listed there. Django discovers its management commands
+# via INSTALLED_APPS at runtime, so a separate install is sufficient.
+RUN uv pip install "git+https://github.com/NYU-RTS/rts-coldfront-slurm-plugin@use-newer-client"
+
 RUN chgrp -R 0 /app/.cache && \
     chmod -R g=u /app/.cache
 
