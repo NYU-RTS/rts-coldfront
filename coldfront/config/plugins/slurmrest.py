@@ -1,14 +1,10 @@
-import logging
-
 from coldfront.config.base import INSTALLED_APPS
 from coldfront.config.env import ENV  # noqa: F401
 
-logger = logging.getLogger(__name__)
 
-if "coldfront_plugin_slurmrest" not in INSTALLED_APPS:
-    INSTALLED_APPS += [
-        "coldfront_plugin_slurmrest",
-    ]
+INSTALLED_APPS += [
+    "coldfront_plugin_slurmrest",
+]
 
 SLURMREST_CLUSTER_ATTRIBUTE_NAME = ENV.str("SLURM_CLUSTER_ATTRIBUTE_NAME", default="slurm_cluster")
 SLURMREST_ACCOUNT_ATTRIBUTE_NAME = ENV.str("SLURM_ACCOUNT_ATTRIBUTE_NAME", default="slurm_account_name")
