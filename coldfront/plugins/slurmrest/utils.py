@@ -21,16 +21,12 @@ logger = logging.getLogger(__name__)
 
 
 def log_request(request):
-    logger.info(
-        f"Request event hook: {request.method} {request.url} - Waiting for response"
-    )
+    logger.info(f"Request event hook: {request.method} {request.url} - Waiting for response")
 
 
 def log_response(response):
     request = response.request
-    logger.info(
-        f"Response event hook: {request.method} {request.url} - Status {response.status_code}"
-    )
+    logger.info(f"Response event hook: {request.method} {request.url} - Status {response.status_code}")
 
 
 class SlurmCluster:
@@ -41,9 +37,7 @@ class SlurmCluster:
                 "X-SLURM-USER-NAME": "root",
                 "X-SLURM-USER-TOKEN": token,
             },
-            httpx_args={
-                "event_hooks": {"request": [log_request], "response": [log_response]}
-            },
+            httpx_args={"event_hooks": {"request": [log_request], "response": [log_response]}},
         )
 
     @retry(
@@ -55,12 +49,8 @@ class SlurmCluster:
     )
     def get_accounts(self) -> list[V0043Account]:
         with self.root_client as client:
-            resp = slurmdb_v0043_get_accounts.sync(
-                client=client, with_associations=str("true")
-            )
+            resp = slurmdb_v0043_get_accounts.sync(client=client, with_associations=str("true"))
             if resp:
                 return resp.accounts
             else:
-                raise ConnectionError(
-                    "Could not get list of accounts from SLURM endpoint"
-                )
+                raise ConnectionError("Could not get list of accounts from SLURM endpoint")

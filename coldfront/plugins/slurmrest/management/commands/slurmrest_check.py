@@ -11,14 +11,12 @@ from coldfront.core.resource.models import Resource, ResourceAttribute
 from coldfront.core.allocation.models import Allocation
 from coldfront.core.utils.common import import_from_settings
 
-from coldfront_plugin_slurmrest.utils import SlurmCluster
+from coldfront.plugins.slurmrest.utils import SlurmCluster
 
 from slurm_rest_api_client.models.v0043_account import V0043Account
 from slurm_rest_api_client.types import Unset
 
-SLURMREST_CLUSTER_ATTRIBUTE_NAME = import_from_settings(
-    "SLURMREST_CLUSTER_ATTRIBUTE_NAME", []
-)
+SLURMREST_CLUSTER_ATTRIBUTE_NAME = import_from_settings("SLURMREST_CLUSTER_ATTRIBUTE_NAME", [])
 SLURM_IGNORE_USERS = import_from_settings("SLURM_IGNORE_USERS", [])
 SLURM_IGNORE_ACCOUNTS = import_from_settings("SLURM_IGNORE_ACCOUNTS", [])
 SLURM_IGNORE_CLUSTERS = import_from_settings("SLURM_IGNORE_CLUSTERS", [])
@@ -43,12 +41,8 @@ class Command(BaseCommand):
             help="Print commands only. Do not run any commands.",
             action="store_true",
         )
-        parser.add_argument(
-            "-c", "--cluster", help="SLURM cluster name cluster", default=None
-        )
-        parser.add_argument(
-            "-e", "--endpoint", help="SLURM REST API Endpoint", default=None
-        )
+        parser.add_argument("-c", "--cluster", help="SLURM cluster name cluster", default=None)
+        parser.add_argument("-e", "--endpoint", help="SLURM REST API Endpoint", default=None)
         parser.add_argument(
             "-t",
             "--token",
@@ -92,9 +86,7 @@ class Command(BaseCommand):
         """Check for accounts in Slurm NOT in ColdFront"""
         allocation_dict: dict[str, Allocation] = {}
         # set of all (stakeholder) resources that can have allocations
-        resources: set[Resource] = {
-            resource for resource in coldfront_resource.resource_set.all()
-        }
+        resources: set[Resource] = {resource for resource in coldfront_resource.resource_set.all()}
         # also add parent cluster resource!
         resources.add(coldfront_resource)
 
@@ -120,9 +112,7 @@ class Command(BaseCommand):
 
             if account.name in allocation_dict:
                 logger.debug("Slurm account %s found in ColdFront", account.name)
-                allocation_users = allocation_dict[
-                    account.name
-                ].allocationuser_set.filter(status__name="Active")
+                allocation_users = allocation_dict[account.name].allocationuser_set.filter(status__name="Active")
 
                 for association in account.associations:
                     # Only SLURM devs know whey some associations are two way (account, cluster)
@@ -132,9 +122,7 @@ class Command(BaseCommand):
 
                     username = association["user"]
                     if username == "root" or self._skip_user(username, account.name):
-                        logger.debug(
-                            "Ignoring user %s in account %s", username, account.name
-                        )
+                        logger.debug("Ignoring user %s in account %s", username, account.name)
                         continue
                     if username in [au.user.username for au in allocation_users]:
                         logger.debug(
@@ -157,9 +145,7 @@ class Command(BaseCommand):
 
                     username = association["user"]
                     if username == "root" or self._skip_user(username, account.name):
-                        logger.debug(
-                            "Ignoring user %s in account %s", username, account.name
-                        )
+                        logger.debug("Ignoring user %s in account %s", username, account.name)
                         continue
 
                     logger.warning(
@@ -202,9 +188,7 @@ class Command(BaseCommand):
         self.filter_account = options["account"]
 
         logger.info(f"Checking Slurm cluster: {cluster_name}")
-        slurm_cluster = SlurmCluster(
-            endpoint=options["endpoint"], token=options["token"]
-        )
+        slurm_cluster = SlurmCluster(endpoint=options["endpoint"], token=options["token"])
 
         if cluster_name in SLURM_IGNORE_CLUSTERS:
             logger.warning("Ignoring cluster %s. Nothing to do.", cluster_name)

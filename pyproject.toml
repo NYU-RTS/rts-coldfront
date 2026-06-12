@@ -47,6 +47,7 @@ dependencies = [
     "python-dateutil>=2.9.0",
     "redis>=5.2.1",
     "requests>=2.32.3",
+    "slurm-rest-api-client",
     "tenacity>=9.1.4",
     "xdmod-data>=1.1.0",
 ]
@@ -111,3 +112,6 @@ plugins = ["mypy_django_plugin.main"]
 
 [tool.django-stubs]
 django_settings_module = "coldfront.config.settings"
+
+[tool.uv.sources]
+slurm-rest-api-client = { git = "https://github.com/NYU-RTS/rts-slurm-python-sdk", branch = "slimmer-cleaner-client-sdk" }

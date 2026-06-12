@@ -219,6 +219,7 @@ dependencies = [
     { name = "python-dateutil" },
     { name = "redis" },
     { name = "requests" },
+    { name = "slurm-rest-api-client" },
     { name = "tenacity" },
     { name = "xdmod-data" },
 ]
@@ -282,6 +283,7 @@ requires-dist = [
     { name = "python-ldap", marker = "extra == 'auth'", specifier = "==3.4.4" },
     { name = "redis", specifier = ">=5.2.1" },
     { name = "requests", specifier = ">=2.32.3" },
+    { name = "slurm-rest-api-client", git = "https://github.com/NYU-RTS/rts-slurm-python-sdk?branch=slimmer-cleaner-client-sdk" },
     { name = "tenacity", specifier = ">=9.1.4" },
     { name = "xdmod-data", specifier = ">=1.1.0" },
 ]
@@ -1437,6 +1439,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
+]
+
+[[package]]
+name = "slurm-rest-api-client"
+version = "0.0.1"
+source = { git = "https://github.com/NYU-RTS/rts-slurm-python-sdk?branch=slimmer-cleaner-client-sdk#40b87894bfcbe6f9f88f02fcf3e6a600952b06b2" }
+dependencies = [
+    { name = "attrs" },
+    { name = "httpx" },
 ]
 
 [[package]]
