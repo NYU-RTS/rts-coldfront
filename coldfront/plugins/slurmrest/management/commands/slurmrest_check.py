@@ -154,7 +154,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        verbosity = int(options["verbosity"])
+        verbosity: int = options["verbosity"]
         root_logger = logging.getLogger("")
         if verbosity == 0:
             root_logger.setLevel(logging.ERROR)
