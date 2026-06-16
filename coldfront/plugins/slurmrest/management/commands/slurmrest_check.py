@@ -100,7 +100,7 @@ class Command(BaseCommand):
 
         for account in cluster_accounts:
             if account.name == "root" or self._skip_account(account.name):
-                logger.debug("Ignoring account %s", account["name"])
+                logger.debug("Ignoring account %s", account.name)
                 continue
 
             if isinstance(account.associations, Unset):
