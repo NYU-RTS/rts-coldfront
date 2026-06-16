@@ -52,6 +52,7 @@ dependencies = [
     "xdmod-data>=1.1.0",
 ]
 
+[project.optional-dependencies]
 prod = [
   "gunicorn==23.0.0",
   "mozilla-django-oidc>=4.0.1",
