@@ -115,10 +115,10 @@ class Command(BaseCommand):
                 for association in account.associations:
                     # Only SLURM devs know whey some associations are two way (account, cluster)
                     # when most others are 4-way (user, account, cluster, partition)
-                    if not association["user"]:
+                    if not association.user:
                         continue
 
-                    username = association["user"]
+                    username = association.user
                     if username == "root" or self._skip_user(username, account.name):
                         logger.debug("Ignoring user %s in account %s", username, account.name)
                         continue
@@ -138,10 +138,10 @@ class Command(BaseCommand):
                 for association in account.associations:
                     # Only SLURM devs know whey some associations are two way (account, cluster)
                     # when most others are 4-way (user, account, cluster, partition)
-                    if not association["user"]:
+                    if not association.user:
                         continue
 
-                    username = association["user"]
+                    username = association.user
                     if username == "root" or self._skip_user(username, account.name):
                         logger.debug("Ignoring user %s in account %s", username, account.name)
                         continue
