@@ -6,15 +6,13 @@ import logging
 import sys
 
 from django.core.management.base import BaseCommand
-
-from coldfront.core.resource.models import Resource, ResourceAttribute
-from coldfront.core.allocation.models import Allocation
-from coldfront.core.utils.common import import_from_settings
-
-from coldfront.plugins.slurmrest.utils import SlurmCluster
-
 from slurm_rest_api_client.models.v0043_account import V0043Account
 from slurm_rest_api_client.types import Unset
+
+from coldfront.core.allocation.models import Allocation
+from coldfront.core.resource.models import Resource, ResourceAttribute
+from coldfront.core.utils.common import import_from_settings
+from coldfront.plugins.slurmrest.utils import SlurmCluster
 
 SLURMREST_CLUSTER_ATTRIBUTE_NAME = import_from_settings("SLURMREST_CLUSTER_ATTRIBUTE_NAME", [])
 SLURM_IGNORE_USERS = import_from_settings("SLURM_IGNORE_USERS", [])
