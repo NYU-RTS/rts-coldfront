@@ -2,20 +2,24 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-import sys
 import logging
+import sys
 
-from tenacity import (
-    retry,
-    wait_exponential,
-    stop_after_attempt,
-    retry_if_not_exception_type,
-    before_sleep_log,
-)
 from slurm_rest_api_client import Client
+from slurm_rest_api_client.api.slurm import slurm_v0043_delete_jobs
+from slurm_rest_api_client.api.slurmdb import slurmdb_v0043_get_accounts, slurmdb_v0043_post_associations
 from slurm_rest_api_client.models.v0043_account import V0043Account
-from slurm_rest_api_client.api.slurmdb import slurmdb_v0043_get_accounts
-
+from slurm_rest_api_client.models.v0043_assoc import V0043Assoc
+from slurm_rest_api_client.models.v0043_assoc_max import V0043AssocMax
+from slurm_rest_api_client.models.v0043_kill_jobs_resp import V0043KillJobRespJob
+from slurm_rest_api_client.models.v0043_openapi_error import V0043OpenApiError
+from tenacity import (
+    before_sleep_log,
+    retry,
+    retry_if_not_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +35,21 @@ def log_response(response):
 
 class SlurmCluster:
     def __init__(self, endpoint, token):
+        # for most operations, re-use the root client
         self.root_client: Client = Client(
             base_url=endpoint,
             headers={
                 "X-SLURM-USER-NAME": "root",
+                "X-SLURM-USER-TOKEN": token,
+            },
+            httpx_args={"event_hooks": {"request": [log_request], "response": [log_response]}},
+        )
+
+        # for some operations, instantiate a user client when possible
+        # note that this needs the X-SLURM-USER-NAME header upon instantiation
+        self.user_client: Client = Client(
+            base_url=endpoint,
+            headers={
                 "X-SLURM-USER-TOKEN": token,
             },
             httpx_args={"event_hooks": {"request": [log_request], "response": [log_response]}},
@@ -54,3 +69,37 @@ class SlurmCluster:
                 return resp.accounts
             else:
                 raise ConnectionError("Could not get list of accounts from SLURM endpoint")
+
+    # retry the whole block atomically
+    @retry(
+        wait=wait_exponential(multiplier=2, min=2, max=10),
+        stop=stop_after_attempt(3),
+        retry=retry_if_not_exception_type(ConnectionError),
+        before_sleep=before_sleep_log(logging.getLogger(__name__), logging.WARNING),
+    )
+    def delete_association_user_account(self, username: str, account: str):
+        # start by deleting active jobs for this user
+        with self.user_client(headers={"X-SLURM-USER-NAME": f"{username}"}):
+            jobs_delete_resp = slurm_v0043_delete_jobs.sync(
+                client=self.user_client, user_name=username, account=account
+            )
+            if jobs_delete_resp:
+                deletion_statuses: list[V0043KillJobRespJob] = jobs_delete_resp.status
+                for status in deletion_statuses:
+                    logging.debeg(f"deletion status: {status}")
+                if isinstance(jobs_delete_resp.error, list[V0043OpenApiError]):
+                    for error in jobs_delete_resp.error:
+                        logging.warning(f"error deleting job: {error}")
+                    raise RuntimeError(f"Could not delete jobs for user: {username} with account: {account}")
+            else:
+                raise ConnectionError(f"Could not delete jobs for user: {username} with account: {account}")
+
+        # set maxsubmit to 0
+        with self.root_client():
+            max_submit_assoc: V0043Assoc = V0043Assoc(user=username, account=account, max_=V0043AssocMax(jobs=0))
+            maxsubmit_set_resp = slurmdb_v0043_post_associations.sync(
+                client=self.root_client, associatons=[max_submit_assoc]
+            )
+            if maxsubmit_set_resp:
+                logger.info("resp")
+            return

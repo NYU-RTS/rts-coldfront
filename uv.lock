@@ -1449,7 +1449,7 @@ wheels = [
 [[package]]
 name = "slurm-rest-api-client"
 version = "0.0.1"
-source = { git = "https://github.com/NYU-RTS/rts-slurm-python-sdk?branch=slimmer-cleaner-client-sdk#40b87894bfcbe6f9f88f02fcf3e6a600952b06b2" }
+source = { git = "https://github.com/NYU-RTS/rts-slurm-python-sdk?branch=slimmer-cleaner-client-sdk#fbcd732acb9ea8f2949ccf6f40d991d8b2a9528a" }
 dependencies = [
     { name = "attrs" },
     { name = "httpx" },

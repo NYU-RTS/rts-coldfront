@@ -96,7 +96,7 @@ class Command(BaseCommand):
                 ).value
                 allocation_dict[slurm_acconut_name] = allocation
 
-        cluster_accounts: list[V0043Account] = slurm_cluster.get_accounts()
+        cluster_accounts: list[V0043Account] = self.slurm_cluster.get_accounts()
 
         for account in cluster_accounts:
             if account.name == "root" or self._skip_account(account.name):
@@ -130,6 +130,8 @@ class Command(BaseCommand):
                         logger.warning(
                             f"SLURM user: {username} has no association with account: {account.name} in ColdFront, removing association",
                         )
+                        self.slurm_cluster.delete_association_user_account(username, account.name)
+
             else:
                 for association in account.associations:
                     # Only SLURM devs know whey some associations are two way (account, cluster)
@@ -180,7 +182,7 @@ class Command(BaseCommand):
         self.filter_account = options["account"]
 
         logger.info(f"Checking Slurm cluster: {cluster_name}")
-        slurm_cluster = SlurmCluster(endpoint=options["endpoint"], token=options["token"])
+        self.slurm_cluster = SlurmCluster(endpoint=options["endpoint"], token=options["token"])
 
         if cluster_name in SLURM_IGNORE_CLUSTERS:
             logger.warning("Ignoring cluster %s. Nothing to do.", cluster_name)
