@@ -131,7 +131,7 @@ class Command(BaseCommand):
                             f"SLURM user: {username} has no association with account: {account.name} in ColdFront, removing association",
                         )
                         try:
-                            self.slurm_cluster.delete_association_user_account(username, account.name)
+                            self.slurm_cluster.delete_association_user_account(username, account.name, self.noop)
                         except RuntimeError:
                             logging.warning(
                                 f"Could not delete association for user: {username} and account: {account.name}"
@@ -171,7 +171,7 @@ class Command(BaseCommand):
             self.sync = True
             logger.warning("Syncing Slurm with ColdFront")
 
-        self.noop = SLURM_NOOP
+        self.noop: bool = SLURM_NOOP
         if options["noop"]:
             self.noop = True
             logger.warning("NOOP enabled")

@@ -13,11 +13,9 @@ from slurm_rest_api_client.models.v0043_assoc import V0043Assoc
 from slurm_rest_api_client.models.v0043_assoc_max import V0043AssocMax
 from slurm_rest_api_client.models.v0043_assoc_max_jobs import V0043AssocMaxJobs
 from slurm_rest_api_client.models.v0043_kill_jobs_msg import V0043KillJobsMsg
-
 from slurm_rest_api_client.models.v0043_kill_jobs_resp_job import V0043KillJobsRespJob
 from slurm_rest_api_client.models.v0043_openapi_assocs_resp import V0043OpenapiAssocsResp
 from slurm_rest_api_client.models.v0043_uint_32_no_val_struct import V0043Uint32NoValStruct
-from slurm_rest_api_client.types import UNSET
 from tenacity import (
     before_sleep_log,
     retry,
@@ -74,7 +72,10 @@ class SlurmCluster:
         retry=retry_if_not_exception_type(ConnectionError),
         before_sleep=before_sleep_log(logging.getLogger(__name__), logging.WARNING),
     )
-    def delete_association_user_account(self, username: str, account: str) -> None:
+    def delete_association_user_account(self, username: str, account: str, noop: bool = False) -> None:
+        if noop:
+            logging.info(f"noop enabled: skip deleting association between user: {username} and acconut: {account}")
+            return
 
         # for some operations, instantiate a user client when possible
         # note that this needs the X-SLURM-USER-NAME header upon instantiation
