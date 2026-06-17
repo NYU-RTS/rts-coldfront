@@ -6,14 +6,13 @@ import logging
 import sys
 
 from slurm_rest_api_client import Client
-from slurm_rest_api_client.types import UNSET
 from slurm_rest_api_client.api.slurm import slurm_v0043_delete_jobs
 from slurm_rest_api_client.api.slurmdb import slurmdb_v0043_get_accounts, slurmdb_v0043_post_associations
 from slurm_rest_api_client.models.v0043_account import V0043Account
 from slurm_rest_api_client.models.v0043_assoc import V0043Assoc
 from slurm_rest_api_client.models.v0043_assoc_max import V0043AssocMax
-from slurm_rest_api_client.models.v0043_kill_jobs_resp import V0043KillJobRespJob
-from slurm_rest_api_client.models.v0043_openapi_error import V0043OpenApiError
+from slurm_rest_api_client.models.v0043_kill_jobs_resp import V0043KillJobsRespJob
+from slurm_rest_api_client.types import UNSET
 from tenacity import (
     before_sleep_log,
     retry,
@@ -85,7 +84,7 @@ class SlurmCluster:
                 client=this_user_client, user_name=username, account=account
             )
             if jobs_delete_resp:
-                deletion_statuses: list[V0043KillJobRespJob] = jobs_delete_resp.status
+                deletion_statuses: list[V0043KillJobsRespJob] = jobs_delete_resp.status
                 for status in deletion_statuses:
                     logging.debug(f"deletion status: {status}")
                 if not isinstance(jobs_delete_resp.error, UNSET):
