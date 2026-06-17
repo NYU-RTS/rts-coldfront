@@ -206,4 +206,4 @@ class Command(BaseCommand):
                 SLURMREST_CLUSTER_ATTRIBUTE_NAME,
             )
 
-        self.check_consistency(slurm_cluster, coldfront_resource)
+        self.check_consistency(self.slurm_cluster, coldfront_resource)
