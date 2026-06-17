@@ -52,11 +52,11 @@ class SlurmCluster:
 
     # use as context manager resource to clean up client
     def __enter__(self):
-        return
+        return self
 
-    def __exit__(self):
+    def __exit__(self, exc_type, exc_value, traceback):
         self.root_client.get_httpx_client().close()
-        return
+        return False
 
     @retry(
         wait=wait_exponential(multiplier=2, min=2, max=10),
