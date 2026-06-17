@@ -50,6 +50,9 @@ class SlurmCluster:
             httpx_args={"event_hooks": {"request": [log_request], "response": [log_response]}},
         )
 
+    def __exit__(self):
+        self.root_client.close()
+
     @retry(
         wait=wait_exponential(multiplier=2, min=2, max=10),
         stop=stop_after_attempt(10),
@@ -58,12 +61,11 @@ class SlurmCluster:
         retry_error_callback=lambda _: sys.exit(1),  # exit if SLURM cannot be reached :(
     )
     def get_accounts(self) -> list[V0043Account]:
-        with self.root_client as client:
-            resp = slurmdb_v0043_get_accounts.sync(client=client, with_associations=str("true"))
-            if resp:
-                return resp.accounts
-            else:
-                raise ConnectionError("Could not get list of accounts from SLURM endpoint")
+        resp = slurmdb_v0043_get_accounts.sync(client=self.root_client, with_associations=str("true"))
+        if resp:
+            return resp.accounts
+        else:
+            raise ConnectionError("Could not get list of accounts from SLURM endpoint")
 
     # retry the whole block atomically
     @retry(
@@ -104,14 +106,14 @@ class SlurmCluster:
                 raise ConnectionError(f"Could not delete jobs for user: {username} with account: {account}")
 
         # set maxsubmit to 0 as root
-        with self.root_client as client:
-            max_submit_assoc: V0043Assoc = V0043Assoc(
-                user=username,
-                account=account,
-                max_=V0043AssocMax(V0043AssocMaxJobs(total=V0043Uint32NoValStruct(number=0))),
-            )
-            body_max_submit: V0043OpenapiAssocsResp = V0043OpenapiAssocsResp(associations=[max_submit_assoc])
-            maxsubmit_set_resp = slurmdb_v0043_post_associations.sync(client=client, body=body_max_submit)
-            if maxsubmit_set_resp:
-                logger.info("resp")
-            return
+
+        max_submit_assoc: V0043Assoc = V0043Assoc(
+            user=username,
+            account=account,
+            max_=V0043AssocMax(V0043AssocMaxJobs(total=V0043Uint32NoValStruct(number=0))),
+        )
+        body_max_submit: V0043OpenapiAssocsResp = V0043OpenapiAssocsResp(associations=[max_submit_assoc])
+        maxsubmit_set_resp = slurmdb_v0043_post_associations.sync(client=self.root_client, body=body_max_submit)
+        if maxsubmit_set_resp:
+            logger.info("resp")
+        return
