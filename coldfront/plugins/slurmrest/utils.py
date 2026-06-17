@@ -11,7 +11,7 @@ from slurm_rest_api_client.api.slurmdb import slurmdb_v0043_get_accounts, slurmd
 from slurm_rest_api_client.models.v0043_account import V0043Account
 from slurm_rest_api_client.models.v0043_assoc import V0043Assoc
 from slurm_rest_api_client.models.v0043_assoc_max import V0043AssocMax
-from slurm_rest_api_client.models.v0043_kill_jobs_resp import V0043KillJobsRespJob
+from slurm_rest_api_client.models.v0043_kill_jobs_resp_job import V0043KillJobsRespJob
 from slurm_rest_api_client.types import UNSET
 from tenacity import (
     before_sleep_log,
