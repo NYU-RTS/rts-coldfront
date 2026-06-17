@@ -51,7 +51,7 @@ class SlurmCluster:
         )
 
     def __exit__(self):
-        self.root_client.close()
+        self.root_client.get_httpx_client().close()
 
     @retry(
         wait=wait_exponential(multiplier=2, min=2, max=10),
