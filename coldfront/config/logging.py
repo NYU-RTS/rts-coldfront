@@ -1,6 +1,8 @@
-from django.contrib.messages import constants as messages
-from coldfront.core.utils.common import import_from_settings
 import socket
+
+from django.contrib.messages import constants as messages
+
+from coldfront.core.utils.common import import_from_settings
 
 # ------------------------------------------------------------------------------
 # ColdFront logging config
