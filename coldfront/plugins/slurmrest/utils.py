@@ -11,7 +11,12 @@ from slurm_rest_api_client.api.slurmdb import slurmdb_v0043_get_accounts, slurmd
 from slurm_rest_api_client.models.v0043_account import V0043Account
 from slurm_rest_api_client.models.v0043_assoc import V0043Assoc
 from slurm_rest_api_client.models.v0043_assoc_max import V0043AssocMax
+from slurm_rest_api_client.models.v0043_assoc_max_jobs import V0043AssocMaxJobs
+from slurm_rest_api_client.models.v0043_kill_jobs_msg import V0043KillJobsMsg
+
 from slurm_rest_api_client.models.v0043_kill_jobs_resp_job import V0043KillJobsRespJob
+from slurm_rest_api_client.models.v0043_openapi_assocs_resp import V0043OpenapiAssocsResp
+from slurm_rest_api_client.models.v0043_uint_32_no_val_struct import V0043Uint32NoValStruct
 from slurm_rest_api_client.types import UNSET
 from tenacity import (
     before_sleep_log,
@@ -35,22 +40,14 @@ def log_response(response):
 
 class SlurmCluster:
     def __init__(self, endpoint, token):
+        self.endpoint = endpoint
+        self.token = token
         # for most operations, re-use the root client
         self.root_client: Client = Client(
-            base_url=endpoint,
+            base_url=self.endpoint,
             headers={
                 "X-SLURM-USER-NAME": "root",
-                "X-SLURM-USER-TOKEN": token,
-            },
-            httpx_args={"event_hooks": {"request": [log_request], "response": [log_response]}},
-        )
-
-        # for some operations, instantiate a user client when possible
-        # note that this needs the X-SLURM-USER-NAME header upon instantiation
-        self.user_client: Client = Client(
-            base_url=endpoint,
-            headers={
-                "X-SLURM-USER-TOKEN": token,
+                "X-SLURM-USER-TOKEN": self.token,
             },
             httpx_args={"event_hooks": {"request": [log_request], "response": [log_response]}},
         )
@@ -78,26 +75,42 @@ class SlurmCluster:
         before_sleep=before_sleep_log(logging.getLogger(__name__), logging.WARNING),
     )
     def delete_association_user_account(self, username: str, account: str) -> None:
-        # start by deleting active jobs for this user
-        with self.user_client(headers={"X-SLURM-USER-NAME": f"{username}"}) as this_user_client:
-            jobs_delete_resp = slurm_v0043_delete_jobs.sync(
-                client=this_user_client, user_name=username, account=account
-            )
+
+        # for some operations, instantiate a user client when possible
+        # note that this needs the X-SLURM-USER-NAME header upon instantiation
+        this_user_client: Client = Client(
+            base_url=self.endpoint,
+            headers={
+                "X-SLURM-USER-NAME": f"{username}",
+                "X-SLURM-USER-TOKEN": self.token,
+            },
+            httpx_args={"event_hooks": {"request": [log_request], "response": [log_response]}},
+        )
+
+        with this_user_client as client:
+            # start by deleting active jobs for this user
+            body_job_kill: V0043KillJobsMsg = V0043KillJobsMsg(user_name=username, account=account)
+            jobs_delete_resp = slurm_v0043_delete_jobs.sync(client=client, body=body_job_kill)
             if jobs_delete_resp:
                 deletion_statuses: list[V0043KillJobsRespJob] = jobs_delete_resp.status
                 for status in deletion_statuses:
                     logging.debug(f"deletion status: {status}")
-                if not isinstance(jobs_delete_resp.error, UNSET):
-                    for error in jobs_delete_resp.error:
+                if jobs_delete_resp.errors:
+                    for error in jobs_delete_resp.errors:
                         logging.warning(f"error deleting job: {error}")
                     raise RuntimeError(f"Could not delete jobs for user: {username} with account: {account}")
             else:
                 raise ConnectionError(f"Could not delete jobs for user: {username} with account: {account}")
 
-        # set maxsubmit to 0
-        with self.root_client() as client:
-            max_submit_assoc: V0043Assoc = V0043Assoc(user=username, account=account, max_=V0043AssocMax(jobs=0))
-            maxsubmit_set_resp = slurmdb_v0043_post_associations.sync(client=client, associations=[max_submit_assoc])
+        # set maxsubmit to 0 as root
+        with self.root_client as client:
+            max_submit_assoc: V0043Assoc = V0043Assoc(
+                user=username,
+                account=account,
+                max_=V0043AssocMax(V0043AssocMaxJobs(total=V0043Uint32NoValStruct(number=0))),
+            )
+            body_max_submit: V0043OpenapiAssocsResp = V0043OpenapiAssocsResp(associations=[max_submit_assoc])
+            maxsubmit_set_resp = slurmdb_v0043_post_associations.sync(client=client, body=body_max_submit)
             if maxsubmit_set_resp:
                 logger.info("resp")
             return
