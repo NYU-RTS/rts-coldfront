@@ -130,7 +130,13 @@ class Command(BaseCommand):
                         logger.warning(
                             f"SLURM user: {username} has no association with account: {account.name} in ColdFront, removing association",
                         )
-                        self.slurm_cluster.delete_association_user_account(username, account.name)
+                        try:
+                            self.slurm_cluster.delete_association_user_account(username, account.name)
+                        except RuntimeError:
+                            logging.warning(
+                                f"Could not delete association for user: {username} and account: {account.name}"
+                            )
+                            continue
 
             else:
                 for association in account.associations:

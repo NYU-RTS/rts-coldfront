@@ -6,6 +6,7 @@ import logging
 import sys
 
 from slurm_rest_api_client import Client
+from slurm_rest_api_client.types import UNSET
 from slurm_rest_api_client.api.slurm import slurm_v0043_delete_jobs
 from slurm_rest_api_client.api.slurmdb import slurmdb_v0043_get_accounts, slurmdb_v0043_post_associations
 from slurm_rest_api_client.models.v0043_account import V0043Account
@@ -77,17 +78,17 @@ class SlurmCluster:
         retry=retry_if_not_exception_type(ConnectionError),
         before_sleep=before_sleep_log(logging.getLogger(__name__), logging.WARNING),
     )
-    def delete_association_user_account(self, username: str, account: str):
+    def delete_association_user_account(self, username: str, account: str) -> None:
         # start by deleting active jobs for this user
-        with self.user_client(headers={"X-SLURM-USER-NAME": f"{username}"}):
+        with self.user_client(headers={"X-SLURM-USER-NAME": f"{username}"}) as this_user_client:
             jobs_delete_resp = slurm_v0043_delete_jobs.sync(
-                client=self.user_client, user_name=username, account=account
+                client=this_user_client, user_name=username, account=account
             )
             if jobs_delete_resp:
                 deletion_statuses: list[V0043KillJobRespJob] = jobs_delete_resp.status
                 for status in deletion_statuses:
-                    logging.debeg(f"deletion status: {status}")
-                if isinstance(jobs_delete_resp.error, list[V0043OpenApiError]):
+                    logging.debug(f"deletion status: {status}")
+                if not isinstance(jobs_delete_resp.error, UNSET):
                     for error in jobs_delete_resp.error:
                         logging.warning(f"error deleting job: {error}")
                     raise RuntimeError(f"Could not delete jobs for user: {username} with account: {account}")
@@ -95,11 +96,9 @@ class SlurmCluster:
                 raise ConnectionError(f"Could not delete jobs for user: {username} with account: {account}")
 
         # set maxsubmit to 0
-        with self.root_client():
+        with self.root_client() as client:
             max_submit_assoc: V0043Assoc = V0043Assoc(user=username, account=account, max_=V0043AssocMax(jobs=0))
-            maxsubmit_set_resp = slurmdb_v0043_post_associations.sync(
-                client=self.root_client, associatons=[max_submit_assoc]
-            )
+            maxsubmit_set_resp = slurmdb_v0043_post_associations.sync(client=client, associations=[max_submit_assoc])
             if maxsubmit_set_resp:
                 logger.info("resp")
             return
