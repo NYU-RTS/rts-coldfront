@@ -207,3 +207,4 @@ class Command(BaseCommand):
             )
 
         self.check_consistency(self.slurm_cluster, coldfront_resource)
+        self.slurm_cluster.close()
