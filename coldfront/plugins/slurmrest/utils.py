@@ -50,10 +50,11 @@ class SlurmCluster:
             httpx_args={"event_hooks": {"request": [log_request], "response": [log_response]}},
         )
 
-    def enter(self):
+    # use as context manager resource to clean up client
+    def __enter__(self):
         return
 
-    def exit(self):
+    def __exit__(self):
         self.root_client.get_httpx_client().close()
         return
 
