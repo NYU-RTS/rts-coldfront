@@ -29,7 +29,7 @@ LOGGING = {
     "root": {"level": "DEBUG", "handlers": ["console", "file"]},
     "formatters": {
         "standard": {
-            "format": "{levelname} {asctime} {module} {thread:d} {message}",
+            "format": "{levelname} {asctime} {module} {lineno:d} {message}",
             "style": "{",
         },
     },
