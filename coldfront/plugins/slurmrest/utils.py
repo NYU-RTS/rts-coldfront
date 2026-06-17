@@ -50,8 +50,12 @@ class SlurmCluster:
             httpx_args={"event_hooks": {"request": [log_request], "response": [log_response]}},
         )
 
-    def close(self):
+    def enter(self):
+        return
+
+    def exit(self):
         self.root_client.get_httpx_client().close()
+        return
 
     @retry(
         wait=wait_exponential(multiplier=2, min=2, max=10),
