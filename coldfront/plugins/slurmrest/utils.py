@@ -8,6 +8,7 @@ import sys
 from slurm_rest_api_client import Client
 from slurm_rest_api_client.api.slurm import slurm_v0043_delete_jobs
 from slurm_rest_api_client.api.slurmdb import (
+    slurmdb_v0043_delete_association,
     slurmdb_v0043_get_accounts,
     slurmdb_v0043_get_associations,
     slurmdb_v0043_post_associations,
@@ -157,5 +158,14 @@ class SlurmCluster:
                 raise ConnectionError(f"Could not set default association for user: {username}")
             if default_assoc_set_resp.errors:
                 raise RuntimeError(f"Could not set default association for user: {username}")
+
+        # finally delete the association!
+        delete_assoc_resp = slurmdb_v0043_delete_association.sync(
+            client=self.root_client, user=username, account=account
+        )
+        if not delete_assoc_resp:
+            raise ConnectionError(f"Could not delete association for user: {username} and account: {account}")
+        if delete_assoc_resp.errors:
+            raise RuntimeError(f"Could not delete association for user: {username} and account: {account}")
 
         return
