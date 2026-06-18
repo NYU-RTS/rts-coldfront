@@ -139,6 +139,7 @@ class Command(BaseCommand):
                             continue
 
             else:
+                # Allocation has been removed in Coldfront!
                 for association in account.associations:
                     # Only SLURM devs know whey some associations are two way (account, cluster)
                     # when most others are 4-way (user, account, cluster, partition)
@@ -150,9 +151,18 @@ class Command(BaseCommand):
                         logger.debug(f"Ignoring user: {username} in account: {account.name}")
                         continue
 
-                    logger.warning(
-                        f"SLURM account: {account.name} with user: {username} not found in ColdFront. Removing association.",
+                    logger.info(
+                        f"Deleted SLURM account: {account.name} has user: {username}. Removing association.",
                     )
+
+                    try:
+                        slurm_cluster.delete_association_user_account(username, account.name, self.noop)
+                    except RuntimeError:
+                        logging.warning(
+                            f"Could not delete association for user: {username} and account: {account.name}"
+                        )
+                        continue
+                # Once the SLURM account has no users associated, remove the slurm account as well
 
     def handle(self, *args, **options):
 

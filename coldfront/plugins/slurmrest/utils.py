@@ -8,6 +8,7 @@ import sys
 from slurm_rest_api_client import Client
 from slurm_rest_api_client.api.slurm import slurm_v0043_delete_jobs
 from slurm_rest_api_client.api.slurmdb import (
+    slurmdb_v0043_delete_account,
     slurmdb_v0043_delete_association,
     slurmdb_v0043_get_accounts,
     slurmdb_v0043_get_associations,
@@ -168,4 +169,25 @@ class SlurmCluster:
         if delete_assoc_resp.errors:
             raise RuntimeError(f"Could not delete association for user: {username} and account: {account}")
 
+        return
+
+    @retry(
+        wait=wait_exponential(multiplier=2, min=2, max=10),
+        stop=stop_after_attempt(3),
+        retry=retry_if_not_exception_type(ConnectionError),
+        before_sleep=before_sleep_log(logging.getLogger(__name__), logging.WARNING),
+    )
+    def delete_slurm_account(self, account: str, noop: bool = False) -> None:
+        if noop:
+            logging.info(f"noop enabled: skip deleting acconut: {account}")
+            return
+
+        account_delete_resp = slurmdb_v0043_delete_account.sync(client=self.root_client, account_name=account)
+
+        if not account_delete_resp:
+            raise ConnectionError(f"Could not delete account: {account}")
+        if account_delete_resp.errors:
+            raise RuntimeError(f"Could not delete account: {account}")
+        for account_removed in account_delete_resp.removed_accounts:
+            logging.info(f"Removed SLURM account: {account_removed}")
         return
