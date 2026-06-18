@@ -6,15 +6,13 @@ import logging
 import sys
 
 from django.core.management.base import BaseCommand
-
-from coldfront.core.resource.models import Resource, ResourceAttribute
-from coldfront.core.allocation.models import Allocation
-from coldfront.core.utils.common import import_from_settings
-
-from coldfront.plugins.slurmrest.utils import SlurmCluster
-
 from slurm_rest_api_client.models.v0043_account import V0043Account
 from slurm_rest_api_client.types import Unset
+
+from coldfront.core.allocation.models import Allocation
+from coldfront.core.resource.models import Resource, ResourceAttribute
+from coldfront.core.utils.common import import_from_settings
+from coldfront.plugins.slurmrest.utils import SlurmCluster
 
 SLURMREST_CLUSTER_ATTRIBUTE_NAME = import_from_settings("SLURMREST_CLUSTER_ATTRIBUTE_NAME", [])
 SLURM_IGNORE_USERS = import_from_settings("SLURM_IGNORE_USERS", [])
@@ -102,7 +100,7 @@ class Command(BaseCommand):
 
         for account in cluster_accounts:
             if account.name == "root" or self._skip_account(account.name):
-                logger.debug("Ignoring account %s", account["name"])
+                logger.debug(f"Ignoring account: {account.name}")
                 continue
 
             if isinstance(account.associations, Unset):
@@ -111,52 +109,64 @@ class Command(BaseCommand):
                 continue
 
             if account.name in allocation_dict:
-                logger.debug("Slurm account %s found in ColdFront", account.name)
+                logger.debug(f"SLURM account: {account.name} found in ColdFront")
                 allocation_users = allocation_dict[account.name].allocationuser_set.filter(status__name="Active")
 
                 for association in account.associations:
                     # Only SLURM devs know whey some associations are two way (account, cluster)
                     # when most others are 4-way (user, account, cluster, partition)
-                    if not association["user"]:
+                    if not association.user:
                         continue
 
-                    username = association["user"]
+                    username = association.user
                     if username == "root" or self._skip_user(username, account.name):
                         logger.debug("Ignoring user %s in account %s", username, account.name)
                         continue
                     if username in [au.user.username for au in allocation_users]:
                         logger.debug(
-                            "Slurm user %s in account %s found in ColdFront",
-                            username,
-                            account.name,
+                            f"SLURM user: {username} in account: {account.name} found in ColdFront",
                         )
                     else:
                         logger.warning(
-                            "Slurm user %s has no association with account %s in ColdFront, removing association",
-                            account.name,
-                            username,
+                            f"SLURM user: {username} has no association with account: {account.name} in ColdFront, removing association",
                         )
+                        try:
+                            slurm_cluster.delete_association_user_account(username, account.name, self.noop)
+                        except RuntimeError:
+                            logging.warning(
+                                f"Could not delete association for user: {username} and account: {account.name}"
+                            )
+                            continue
+
             else:
+                # Allocation has been removed in Coldfront!
                 for association in account.associations:
                     # Only SLURM devs know whey some associations are two way (account, cluster)
                     # when most others are 4-way (user, account, cluster, partition)
-                    if not association["user"]:
+                    if not association.user:
                         continue
 
-                    username = association["user"]
+                    username = association.user
                     if username == "root" or self._skip_user(username, account.name):
-                        logger.debug("Ignoring user %s in account %s", username, account.name)
+                        logger.debug(f"Ignoring user: {username} in account: {account.name}")
                         continue
 
-                    logger.warning(
-                        "Slurm account %s with user %s not found in ColdFront. Removing association.",
-                        account.name,
-                        username,
+                    logger.info(
+                        f"Deleted SLURM account: {account.name} has user: {username}. Removing association.",
                     )
+
+                    try:
+                        slurm_cluster.delete_association_user_account(username, account.name, self.noop)
+                    except RuntimeError:
+                        logging.warning(
+                            f"Could not delete association for user: {username} and account: {account.name}"
+                        )
+                        continue
+                # Once the SLURM account has no users associated, remove the slurm account as well
 
     def handle(self, *args, **options):
 
-        verbosity = int(options["verbosity"])
+        verbosity: int = options["verbosity"]
         root_logger = logging.getLogger("")
         if verbosity == 0:
             root_logger.setLevel(logging.ERROR)
@@ -171,7 +181,7 @@ class Command(BaseCommand):
             self.sync = True
             logger.warning("Syncing Slurm with ColdFront")
 
-        self.noop = SLURM_NOOP
+        self.noop: bool = SLURM_NOOP
         if options["noop"]:
             self.noop = True
             logger.warning("NOOP enabled")
@@ -188,7 +198,6 @@ class Command(BaseCommand):
         self.filter_account = options["account"]
 
         logger.info(f"Checking Slurm cluster: {cluster_name}")
-        slurm_cluster = SlurmCluster(endpoint=options["endpoint"], token=options["token"])
 
         if cluster_name in SLURM_IGNORE_CLUSTERS:
             logger.warning("Ignoring cluster %s. Nothing to do.", cluster_name)
@@ -206,4 +215,5 @@ class Command(BaseCommand):
                 SLURMREST_CLUSTER_ATTRIBUTE_NAME,
             )
 
-        self.check_consistency(slurm_cluster, coldfront_resource)
+        with SlurmCluster(endpoint=options["endpoint"], token=options["token"]) as slurm_cluster:
+            self.check_consistency(slurm_cluster, coldfront_resource)

@@ -109,4 +109,4 @@ plugins = ["mypy_django_plugin.main"]
 django_settings_module = "coldfront.config.settings"
 
 [tool.uv.sources]
-slurm-rest-api-client = { git = "https://github.com/NYU-RTS/rts-slurm-python-sdk", branch = "slimmer-cleaner-client-sdk" }
+slurm-rest-api-client = { git = "https://github.com/NYU-RTS/rts-slurm-python-sdk"}

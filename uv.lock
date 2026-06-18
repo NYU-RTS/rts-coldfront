@@ -316,7 +316,7 @@ requires-dist = [
     { name = "python-dateutil", specifier = ">=2.9.0" },
     { name = "redis", specifier = ">=5.2.1" },
     { name = "requests", specifier = ">=2.32.3" },
-    { name = "slurm-rest-api-client", git = "https://github.com/NYU-RTS/rts-slurm-python-sdk?branch=slimmer-cleaner-client-sdk" },
+    { name = "slurm-rest-api-client", git = "https://github.com/NYU-RTS/rts-slurm-python-sdk" },
     { name = "tenacity", specifier = ">=9.1.4" },
     { name = "xdmod-data", specifier = ">=1.1.0" },
 ]
@@ -1449,7 +1449,7 @@ wheels = [
 [[package]]
 name = "slurm-rest-api-client"
 version = "0.0.1"
-source = { git = "https://github.com/NYU-RTS/rts-slurm-python-sdk?branch=slimmer-cleaner-client-sdk#40b87894bfcbe6f9f88f02fcf3e6a600952b06b2" }
+source = { git = "https://github.com/NYU-RTS/rts-slurm-python-sdk#315877e9def6fe6cd779160154755fedb38d3201" }
 dependencies = [
     { name = "attrs" },
     { name = "httpx" },

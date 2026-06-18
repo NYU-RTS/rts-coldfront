@@ -2,43 +2,67 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-import sys
 import logging
+import sys
 
-from tenacity import (
-    retry,
-    wait_exponential,
-    stop_after_attempt,
-    retry_if_not_exception_type,
-    before_sleep_log,
-)
 from slurm_rest_api_client import Client
+from slurm_rest_api_client.api.slurm import slurm_v0043_delete_jobs
+from slurm_rest_api_client.api.slurmdb import (
+    slurmdb_v0043_delete_account,
+    slurmdb_v0043_delete_association,
+    slurmdb_v0043_get_accounts,
+    slurmdb_v0043_get_associations,
+    slurmdb_v0043_post_associations,
+)
 from slurm_rest_api_client.models.v0043_account import V0043Account
-from slurm_rest_api_client.api.slurmdb import slurmdb_v0043_get_accounts
-
+from slurm_rest_api_client.models.v0043_assoc import V0043Assoc
+from slurm_rest_api_client.models.v0043_assoc_max import V0043AssocMax
+from slurm_rest_api_client.models.v0043_assoc_max_jobs import V0043AssocMaxJobs
+from slurm_rest_api_client.models.v0043_kill_jobs_msg import V0043KillJobsMsg
+from slurm_rest_api_client.models.v0043_kill_jobs_resp_job import V0043KillJobsRespJob
+from slurm_rest_api_client.models.v0043_openapi_assocs_resp import V0043OpenapiAssocsResp
+from slurm_rest_api_client.models.v0043_uint_32_no_val_struct import V0043Uint32NoValStruct
+from tenacity import (
+    before_sleep_log,
+    retry,
+    retry_if_not_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 logger = logging.getLogger(__name__)
 
 
 def log_request(request):
-    logger.info(f"Request event hook: {request.method} {request.url} - Waiting for response")
+    logger.debug(f"Request event hook: {request.method} {request.url} - Waiting for response")
 
 
 def log_response(response):
     request = response.request
-    logger.info(f"Response event hook: {request.method} {request.url} - Status {response.status_code}")
+    logger.debug(f"Response event hook: {request.method} {request.url} - Status {response.status_code}")
 
 
 class SlurmCluster:
     def __init__(self, endpoint, token):
+        self.endpoint = endpoint
+        self.token = token
+        # for most operations, re-use the root client
         self.root_client: Client = Client(
-            base_url=endpoint,
+            base_url=self.endpoint,
             headers={
                 "X-SLURM-USER-NAME": "root",
-                "X-SLURM-USER-TOKEN": token,
+                "X-SLURM-USER-TOKEN": self.token,
             },
             httpx_args={"event_hooks": {"request": [log_request], "response": [log_response]}},
         )
+
+    # use as context manager resource to clean up client
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.root_client.get_httpx_client().close()
+        return False
 
     @retry(
         wait=wait_exponential(multiplier=2, min=2, max=10),
@@ -48,9 +72,122 @@ class SlurmCluster:
         retry_error_callback=lambda _: sys.exit(1),  # exit if SLURM cannot be reached :(
     )
     def get_accounts(self) -> list[V0043Account]:
-        with self.root_client as client:
-            resp = slurmdb_v0043_get_accounts.sync(client=client, with_associations=str("true"))
-            if resp:
-                return resp.accounts
+        resp = slurmdb_v0043_get_accounts.sync(client=self.root_client, with_associations=str("true"))
+        if resp:
+            return resp.accounts
+        else:
+            raise ConnectionError("Could not get list of accounts from SLURM endpoint")
+
+    # retry the whole block atomically
+    @retry(
+        wait=wait_exponential(multiplier=2, min=2, max=10),
+        stop=stop_after_attempt(3),
+        retry=retry_if_not_exception_type(ConnectionError),
+        before_sleep=before_sleep_log(logging.getLogger(__name__), logging.WARNING),
+    )
+    def delete_association_user_account(self, username: str, account: str, noop: bool = False) -> None:
+        if noop:
+            logging.info(f"noop enabled: skip deleting association between user: {username} and acconut: {account}")
+            return
+
+        # for some operations, instantiate a user client when possible
+        # note that this needs the X-SLURM-USER-NAME header upon instantiation
+        this_user_client: Client = Client(
+            base_url=self.endpoint,
+            headers={
+                "X-SLURM-USER-NAME": f"{username}",
+                "X-SLURM-USER-TOKEN": self.token,
+            },
+            httpx_args={"event_hooks": {"request": [log_request], "response": [log_response]}},
+        )
+
+        with this_user_client as client:
+            # start by deleting active jobs for this user
+            body_job_kill: V0043KillJobsMsg = V0043KillJobsMsg(user_name=username, account=account)
+            jobs_delete_resp = slurm_v0043_delete_jobs.sync(client=client, body=body_job_kill)
+            if jobs_delete_resp:
+                deletion_statuses: list[V0043KillJobsRespJob] = jobs_delete_resp.status
+                for status in deletion_statuses:
+                    logging.debug(f"deletion status: {status}")
+                if jobs_delete_resp.errors:
+                    for error in jobs_delete_resp.errors:
+                        logging.error(f"error deleting job: {error}")
+                    raise RuntimeError(f"Could not delete jobs for user: {username} with account: {account}")
             else:
-                raise ConnectionError("Could not get list of accounts from SLURM endpoint")
+                raise ConnectionError(f"Could not delete jobs for user: {username} with account: {account}")
+
+        # set maxsubmit to 0 as root
+        max_submit_assoc: V0043Assoc = V0043Assoc(
+            user=username,
+            account=account,
+            max_=V0043AssocMax(V0043AssocMaxJobs(total=V0043Uint32NoValStruct(number=0))),
+        )
+        body_max_submit: V0043OpenapiAssocsResp = V0043OpenapiAssocsResp(associations=[max_submit_assoc])
+        maxsubmit_set_resp = slurmdb_v0043_post_associations.sync(client=self.root_client, body=body_max_submit)
+        if maxsubmit_set_resp:
+            logger.info("resp")
+            if maxsubmit_set_resp.errors:
+                for error in maxsubmit_set_resp.errors:
+                    logging.error(f"error posting association: {error}")
+                raise RuntimeError(f"Could not set maxsubmit=0 for user: {username} with account: {account}")
+        else:
+            raise ConnectionError(f"Could not set maxsubmit=0 for user: {username} with account: {account}")
+
+        default_assoc_get_resp = slurmdb_v0043_get_associations.sync(
+            client=self.root_client, filter_to_only_defaults=str(True)
+        )
+        if not default_assoc_get_resp:
+            raise ConnectionError(f"Could not get default association for user: {username}")
+        if default_assoc_get_resp.errors:
+            raise RuntimeError(f"Could not get default association for user: {username}")
+
+        default_account_for_this_user = default_assoc_get_resp.associations[0].account
+        if default_account_for_this_user == account:
+            logger.info(
+                f"User: {username} has set the account: {account} as their default. Re-setting their default account."
+            )
+            # Assuming that everyone on the cluster is part of the account "users"!
+            set_default_account_accoc: V0043Assoc = V0043Assoc(user=username, account="users", is_default=True)
+            default_assoc_set_body: V0043OpenapiAssocsResp = V0043OpenapiAssocsResp(
+                associations=[set_default_account_accoc]
+            )
+
+            default_assoc_set_resp = slurmdb_v0043_post_associations.sync(
+                client=self.root_client, body=default_assoc_set_body
+            )
+            if not default_assoc_set_resp:
+                raise ConnectionError(f"Could not set default association for user: {username}")
+            if default_assoc_set_resp.errors:
+                raise RuntimeError(f"Could not set default association for user: {username}")
+
+        # finally delete the association!
+        delete_assoc_resp = slurmdb_v0043_delete_association.sync(
+            client=self.root_client, user=username, account=account
+        )
+        if not delete_assoc_resp:
+            raise ConnectionError(f"Could not delete association for user: {username} and account: {account}")
+        if delete_assoc_resp.errors:
+            raise RuntimeError(f"Could not delete association for user: {username} and account: {account}")
+
+        return
+
+    @retry(
+        wait=wait_exponential(multiplier=2, min=2, max=10),
+        stop=stop_after_attempt(3),
+        retry=retry_if_not_exception_type(ConnectionError),
+        before_sleep=before_sleep_log(logging.getLogger(__name__), logging.WARNING),
+    )
+    def delete_slurm_account(self, account: str, noop: bool = False) -> None:
+        if noop:
+            logging.info(f"noop enabled: skip deleting acconut: {account}")
+            return
+
+        account_delete_resp = slurmdb_v0043_delete_account.sync(client=self.root_client, account_name=account)
+
+        if not account_delete_resp:
+            raise ConnectionError(f"Could not delete account: {account}")
+        if account_delete_resp.errors:
+            raise RuntimeError(f"Could not delete account: {account}")
+        for account_removed in account_delete_resp.removed_accounts:
+            logging.info(f"Removed SLURM account: {account_removed}")
+        return

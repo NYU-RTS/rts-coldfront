@@ -1,6 +1,8 @@
-from django.contrib.messages import constants as messages
-from coldfront.core.utils.common import import_from_settings
 import socket
+
+from django.contrib.messages import constants as messages
+
+from coldfront.core.utils.common import import_from_settings
 
 # ------------------------------------------------------------------------------
 # ColdFront logging config
@@ -24,22 +26,22 @@ MESSAGE_TAGS = {
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "root": {"level": "INFO", "handlers": ["console", "file"]},
+    "root": {"level": "DEBUG", "handlers": ["console", "file"]},
     "formatters": {
         "standard": {
-            "format": "{levelname} {asctime} {module} {thread:d} {message}",
+            "format": "{levelname} {asctime} {module} {lineno:d} {message}",
             "style": "{",
         },
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "level": "INFO",
+            "level": "DEBUG",
             "formatter": "standard",
         },
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "level": "INFO",
+            "level": "DEBUG",
             "formatter": "standard",
             "filename": LOG_FILE,
             "maxBytes": 1024 * 1024,
