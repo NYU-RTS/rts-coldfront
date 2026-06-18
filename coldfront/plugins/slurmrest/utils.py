@@ -7,7 +7,11 @@ import sys
 
 from slurm_rest_api_client import Client
 from slurm_rest_api_client.api.slurm import slurm_v0043_delete_jobs
-from slurm_rest_api_client.api.slurmdb import slurmdb_v0043_get_accounts, slurmdb_v0043_post_associations
+from slurm_rest_api_client.api.slurmdb import (
+    slurmdb_v0043_get_accounts,
+    slurmdb_v0043_get_associations,
+    slurmdb_v0043_post_associations,
+)
 from slurm_rest_api_client.models.v0043_account import V0043Account
 from slurm_rest_api_client.models.v0043_assoc import V0043Assoc
 from slurm_rest_api_client.models.v0043_assoc_max import V0043AssocMax
@@ -105,13 +109,12 @@ class SlurmCluster:
                     logging.debug(f"deletion status: {status}")
                 if jobs_delete_resp.errors:
                     for error in jobs_delete_resp.errors:
-                        logging.warning(f"error deleting job: {error}")
+                        logging.error(f"error deleting job: {error}")
                     raise RuntimeError(f"Could not delete jobs for user: {username} with account: {account}")
             else:
                 raise ConnectionError(f"Could not delete jobs for user: {username} with account: {account}")
 
         # set maxsubmit to 0 as root
-
         max_submit_assoc: V0043Assoc = V0043Assoc(
             user=username,
             account=account,
@@ -121,4 +124,38 @@ class SlurmCluster:
         maxsubmit_set_resp = slurmdb_v0043_post_associations.sync(client=self.root_client, body=body_max_submit)
         if maxsubmit_set_resp:
             logger.info("resp")
+            if maxsubmit_set_resp.errors:
+                for error in maxsubmit_set_resp.errors:
+                    logging.error(f"error posting association: {error}")
+                raise RuntimeError(f"Could not set maxsubmit=0 for user: {username} with account: {account}")
+        else:
+            raise ConnectionError(f"Could not set maxsubmit=0 for user: {username} with account: {account}")
+
+        default_assoc_get_resp = slurmdb_v0043_get_associations.sync(
+            client=self.root_client, filter_to_only_defaults=str(True)
+        )
+        if not default_assoc_get_resp:
+            raise ConnectionError(f"Could not get default association for user: {username}")
+        if default_assoc_get_resp.errors:
+            raise RuntimeError(f"Could not get default association for user: {username}")
+
+        default_account_for_this_user = default_assoc_get_resp.associations[0].account
+        if default_account_for_this_user == account:
+            logger.info(
+                f"User: {username} has set the account: {account} as their default. Re-setting their default account."
+            )
+            # Assuming that everyone on the cluster is part of the account "users"!
+            set_default_account_accoc: V0043Assoc = V0043Assoc(user=username, account="users", is_default=True)
+            default_assoc_set_body: V0043OpenapiAssocsResp = V0043OpenapiAssocsResp(
+                associations=[set_default_account_accoc]
+            )
+
+            default_assoc_set_resp = slurmdb_v0043_post_associations.sync(
+                client=self.root_client, body=default_assoc_set_body
+            )
+            if not default_assoc_set_resp:
+                raise ConnectionError(f"Could not set default association for user: {username}")
+            if default_assoc_set_resp.errors:
+                raise RuntimeError(f"Could not set default association for user: {username}")
+
         return
