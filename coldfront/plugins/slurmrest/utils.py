@@ -84,6 +84,7 @@ class SlurmCluster:
         stop=stop_after_attempt(3),
         retry=retry_if_not_exception_type(ConnectionError),
         before_sleep=before_sleep_log(logging.getLogger(__name__), logging.WARNING),
+        retry_error_callback=lambda _: None,  # move on to the next task
     )
     def delete_association_user_account(self, username: str, account: str, noop: bool = False) -> None:
         if noop:
@@ -176,6 +177,7 @@ class SlurmCluster:
         stop=stop_after_attempt(3),
         retry=retry_if_not_exception_type(ConnectionError),
         before_sleep=before_sleep_log(logging.getLogger(__name__), logging.WARNING),
+        retry_error_callback=lambda _: None,  # move on to the next task
     )
     def delete_slurm_account(self, account: str, noop: bool = False) -> None:
         if noop:
