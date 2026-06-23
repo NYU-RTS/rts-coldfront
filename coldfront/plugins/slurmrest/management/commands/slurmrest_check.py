@@ -91,10 +91,10 @@ class Command(BaseCommand):
         for resource in resources:
             allocations = resource.allocation_set.filter(status__name="Active")
             for allocation in allocations:
-                slurm_acconut_name = allocation.allocationattribute_set.get(
+                slurm_account_name = allocation.allocationattribute_set.get(
                     allocation_attribute_type__name="slurm_account_name"
                 ).value
-                allocation_dict[slurm_acconut_name] = allocation
+                allocation_dict[slurm_account_name] = allocation
 
         cluster_accounts: list[V0043Account] = slurm_cluster.get_accounts()
 
@@ -105,7 +105,7 @@ class Command(BaseCommand):
 
             if isinstance(account.associations, Unset):
                 # account has no associations!
-                logger.warning(f"SLURM acconut {account.name} has no associations!")
+                logger.warning(f"SLURM account {account.name} has no associations!")
                 continue
 
             if account.name in allocation_dict:

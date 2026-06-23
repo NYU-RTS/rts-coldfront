@@ -88,7 +88,7 @@ class SlurmCluster:
     )
     def delete_association_user_account(self, username: str, account: str, noop: bool = False) -> None:
         if noop:
-            logging.info(f"noop enabled: skip deleting association between user: {username} and acconut: {account}")
+            logging.info(f"noop enabled: skip deleting association between user: {username} and account: {account}")
             return
 
         # start by deleting active jobs for this user
@@ -114,7 +114,6 @@ class SlurmCluster:
         body_max_submit: V0043OpenapiAssocsResp = V0043OpenapiAssocsResp(associations=[max_submit_assoc])
         maxsubmit_set_resp = slurmdb_v0043_post_associations.sync(client=self.root_client, body=body_max_submit)
         if maxsubmit_set_resp:
-            logger.info("resp")
             if maxsubmit_set_resp.errors:
                 for error in maxsubmit_set_resp.errors:
                     logging.error(f"error posting association: {error}")
@@ -169,7 +168,7 @@ class SlurmCluster:
     )
     def delete_slurm_account(self, account: str, noop: bool = False) -> None:
         if noop:
-            logging.info(f"noop enabled: skip deleting acconut: {account}")
+            logging.info(f"noop enabled: skip deleting account: {account}")
             return
 
         account_delete_resp = slurmdb_v0043_delete_account.sync(client=self.root_client, account_name=account)
