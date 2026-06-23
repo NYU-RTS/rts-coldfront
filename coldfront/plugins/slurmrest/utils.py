@@ -91,31 +91,19 @@ class SlurmCluster:
             logging.info(f"noop enabled: skip deleting association between user: {username} and acconut: {account}")
             return
 
-        # for some operations, instantiate a user client when possible
-        # note that this needs the X-SLURM-USER-NAME header upon instantiation
-        this_user_client: Client = Client(
-            base_url=self.endpoint,
-            headers={
-                "X-SLURM-USER-NAME": f"{username}",
-                "X-SLURM-USER-TOKEN": self.token,
-            },
-            httpx_args={"event_hooks": {"request": [log_request], "response": [log_response]}},
-        )
-
-        with this_user_client as client:
-            # start by deleting active jobs for this user
-            body_job_kill: V0043KillJobsMsg = V0043KillJobsMsg(user_name=username, account=account)
-            jobs_delete_resp = slurm_v0043_delete_jobs.sync(client=client, body=body_job_kill)
-            if jobs_delete_resp:
-                deletion_statuses: list[V0043KillJobsRespJob] = jobs_delete_resp.status
-                for status in deletion_statuses:
-                    logging.debug(f"deletion status: {status}")
-                if jobs_delete_resp.errors:
-                    for error in jobs_delete_resp.errors:
-                        logging.error(f"error deleting job: {error}")
-                    raise RuntimeError(f"Could not delete jobs for user: {username} with account: {account}")
-            else:
-                raise ConnectionError(f"Could not delete jobs for user: {username} with account: {account}")
+        # start by deleting active jobs for this user
+        body_job_kill: V0043KillJobsMsg = V0043KillJobsMsg(user_name=username, account=account)
+        jobs_delete_resp = slurm_v0043_delete_jobs.sync(client=self.root_client, body=body_job_kill)
+        if jobs_delete_resp:
+            deletion_statuses: list[V0043KillJobsRespJob] = jobs_delete_resp.status
+            for status in deletion_statuses:
+                logging.debug(f"deletion status: {status}")
+            if jobs_delete_resp.errors:
+                for error in jobs_delete_resp.errors:
+                    logging.error(f"error deleting job: {error}")
+                raise RuntimeError(f"Could not delete jobs for user: {username} with account: {account}")
+        else:
+            raise ConnectionError(f"Could not delete jobs for user: {username} with account: {account}")
 
         # set maxsubmit to 0 as root
         max_submit_assoc: V0043Assoc = V0043Assoc(
