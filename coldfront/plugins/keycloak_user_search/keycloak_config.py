@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from coldfront.core.utils.common import import_from_settings
-from httpx import URL
+from httpx2 import URL
 
 
 @dataclass
