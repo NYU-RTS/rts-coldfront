@@ -1,7 +1,7 @@
 from coldfront.core.user.utils import UserSearch
 from coldfront.plugins.keycloak_user_search.keycloak_config import KeycloakClientConfig
 import logging
-from httpx import Client, URL, Headers
+from httpx2 import Client, URL, Headers
 
 logger = logging.getLogger(__name__)
 
@@ -45,9 +45,7 @@ class KeycloakClient:
                 "Authorization": f"Bearer {self.token}",
             }
         )
-        search_url = self.config.base_url.join(
-            self.config.search_username_path + input_str
-        )
+        search_url = self.config.base_url.join(self.config.search_username_path + input_str)
         result = self.client.get(search_url, headers=headers).raise_for_status().json()
         return result
 
