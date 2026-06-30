@@ -1,30 +1,35 @@
 import ast
+import datetime as dt
+import io
+import logging
 import re
 import uuid
+
 import requests
-import io
 from bibtexparser.bibdatabase import as_text
 from bibtexparser.bparser import BibTexParser
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.forms import formset_factory
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.generic import TemplateView, View
 from django.views.generic.edit import FormView
+from doi2bib import crossref
 
 from coldfront.core.project.models import Project
 from coldfront.core.publication.forms import (
     PublicationAddForm,
     PublicationDeleteForm,
-    PublicationResultForm,
-    PublicationSearchForm,
     PublicationExportForm,
+    PublicationResultForm,
+    PublicationResultFormset,
+    PublicationSearchForm,
 )
 from coldfront.core.publication.models import Publication, PublicationSource
-from doi2bib import crossref
 
+logger = logging.getLogger(__name__)
 
 MANUAL_SOURCE = "manual"
 
@@ -53,12 +58,8 @@ class PublicationSearchView(LoginRequiredMixin, UserPassesTestMixin, TemplateVie
             "Active",
             "New",
         ]:
-            messages.error(
-                request, "You cannot add publications to an archived project."
-            )
-            return HttpResponseRedirect(
-                reverse("project-detail", kwargs={"pk": project_obj.pk})
-            )
+            messages.error(request, "You cannot add publications to an archived project.")
+            return HttpResponseRedirect(reverse("project-detail", kwargs={"pk": project_obj.pk}))
         else:
             return super().dispatch(request, *args, **kwargs)
 
@@ -69,9 +70,7 @@ class PublicationSearchView(LoginRequiredMixin, UserPassesTestMixin, TemplateVie
         return context
 
 
-class PublicationSearchResultView(
-    LoginRequiredMixin, UserPassesTestMixin, TemplateView
-):
+class PublicationSearchResultView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = "publication/publication_add_publication_search_result.html"
 
     def test_func(self):
@@ -95,12 +94,8 @@ class PublicationSearchResultView(
             "Active",
             "New",
         ]:
-            messages.error(
-                request, "You cannot add publications to an archived project."
-            )
-            return HttpResponseRedirect(
-                reverse("project-detail", kwargs={"project_pk": project_obj.pk})
-            )
+            messages.error(request, "You cannot add publications to an archived project.")
+            return HttpResponseRedirect(reverse("project-detail", kwargs={"project_pk": project_obj.pk}))
         else:
             return super().dispatch(request, *args, **kwargs)
 
@@ -230,12 +225,8 @@ class PublicationAddView(LoginRequiredMixin, UserPassesTestMixin, View):
             "Active",
             "New",
         ]:
-            messages.error(
-                request, "You cannot add publications to an archived project."
-            )
-            return HttpResponseRedirect(
-                reverse("project-detail", kwargs={"pk": project_obj.pk})
-            )
+            messages.error(request, "You cannot add publications to an archived project.")
+            return HttpResponseRedirect(reverse("project-detail", kwargs={"pk": project_obj.pk}))
         else:
             return super().dispatch(request, *args, **kwargs)
 
@@ -244,22 +235,22 @@ class PublicationAddView(LoginRequiredMixin, UserPassesTestMixin, View):
         project_pk = self.kwargs.get("project_pk")
 
         project_obj = get_object_or_404(Project, pk=project_pk)
-        formset = formset_factory(PublicationResultForm, max_num=len(pubs))
+        formset = formset_factory(PublicationResultForm, formset=PublicationResultFormset, max_num=len(pubs))
         formset = formset(request.POST, initial=pubs, prefix="pubform")
 
         publications_added = 0
         publications_skipped = []
+
         if formset.is_valid():
             for form in formset:
                 form_data = form.cleaned_data
 
                 if form_data["selected"]:
-                    source_obj = PublicationSource.objects.get(
-                        pk=form_data.get("source_pk")
-                    )
+                    source_obj = PublicationSource.objects.get(pk=form_data.get("source_pk"))
                     author = form_data.get("author")
                     if len(author) > 1024:
                         author = author[:1024]
+
                     publication_obj, created = Publication.objects.get_or_create(
                         project=project_obj,
                         unique_id=form_data.get("unique_id"),
@@ -288,12 +279,10 @@ class PublicationAddView(LoginRequiredMixin, UserPassesTestMixin, View):
 
             messages.success(request, msg)
         else:
-            for error in formset.errors:
+            for error in formset.non_form_errors():
                 messages.error(request, error)
 
-        return HttpResponseRedirect(
-            reverse("project-detail", kwargs={"pk": project_pk})
-        )
+        return HttpResponseRedirect(reverse("project-detail", kwargs={"pk": project_pk}))
 
 
 class PublicationAddManuallyView(LoginRequiredMixin, UserPassesTestMixin, FormView):
@@ -326,12 +315,8 @@ class PublicationAddManuallyView(LoginRequiredMixin, UserPassesTestMixin, FormVi
             "Active",
             "New",
         ]:
-            messages.error(
-                request, "You cannot add publications to an archived project."
-            )
-            return HttpResponseRedirect(
-                reverse("project-detail", kwargs={"pk": project_obj.pk})
-            )
+            messages.error(request, "You cannot add publications to an archived project.")
+            return HttpResponseRedirect(reverse("project-detail", kwargs={"pk": project_obj.pk}))
         else:
             return super().dispatch(request, *args, **kwargs)
 
@@ -342,6 +327,21 @@ class PublicationAddManuallyView(LoginRequiredMixin, UserPassesTestMixin, FormVi
 
     def form_valid(self, form):
         form_data = form.cleaned_data
+        curr_year = dt.datetime.today().year
+        if form_data.get("year") < curr_year - 1:
+            form.add_error(
+                None,
+                f"Publication year entered is: {form_data.get('year')}. Please add recent publications only!",
+            )
+            return self.form_invalid(form)
+
+        if form_data.get("year") > curr_year:
+            form.add_error(
+                None,
+                f"Publication year entered is: {form_data.get('year')} which is in the future. Please fix it.",
+            )
+            return self.form_invalid(form)
+
         project_obj = get_object_or_404(Project, pk=self.kwargs.get("project_pk"))
         pub_obj = Publication.objects.create(
             project=project_obj,
@@ -365,9 +365,7 @@ class PublicationAddManuallyView(LoginRequiredMixin, UserPassesTestMixin, FormVi
         return reverse("project-detail", kwargs={"pk": self.kwargs.get("project_pk")})
 
 
-class PublicationDeletePublicationsView(
-    LoginRequiredMixin, UserPassesTestMixin, TemplateView
-):
+class PublicationDeletePublicationsView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = "publication/publication_delete_publications.html"
 
     def test_func(self):
@@ -405,9 +403,7 @@ class PublicationDeletePublicationsView(
         context = {}
 
         if publications_do_delete:
-            formset = formset_factory(
-                PublicationDeleteForm, max_num=len(publications_do_delete)
-            )
+            formset = formset_factory(PublicationDeleteForm, max_num=len(publications_do_delete))
             formset = formset(initial=publications_do_delete, prefix="publicationform")
             context["formset"] = formset
 
@@ -420,12 +416,8 @@ class PublicationDeletePublicationsView(
         publications_do_delete = self.get_publications_to_delete(project_obj)
         context = {}
 
-        formset = formset_factory(
-            PublicationDeleteForm, max_num=len(publications_do_delete)
-        )
-        formset = formset(
-            request.POST, initial=publications_do_delete, prefix="publicationform"
-        )
+        formset = formset_factory(PublicationDeleteForm, max_num=len(publications_do_delete))
+        formset = formset(request.POST, initial=publications_do_delete, prefix="publicationform")
 
         publications_deleted_count = 0
 
@@ -443,25 +435,19 @@ class PublicationDeletePublicationsView(
 
             messages.success(
                 request,
-                "Deleted {} publications from project.".format(
-                    publications_deleted_count
-                ),
+                "Deleted {} publications from project.".format(publications_deleted_count),
             )
         else:
             for error in formset.errors:
                 messages.error(request, error)
 
-        return HttpResponseRedirect(
-            reverse("project-detail", kwargs={"pk": project_obj.pk})
-        )
+        return HttpResponseRedirect(reverse("project-detail", kwargs={"pk": project_obj.pk}))
 
     def get_success_url(self):
         return reverse("project-detail", kwargs={"pk": self.object.project.id})
 
 
-class PublicationExportPublicationsView(
-    LoginRequiredMixin, UserPassesTestMixin, TemplateView
-):
+class PublicationExportPublicationsView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = "publication/publication_export_publications.html"
 
     def test_func(self):
@@ -503,9 +489,7 @@ class PublicationExportPublicationsView(
         context = {}
 
         if publications_do_export:
-            formset = formset_factory(
-                PublicationExportForm, max_num=len(publications_do_export)
-            )
+            formset = formset_factory(PublicationExportForm, max_num=len(publications_do_export))
             formset = formset(initial=publications_do_export, prefix="publicationform")
             context["formset"] = formset
 
@@ -518,12 +502,8 @@ class PublicationExportPublicationsView(
         publications_do_export = self.get_publications_to_export(project_obj)
         context = {}
 
-        formset = formset_factory(
-            PublicationExportForm, max_num=len(publications_do_export)
-        )
-        formset = formset(
-            request.POST, initial=publications_do_export, prefix="publicationform"
-        )
+        formset = formset_factory(PublicationExportForm, max_num=len(publications_do_export))
+        formset = formset(request.POST, initial=publications_do_export, prefix="publicationform")
 
         publications_deleted_count = 0
         bib_text = ""
@@ -555,9 +535,7 @@ class PublicationExportPublicationsView(
             for error in formset.errors:
                 messages.error(request, error)
 
-        return HttpResponseRedirect(
-            reverse("project-detail", kwargs={"pk": project_obj.pk})
-        )
+        return HttpResponseRedirect(reverse("project-detail", kwargs={"pk": project_obj.pk}))
 
     def get_success_url(self):
         return reverse("project-detail", kwargs={"pk": self.object.project.id})
