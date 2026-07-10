@@ -1450,7 +1450,7 @@ wheels = [
 [[package]]
 name = "slurm-rest-api-client"
 version = "0.0.1"
-source = { git = "https://github.com/NYU-RTS/rts-slurm-python-sdk#d8a9597877ea85e01807e6e77c0006770f6698dd" }
+source = { git = "https://github.com/NYU-RTS/rts-slurm-python-sdk#471f2711af57ed5a6b858b4e36e56e6388ed1bf4" }
 dependencies = [
     { name = "attrs" },
     { name = "httpx2" },
