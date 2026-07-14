@@ -506,6 +506,8 @@ class AllocationListView(LoginRequiredMixin, ListView):
 
         if filter_parameters:
             context["expand_accordion"] = "show"
+        else:
+            context["expand_accordion"] = ""
         context["filter_parameters"] = filter_parameters
         context["filter_parameters_with_order_by"] = filter_parameters_with_order_by
 
@@ -668,11 +670,11 @@ class AllocationCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
 
         # Automatically create slurm_specs AllocationAttribute
         alloc_attr_slurm_specs = AllocationAttributeType.objects.get(name="slurm_specs")
-        title = allocation_obj.project.title.replace(':', ';').replace("'s", '').replace("'", '')
+        title = allocation_obj.project.title.replace(":", ";").replace("'s", "").replace("'", "")
         AllocationAttribute.objects.get_or_create(
             allocation_attribute_type=alloc_attr_slurm_specs,
             allocation=allocation_obj,
-            value=f"Description='{title:.96}'"
+            value=f"Description='{title:.96}'",
         )
 
         if ALLOCATION_ACCOUNT_ENABLED and allocation_account and resource_obj.name in ALLOCATION_ACCOUNT_MAPPING:
