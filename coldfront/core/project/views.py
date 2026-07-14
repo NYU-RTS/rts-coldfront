@@ -342,6 +342,8 @@ class ProjectListView(LoginRequiredMixin, ListView):
 
         if filter_parameters:
             context["expand_accordion"] = "show"
+        else:
+            context["expand_accordion"] = ""
 
         context["filter_parameters"] = filter_parameters
         context["filter_parameters_with_order_by"] = filter_parameters_with_order_by
@@ -484,6 +486,8 @@ class ProjectArchivedListView(LoginRequiredMixin, ListView):
 
         if filter_parameters:
             context["expand_accordion"] = "show"
+        else:
+            context["expand_accordion"] = ""
 
         context["filter_parameters"] = filter_parameters
         context["filter_parameters_with_order_by"] = filter_parameters_with_order_by
