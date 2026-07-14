@@ -506,6 +506,8 @@ class AllocationListView(LoginRequiredMixin, ListView):
 
         if filter_parameters:
             context["expand_accordion"] = "show"
+        else:
+            context["expand_accordion"] = ""
         context["filter_parameters"] = filter_parameters
         context["filter_parameters_with_order_by"] = filter_parameters_with_order_by
 
@@ -563,10 +565,13 @@ class AllocationCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
 
         user_resources = get_user_resources(self.request.user)
         resources_form_default_quantities = {}
+        resources_form_descriptions = {}
         resources_form_label_texts = {}
         resources_with_eula = {}
         attr_names = ("quantity_default_value", "quantity_label", "eula")
         for resource in user_resources:
+            if resource.description:
+                resources_form_descriptions[resource.id] = resource.description
             for attr_name in attr_names:
                 query = Q(resource_attribute_type__name=attr_name)
                 if resource.resourceattribute_set.filter(query).exists():
@@ -579,6 +584,7 @@ class AllocationCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
                         resources_with_eula[resource.id] = value
 
         context["resources_form_default_quantities"] = resources_form_default_quantities
+        context["resources_form_descriptions"] = resources_form_descriptions
         context["resources_form_label_texts"] = resources_form_label_texts
         context["resources_with_eula"] = resources_with_eula
         context["resources_with_accounts"] = list(
@@ -664,11 +670,11 @@ class AllocationCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
 
         # Automatically create slurm_specs AllocationAttribute
         alloc_attr_slurm_specs = AllocationAttributeType.objects.get(name="slurm_specs")
-        title = allocation_obj.project.title.replace(':', ';').replace("'s", '').replace("'", '')
+        title = allocation_obj.project.title.replace(":", ";").replace("'s", "").replace("'", "")
         AllocationAttribute.objects.get_or_create(
             allocation_attribute_type=alloc_attr_slurm_specs,
             allocation=allocation_obj,
-            value=f"Description='{title:.96}'"
+            value=f"Description='{title:.96}'",
         )
 
         if ALLOCATION_ACCOUNT_ENABLED and allocation_account and resource_obj.name in ALLOCATION_ACCOUNT_MAPPING:
