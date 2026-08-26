@@ -11,7 +11,6 @@ from django.db.models.functions import Cast
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-
 from simple_history.utils import get_history_model_for_model
 
 from coldfront.core.allocation.models import Allocation, AllocationChangeRequest
