@@ -281,7 +281,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ProjectSerializer
 
     def get_queryset(self):
-        projects = Project.objects.prefetch_related("status")
+        projects = Project.objects.select_related("status", "pi", "school")
 
         if not (
             self.request.user.is_superuser
@@ -297,6 +297,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
                     )
                 )
                 .distinct()
+                .select_related("pi", "school", "status")
                 .order_by("pi")
             )
 
