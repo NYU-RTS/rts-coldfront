@@ -26,7 +26,7 @@ FROM registry.access.redhat.com/hi/python:3.12-builder AS builder
 
 USER root
 
-RUN dnf install -y git && dnf update -y
+RUN dnf install -y git-core && dnf update -y
 
 COPY . /app
 
