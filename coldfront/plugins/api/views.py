@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from simple_history.utils import get_history_model_for_model
 
 from coldfront.core.allocation.models import Allocation, AllocationChangeRequest
+from coldfront.core.grant.models import Grant
 from coldfront.core.project.models import Project, ProjectUser
 from coldfront.core.resource.models import Resource
 from coldfront.plugins.api import serializers
@@ -276,6 +277,8 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         Show related user data.
     - project_attributes (default false)
         Show related attribute data.
+    - grants (default false)
+        Show related grant data.
     """
 
     serializer_class = serializers.ProjectSerializer
@@ -317,7 +320,9 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
             projects = projects.prefetch_related("projectattribute_set")
 
         if self.request.query_params.get("grants") in ["True", "true"]:
-            projects = projects.prefetch_related("grant_set")
+            projects = projects.prefetch_related(
+                Prefetch("grant_set", queryset=Grant.objects.select_related("funding_agency", "status"))
+            )
 
         return projects.order_by("pi")
 

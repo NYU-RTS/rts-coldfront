@@ -203,10 +203,8 @@ class ProjectAttributeSerializer(serializers.ModelSerializer):
 
 
 class GrantSerializer(serializers.ModelSerializer):
-    title = serializers.SlugRelatedField(slug_field="title", read_only=True)
-    funding_agency = serializers.SlugRelatedField(slug_field="funding_agency", read_only=True)
-    total_amount_awarded = serializers.SlugRelatedField(slug_field="total_amount_awarded", read_only=True)
-    status = serializers.SlugRelatedField(slug_field="status", read_only=True)
+    funding_agency = serializers.SlugRelatedField(slug_field="name", read_only=True)
+    status = serializers.SlugRelatedField(slug_field="name", read_only=True)
 
     class Meta:
         model = Grant
