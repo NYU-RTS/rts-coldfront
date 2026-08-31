@@ -316,6 +316,9 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         if self.request.query_params.get("project_attributes") in ["True", "true"]:
             projects = projects.prefetch_related("projectattribute_set")
 
+        if self.request.query_params.get("grants") in ["True", "true"]:
+            projects = projects.prefetch_related("grant_set")
+
         return projects.order_by("pi")
 
 
