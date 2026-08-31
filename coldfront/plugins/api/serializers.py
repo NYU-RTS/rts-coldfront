@@ -220,10 +220,21 @@ class ProjectSerializer(serializers.ModelSerializer):
     project_users = serializers.SerializerMethodField()
     allocations = serializers.SerializerMethodField()
     project_attributes = serializers.SerializerMethodField()
+    grants = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
-        fields = ("id", "title", "school", "pi", "status", "project_users", "allocations", "project_attributes")
+        fields = (
+            "id",
+            "title",
+            "school",
+            "pi",
+            "status",
+            "project_users",
+            "allocations",
+            "project_attributes",
+            "grants",
+        )
 
     def get_project_users(self, obj):
         request = self.context.get("request", None)
