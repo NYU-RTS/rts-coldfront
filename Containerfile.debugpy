@@ -54,5 +54,6 @@ EXPOSE 5678
 
 RUN echo "yes" | uv run manage.py initial_setup
 RUN uv run manage.py load_test_data
+RUN uv run manage.py drf_create_token admin
 
 CMD ["uv", "run", "python3", "-m", "debugpy", "--listen", "0.0.0.0:5678", "-m", "gunicorn", "-w", "1", "--capture-output","--enable-stdio-inheritance", "coldfront.config.wsgi","--bind", "0.0.0.0:8000", "--timeout", "0"]
