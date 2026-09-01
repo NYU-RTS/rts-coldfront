@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from coldfront.core.allocation.models import Allocation, AllocationAttribute, AllocationChangeRequest, AllocationUser
+from coldfront.core.grant.models import Grant
 from coldfront.core.project.models import Project, ProjectAttribute, ProjectUser
 from coldfront.core.resource.models import Resource, ResourceAttribute
 
@@ -201,6 +202,15 @@ class ProjectAttributeSerializer(serializers.ModelSerializer):
         fields = ("proj_attr_type", "value")
 
 
+class GrantSerializer(serializers.ModelSerializer):
+    funding_agency = serializers.SlugRelatedField(slug_field="name", read_only=True)
+    status = serializers.SlugRelatedField(slug_field="name", read_only=True)
+
+    class Meta:
+        model = Grant
+        fields = ("title", "funding_agency", "total_amount_awarded", "status")
+
+
 class ProjectSerializer(serializers.ModelSerializer):
     pi = serializers.SlugRelatedField(slug_field="username", read_only=True)
     status = serializers.SlugRelatedField(slug_field="name", read_only=True)
@@ -208,10 +218,21 @@ class ProjectSerializer(serializers.ModelSerializer):
     project_users = serializers.SerializerMethodField()
     allocations = serializers.SerializerMethodField()
     project_attributes = serializers.SerializerMethodField()
+    grants = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
-        fields = ("id", "title", "school", "pi", "status", "project_users", "allocations", "project_attributes")
+        fields = (
+            "id",
+            "title",
+            "school",
+            "pi",
+            "status",
+            "project_users",
+            "allocations",
+            "project_attributes",
+            "grants",
+        )
 
     def get_project_users(self, obj):
         request = self.context.get("request", None)
@@ -229,4 +250,10 @@ class ProjectSerializer(serializers.ModelSerializer):
         request = self.context.get("request", None)
         if request and request.query_params.get("project_attributes") in ["true", "True"]:
             return ProjectAttributeSerializer(obj.projectattribute_set, many=True, read_only=True).data
+        return None
+
+    def get_grants(self, obj):
+        request = self.context.get("request", None)
+        if request and request.query_params.get("grants") in ["true", "True"]:
+            return GrantSerializer(obj.grant_set, many=True, read_only=True).data
         return None

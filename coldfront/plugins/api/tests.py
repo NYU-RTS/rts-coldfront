@@ -3,12 +3,14 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 import unittest
+from datetime import date
 
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from coldfront.config.env import ENV
 from coldfront.core.allocation.models import Allocation
+from coldfront.core.grant.models import Grant, GrantFundingAgency, GrantStatusChoice
 from coldfront.core.project.models import Project
 from coldfront.core.test_helpers.factories import (
     AllocationAttributeFactory,
@@ -45,6 +47,21 @@ class ColdfrontAPI(APITestCase):
             AllocationUserFactory(allocation=allocation, user=self.admin_user)
             AllocationAttributeFactory(allocation=allocation)
             self.pi_user = project.pi
+
+        Grant.objects.create(
+            project=project,
+            title="Test grant",
+            grant_number="TEST-123",
+            role="PI",
+            grant_pi_full_name="",
+            funding_agency=GrantFundingAgency.objects.create(name="Test agency"),
+            grant_start=date(2026, 1, 1),
+            grant_end=date(2027, 1, 1),
+            percent_credit=100,
+            direct_funding=1000,
+            total_amount_awarded=2000,
+            status=GrantStatusChoice.objects.create(name="Active"),
+        )
 
     def test_requires_login(self):
         """Test that the API requires authentication"""
@@ -130,6 +147,22 @@ class ColdfrontAPI(APITestCase):
         response = self.client.get("/api/projects/?allocations=true", format="json")
         for proj in response.json():
             self.assertEqual(len(proj["allocations"]), 1)
+
+        response = self.client.get("/api/projects/?grants=true", format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        projects_with_grants = [proj for proj in response.json() if proj["grants"]]
+        self.assertEqual(len(projects_with_grants), 1)
+        self.assertEqual(
+            projects_with_grants[0]["grants"],
+            [
+                {
+                    "title": "Test grant",
+                    "funding_agency": "Test agency",
+                    "total_amount_awarded": 2000,
+                    "status": "Active",
+                }
+            ],
+        )
 
     def test_user_api_permissions(self):
         """Test that accessing the user API view as an admin returns all

@@ -256,6 +256,8 @@ paths:
             Show related user data.
         - project_attributes (default false)
             Show related attribute data.
+        - grants (default false)
+            Show related grant data.
       tags:
       - projects
       security:
@@ -281,6 +283,8 @@ paths:
             Show related user data.
         - project_attributes (default false)
             Show related attribute data.
+        - grants (default false)
+            Show related grant data.
       parameters:
       - in: path
         name: id
@@ -302,6 +306,10 @@ paths:
   /api/resources/:
     get:
       operationId: resources_list
+      description: |-
+        Query parameters:
+        - resource_attributes (default false)
+            Show related attributes.
       tags:
       - resources
       security:
@@ -319,6 +327,10 @@ paths:
   /api/resources/{id}/:
     get:
       operationId: resources_retrieve
+      description: |-
+        Query parameters:
+        - resource_attributes (default false)
+            Show related attributes.
       parameters:
       - in: path
         name: id
@@ -551,8 +563,12 @@ components:
         project_attributes:
           type: string
           readOnly: true
+        grants:
+          type: string
+          readOnly: true
       required:
       - allocations
+      - grants
       - id
       - pi
       - project_attributes
@@ -576,10 +592,14 @@ components:
           type: string
         is_allocatable:
           type: boolean
+        resource_attributes:
+          type: string
+          readOnly: true
       required:
       - description
       - id
       - name
+      - resource_attributes
       - resource_type
     User:
       type: object
