@@ -15,9 +15,7 @@ logger = logging.getLogger(__name__)
 
 CENTER_NAME = import_from_settings("CENTER_NAME")
 CENTER_BASE_URL = import_from_settings("CENTER_BASE_URL")
-CENTER_PROJECT_RENEWAL_HELP_URL = import_from_settings(
-    "CENTER_PROJECT_RENEWAL_HELP_URL"
-)
+CENTER_PROJECT_RENEWAL_HELP_URL = import_from_settings("CENTER_PROJECT_RENEWAL_HELP_URL")
 EMAIL_SENDER = import_from_settings("EMAIL_SENDER")
 EMAIL_OPT_OUT_INSTRUCTION_URL = import_from_settings("EMAIL_OPT_OUT_INSTRUCTION_URL")
 EMAIL_SIGNATURE = import_from_settings("EMAIL_SIGNATURE")
@@ -28,9 +26,7 @@ EMAIL_ALLOCATION_EXPIRING_NOTIFICATION_DAYS = import_from_settings(
     ],
 )
 
-EMAIL_ADMINS_ON_ALLOCATION_EXPIRE = import_from_settings(
-    "EMAIL_ADMINS_ON_ALLOCATION_EXPIRE"
-)
+EMAIL_ADMINS_ON_ALLOCATION_EXPIRE = import_from_settings("EMAIL_ADMINS_ON_ALLOCATION_EXPIRE")
 EMAIL_ADMIN_LIST = import_from_settings("EMAIL_ADMIN_LIST")
 
 
@@ -60,10 +56,7 @@ def send_expiry_emails():
 def send_expiring_mails():
     # Build the set of target expiration dates
     today = timezone.now().date()
-    target_dates = [
-        today + datetime.timedelta(days=d)
-        for d in EMAIL_ALLOCATION_EXPIRING_NOTIFICATION_DAYS
-    ]
+    target_dates = [today + datetime.timedelta(days=d) for d in EMAIL_ALLOCATION_EXPIRING_NOTIFICATION_DAYS]
     # Get allocations expiring soon
     expiring_allocations = Allocation.objects.filter(
         status__name__in=["Active", "Payment Pending", "Payment Requested", "Unpaid"],
@@ -91,13 +84,9 @@ def send_expiring_mails():
         resource_name = allocation.get_parent_resource.name
 
         if allocation.status.name in ["Payment Pending", "Payment Requested", "Unpaid"]:
-            allocation_renew_url = (
-                f"{CENTER_BASE_URL.strip('/')}/allocation/{allocation.pk}/"
-            )
+            allocation_renew_url = f"{CENTER_BASE_URL.strip('/')}/allocation/{allocation.pk}/"
         else:
-            allocation_renew_url = (
-                f"{CENTER_BASE_URL.strip('/')}/allocation/{allocation.pk}/renew/"
-            )
+            allocation_renew_url = f"{CENTER_BASE_URL.strip('/')}/allocation/{allocation.pk}/renew/"
 
         days_remaining = (allocation.end_date - today).days
 
@@ -157,9 +146,7 @@ def send_expiring_mails():
                     entry["resource_name"],
                 )
             )
-            projectdict.setdefault(
-                entry["project_title"], (entry["project_url"], entry["pi_username"])
-            )
+            projectdict.setdefault(entry["project_title"], (entry["project_url"], entry["pi_username"]))
 
         template_context = {
             "center_name": CENTER_NAME,
@@ -179,7 +166,7 @@ def send_expiring_mails():
             [email],
         )
 
-        logger.debug(f"Allocation(s) expiring in soon, email sent to user {email}.")
+        logger.info(f"Allocation(s) expiring in soon, email sent to user {email}.")
 
 
 def send_expired_mails():
@@ -202,9 +189,7 @@ def send_expired_mails():
 
         allocation_school = allocation.project.school
         project_url = f"{CENTER_BASE_URL.strip('/')}/project/{allocation.project.pk}/"
-        allocation_renew_url = (
-            f"{CENTER_BASE_URL.strip('/')}/allocation/{allocation.pk}/renew/"
-        )
+        allocation_renew_url = f"{CENTER_BASE_URL.strip('/')}/allocation/{allocation.pk}/renew/"
         allocation_url = f"{CENTER_BASE_URL.strip('/')}/allocation/{allocation.pk}/"
         resource_name = allocation.get_parent_resource.name
 
@@ -247,21 +232,13 @@ def send_expired_mails():
             projectdict = recipient_to_allocations[email]["project_dict"]
             allocationdict = recipient_to_allocations[email]["allocation_dict"]
 
-            allocationdict.setdefault(project_url, []).append(
-                {allocation_renew_url: resource_name}
-            )
-            projectdict.setdefault(
-                allocation.project.title, (project_url, allocation.project.pi.username)
-            )
+            allocationdict.setdefault(project_url, []).append({allocation_renew_url: resource_name})
+            projectdict.setdefault(allocation.project.title, (project_url, allocation.project.pi.username))
 
         # Admins still get full summary
         if EMAIL_ADMINS_ON_ALLOCATION_EXPIRE:
-            admin_allocationdict.setdefault(project_url, []).append(
-                {allocation_url: resource_name}
-            )
-            admin_projectdict.setdefault(
-                allocation.project.title, (project_url, allocation.project.pi.username)
-            )
+            admin_allocationdict.setdefault(project_url, []).append({allocation_url: resource_name})
+            admin_projectdict.setdefault(allocation.project.title, (project_url, allocation.project.pi.username))
     # Send expired emails per recipient
     for email, context_data in recipient_to_allocations.items():
         template_context = {
@@ -281,7 +258,7 @@ def send_expired_mails():
             [email],
         )
 
-        logger.debug(f"Allocation(s) expired email sent to user {email}.")
+        logger.info(f"Allocation(s) expired email sent to user {email}.")
     # Send summary to admins
     if EMAIL_ADMINS_ON_ALLOCATION_EXPIRE and admin_projectdict:
         admin_template_context = {

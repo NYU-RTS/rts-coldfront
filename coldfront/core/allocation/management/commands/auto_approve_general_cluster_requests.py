@@ -53,4 +53,4 @@ class Command(BaseCommand):
                 )
                 logger.info(f"Approved allocation request: {allocation_obj.pk}")
         except Exception:
-            logger.debug("Exception occured with traceback:", exc_info=True)
+            logger.error("Exception occured with traceback:", exc_info=True)
