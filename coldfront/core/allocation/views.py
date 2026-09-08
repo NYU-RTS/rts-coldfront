@@ -1708,7 +1708,7 @@ class AllocationChangeDetailView(LoginRequiredMixin, UserPassesTestMixin, FormVi
 
     def post(self, request, *args, **kwargs):
         pk = self.kwargs.get("pk")
-        if not self.request.user.is_superuser:
+        if not self.request.user.is_superuser and not self.request.user.is_staff:
             messages.error(
                 request,
                 "You do not have permission to update an allocation change request",
