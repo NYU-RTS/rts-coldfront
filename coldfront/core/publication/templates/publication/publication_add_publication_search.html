@@ -7,10 +7,17 @@ Add Publication to Project
 {% endblock %}
 
 {% block content %}
-<a href="https://services.rt.nyu.edu/docs/hpc/getting_started/Slurm_Accounts/adding_publications_grants/#enter-publications">Instructions on adding publications</a>
-
-<h2>Add publication to project: {{project.title}}</h2>
+<h2>Add publication to project: {{ project.title }}</h2>
 <hr>
+
+<p class="mt-2 mb-4">
+  <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+  <a href="https://services.rt.nyu.edu/docs/hpc/getting_started/Slurm_Accounts/adding_publications_grants/#enter-publications"
+     target="_blank" rel="noopener noreferrer">
+    Publication entry guide (NYU HPC docs)
+    <span class="visually-hidden"> (opens in a new tab)</span>
+  </a>
+</p>
 
 <div class="col">
 	<a class="btn btn-info" href="{% url 'add-publication-manually' project.pk %}" role="button"><i class="far fa-edit" aria-hidden="true"></i>
