@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from django.core.management import call_command
@@ -153,7 +154,10 @@ class AllocationChangeDetailViewTest(AllocationViewBaseTest):
 
         # Create users
         self.superuser = UserFactory(username="superuser", is_superuser=True)
-        self.approver_user = UserFactory(username="approver_user")
+        # approver_user is also is_staff: load_approver_schools (coldfront/core/user/management/
+        # commands/load_approver_schools.py) always sets is_staff=True on approvers, so this
+        # matches how school approvers actually exist in production.
+        self.approver_user = UserFactory(username="approver_user", is_staff=True)
         self.approver_user2 = UserFactory(username="approver_user2")
         self.regular_user = UserFactory(username="regular_user")
 
@@ -224,6 +228,34 @@ class AllocationChangeDetailViewTest(AllocationViewBaseTest):
         alloc_change_req = AllocationChangeRequest.objects.get(pk=2)
         denied_status_id = AllocationChangeStatusChoice.objects.get(name="Denied").pk
         self.assertEqual(alloc_change_req.status_id, denied_status_id)
+
+    def test_staff_approver_can_view_and_approve_own_school_allocation_change(self):
+        """Test that a staff school approver (as load_approver_schools always creates them)
+        can view the Approve/Deny/Update actions and successfully approve an allocation
+        change request for their own school, same as an allocation request."""
+        call_command("add_allocation_defaults")
+
+        # approve requires either an attribute change or a nonzero end date extension
+        self.allocation.end_date = datetime.date.today()
+        self.allocation.save()
+
+        self.client.force_login(self.approver_user)
+
+        url = reverse("allocation-change-detail", kwargs={"pk": self.alloc_change_pk})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Approve")
+        self.assertContains(response, "Deny")
+
+        response = self.client.post(
+            url,
+            {"action": "approve", "end_date_extension": 90, "notes": "Approved by school approver"},
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        alloc_change_req = AllocationChangeRequest.objects.get(pk=self.alloc_change_pk)
+        approved_status_id = AllocationChangeStatusChoice.objects.get(name="Approved").pk
+        self.assertEqual(alloc_change_req.status_id, approved_status_id)
 
 
 class AllocationChangeViewTest(AllocationViewBaseTest):
