@@ -2,18 +2,28 @@
 {% load crispy_forms_tags %}
 {% load static %}
 
-
 {% block title %}
 Create Grant
 {% endblock %}
 
-
-
 {% block content %}
-  <form method="post">{% csrf_token %}
-    {{ form|crispy }}
-    <input class="btn btn-primary" type="submit" value="Save" />
-    <a class="btn btn-secondary" href="{% url 'project-detail' project.pk %}" role="button">Cancel</a><br>
+<h2>Add grant to project: {{ project.title }}</h2>
+<hr>
+
+<p class="mt-2 mb-4">
+  <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+  <a href="https://services.rt.nyu.edu/docs/hpc/getting_started/Slurm_Accounts/adding_publications_grants/#enter-grants"
+     target="_blank" rel="noopener noreferrer">
+    Grant entry guide (NYU HPC docs)
+    <span class="visually-hidden"> (opens in a new tab)</span>
+  </a>
+</p>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form|crispy }}
+  <input class="btn btn-primary" type="submit" value="Save">
+  <a class="btn btn-secondary" href="{% url 'project-detail' project.pk %}" role="button">Cancel</a>
 </form>
 
 {% endblock %}
