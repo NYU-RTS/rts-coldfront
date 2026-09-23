@@ -5,7 +5,6 @@ from django.db.models import Q
 from coldfront.core.allocation.models import AllocationUser, AllocationUserStatusChoice
 from coldfront.core.resource.models import Resource
 
-
 logger = logging.getLogger(__name__)
 
 
