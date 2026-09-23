@@ -323,7 +323,7 @@ class Command(BaseCommand):
             value="2022-01-01",
         )
 
-        allocation_user_obj = AllocationUser.objects.create(
+        _ = AllocationUser.objects.create(
             allocation=allocation_obj,
             user=pi1,
             status=AllocationUserStatusChoice.objects.get(name="Active"),
@@ -352,7 +352,7 @@ class Command(BaseCommand):
             allocation=allocation_obj,
             value="150000",
         )
-        allocation_user_obj = AllocationUser.objects.create(
+        _ = AllocationUser.objects.create(
             allocation=allocation_obj,
             user=pi1,
             status=AllocationUserStatusChoice.objects.get(name="Active"),
