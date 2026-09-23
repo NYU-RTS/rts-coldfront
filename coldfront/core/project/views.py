@@ -1,26 +1,25 @@
 import datetime
 import logging
-from django import forms
 
+from django import forms
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from coldfront.core.utils.common import import_from_settings
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db import transaction
 from django.db.models import Q
 from django.forms import formset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from coldfront.core.allocation.utils import generate_guauge_data_from_usage
 from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
-from django.db import transaction
+
 from coldfront.core.allocation.models import (
     Allocation,
     AllocationStatusChoice,
@@ -31,18 +30,19 @@ from coldfront.core.allocation.signals import (
     allocation_activate_user,
     allocation_remove_user,
 )
+from coldfront.core.allocation.utils import generate_guauge_data_from_usage
 from coldfront.core.grant.models import Grant
 from coldfront.core.project.forms import (
     ProjectAddUserForm,
     ProjectAddUsersToAllocationForm,
     ProjectAttributeAddForm,
     ProjectAttributeDeleteForm,
+    ProjectAttributeUpdateForm,
     ProjectRemoveUserForm,
     ProjectReviewEmailForm,
     ProjectReviewForm,
     ProjectSearchForm,
     ProjectUserUpdateForm,
-    ProjectAttributeUpdateForm,
 )
 from coldfront.core.project.models import (
     Project,
@@ -51,15 +51,15 @@ from coldfront.core.project.models import (
     ProjectReviewStatusChoice,
     ProjectStatusChoice,
     ProjectUser,
+    ProjectUserMessage,
     ProjectUserRoleChoice,
     ProjectUserStatusChoice,
-    ProjectUserMessage,
 )
 from coldfront.core.publication.models import Publication
 from coldfront.core.research_output.models import ResearchOutput
 from coldfront.core.user.forms import UserSearchForm
 from coldfront.core.user.utils import CombinedUserSearch
-from coldfront.core.utils.common import get_domain_url
+from coldfront.core.utils.common import get_domain_url, import_from_settings
 from coldfront.core.utils.mail import send_email, send_email_template
 
 EMAIL_ENABLED = import_from_settings("EMAIL_ENABLED", False)
@@ -1160,7 +1160,7 @@ def project_update_email_notification(request):
         if request.user.is_superuser:
             allowed = True
 
-        if allowed == False:
+        if not allowed:
             return HttpResponse("not allowed", status=403)
         else:
             checked = data.get("checked")
@@ -1249,7 +1249,7 @@ class ProjectReviewView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 
         if project_review_form.is_valid():
             form_data = project_review_form.cleaned_data
-            project_review_obj = ProjectReview.objects.create(
+            ProjectReview.objects.create(
                 project=project_obj,
                 reason_for_not_updating_project=form_data.get("reason"),
                 status=project_review_status_choice,

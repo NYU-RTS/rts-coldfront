@@ -2,22 +2,22 @@ import logging
 
 from django.test import TestCase
 
+from coldfront.core.project.models import ProjectUserStatusChoice
 from coldfront.core.test_helpers import utils
 from coldfront.core.test_helpers.factories import (
     AllocationFactory,
     AllocationStatusChoiceFactory,
     AllocationUserFactory,
     AllocationUserStatusChoiceFactory,
-    UserFactory,
-    ProjectFactory,
-    ProjectUserFactory,
     PAttributeTypeFactory,
     ProjectAttributeFactory,
-    ProjectStatusChoiceFactory,
     ProjectAttributeTypeFactory,
+    ProjectFactory,
+    ProjectStatusChoiceFactory,
+    ProjectUserFactory,
     ProjectUserRoleChoiceFactory,
+    UserFactory,
 )
-from coldfront.core.project.models import ProjectUserStatusChoice
 
 logging.disable(logging.CRITICAL)
 

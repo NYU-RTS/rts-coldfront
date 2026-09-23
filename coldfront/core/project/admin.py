@@ -1,22 +1,22 @@
 import textwrap
 
 from django.contrib import admin
-from simple_history.admin import SimpleHistoryAdmin
 from django.utils.translation import gettext_lazy as _
+from simple_history.admin import SimpleHistoryAdmin
 
 from coldfront.core.project.models import (
+    AttributeType,
     Project,
     ProjectAdminComment,
+    ProjectAttribute,
+    ProjectAttributeType,
+    ProjectAttributeUsage,
     ProjectReview,
     ProjectStatusChoice,
     ProjectUser,
     ProjectUserMessage,
     ProjectUserRoleChoice,
     ProjectUserStatusChoice,
-    ProjectAttribute,
-    ProjectAttributeType,
-    AttributeType,
-    ProjectAttributeUsage,
 )
 
 
