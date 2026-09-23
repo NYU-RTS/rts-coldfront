@@ -1,6 +1,7 @@
+from django.core.exceptions import ImproperlyConfigured
+
 from coldfront.config.base import AUTHENTICATION_BACKENDS
 from coldfront.config.env import ENV
-from django.core.exceptions import ImproperlyConfigured
 
 try:
     import ldap
