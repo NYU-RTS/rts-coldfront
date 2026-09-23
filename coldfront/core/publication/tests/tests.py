@@ -1,21 +1,22 @@
 import contextlib
 import itertools
-from unittest.mock import Mock, sentinel, patch
+from unittest.mock import Mock, patch, sentinel
+
 import bibtexparser.bibdatabase
 import bibtexparser.bparser
-from django.test import TestCase
 import doi2bib
+from django.test import TestCase
 
+import coldfront.core.publication
+from coldfront.core.publication.models import Publication
+from coldfront.core.publication.views import PublicationSearchResultView
+from coldfront.core.test_helpers.decorators import (
+    makes_remote_requests,
+)
 from coldfront.core.test_helpers.factories import (
     ProjectFactory,
     PublicationSourceFactory,
 )
-from coldfront.core.test_helpers.decorators import (
-    makes_remote_requests,
-)
-from coldfront.core.publication.models import Publication
-from coldfront.core.publication.views import PublicationSearchResultView
-import coldfront.core.publication
 
 
 class TestPublication(TestCase):
