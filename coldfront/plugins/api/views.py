@@ -6,7 +6,7 @@ import logging
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
-from django.db.models import ExpressionWrapper, F, OuterRef, Q, Subquery, fields, Prefetch
+from django.db.models import ExpressionWrapper, F, OuterRef, Prefetch, Q, Subquery, fields
 from django.db.models.functions import Cast
 from django_filters import rest_framework as filters
 from rest_framework import viewsets

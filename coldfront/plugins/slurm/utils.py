@@ -1,7 +1,7 @@
+import csv
 import logging
 import shlex
 import subprocess
-import csv
 from io import StringIO
 
 from coldfront.core.utils.common import import_from_settings

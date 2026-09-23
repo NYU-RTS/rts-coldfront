@@ -1,9 +1,9 @@
 import logging
 
 from django.contrib.auth.models import Group
+from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
 from coldfront.core.utils.common import import_from_settings
-from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
 logger = logging.getLogger(__name__)
 
@@ -68,8 +68,9 @@ class OIDCMokeyAuthenticationBackend(OIDCAuthenticationBackend):
             user.email = email
         else:
             logger.warning(
-                "Failed to update email. Could not find email for user %s in mokey oidc id_token claims: %s",
-                username,
+                "Failed to update email. Could not find email for user with first_name %s and last_name %s in mokey oidc id_token claims: %s",
+                user.first_name,
+                user.last_name,
                 claims,
             )
 

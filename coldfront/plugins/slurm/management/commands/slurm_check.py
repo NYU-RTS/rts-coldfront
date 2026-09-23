@@ -11,10 +11,10 @@ from coldfront.plugins.slurm.associations import SlurmCluster
 from coldfront.plugins.slurm.utils import (
     SLURM_CLUSTER_ATTRIBUTE_NAME,
     SlurmError,
-    slurm_remove_qos,
     slurm_dump_cluster,
     slurm_remove_account,
     slurm_remove_assoc,
+    slurm_remove_qos,
 )
 
 SLURM_IGNORE_USERS = import_from_settings("SLURM_IGNORE_USERS", [])

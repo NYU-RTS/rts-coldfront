@@ -1,7 +1,9 @@
-from xdmod_data.warehouse import DataWarehouse
-from coldfront.core.utils.common import import_from_settings
-from multiprocessing import Process, Queue
 import logging
+from multiprocessing import Process, Queue
+
+from xdmod_data.warehouse import DataWarehouse
+
+from coldfront.core.utils.common import import_from_settings
 
 XDMOD_API_URL = import_from_settings("XDMOD_API_URL", "https://localhost")
 
@@ -62,6 +64,7 @@ def fetch_xdmod_with_timeout(url: str, metric: str, account: str, timeout_s: flo
 
 def check_connectivity(url: str, timeout: float = 5.0) -> None:
     from urllib.parse import urlparse
+
     import requests
 
     p = urlparse(url)
