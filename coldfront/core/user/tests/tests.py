@@ -1,9 +1,10 @@
-from coldfront.core.test_helpers.factories import UserFactory
-from coldfront.core.user.models import UserProfile, ApproverProfile
-from coldfront.core.school.models import School
-from django.test import TestCase
 from django.contrib.auth.models import Permission
 from django.db import models
+from django.test import TestCase
+
+from coldfront.core.school.models import School
+from coldfront.core.test_helpers.factories import UserFactory
+from coldfront.core.user.models import ApproverProfile, UserProfile
 
 
 class TestUserProfile(TestCase):
