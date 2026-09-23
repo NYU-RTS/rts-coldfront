@@ -1,40 +1,43 @@
 import factory
 from django.contrib.auth.models import User
 from factory import SubFactory
-from factory.fuzzy import FuzzyChoice
 from factory.django import DjangoModelFactory
+from factory.fuzzy import FuzzyChoice
 from faker import Faker
 from faker.providers import BaseProvider, DynamicProvider
 
-from coldfront.core.school.models import School
-from coldfront.core.resource.models import ResourceType, Resource
-from coldfront.core.project.models import (
-    Project,
-    ProjectUser,
-    ProjectAttribute,
-    ProjectAttributeType,
-    ProjectUserRoleChoice,
-    ProjectUserStatusChoice,
-    ProjectStatusChoice,
-    AttributeType as PAttributeType,
-)
 from coldfront.core.allocation.models import (
     Allocation,
-    AllocationUser,
-    AllocationUserNote,
     AllocationAttribute,
-    AllocationStatusChoice,
+    AllocationAttributeChangeRequest,
     AllocationAttributeType,
+    AllocationAttributeUsage,
     AllocationChangeRequest,
     AllocationChangeStatusChoice,
-    AllocationAttributeUsage,
+    AllocationStatusChoice,
+    AllocationUser,
+    AllocationUserNote,
     AllocationUserStatusChoice,
-    AllocationAttributeChangeRequest,
+)
+from coldfront.core.allocation.models import (
     AttributeType as AAttributeType,
 )
 from coldfront.core.grant.models import GrantFundingAgency, GrantStatusChoice
+from coldfront.core.project.models import (
+    AttributeType as PAttributeType,
+)
+from coldfront.core.project.models import (
+    Project,
+    ProjectAttribute,
+    ProjectAttributeType,
+    ProjectStatusChoice,
+    ProjectUser,
+    ProjectUserRoleChoice,
+    ProjectUserStatusChoice,
+)
 from coldfront.core.publication.models import PublicationSource
-
+from coldfront.core.resource.models import Resource, ResourceType
+from coldfront.core.school.models import School
 
 ### Default values and Faker provider setup ###
 
