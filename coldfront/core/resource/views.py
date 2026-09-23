@@ -8,13 +8,13 @@ from django.forms import formset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from django.views.generic import TemplateView, ListView
+from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import CreateView
 
 from coldfront.core.resource.forms import (
     ResourceAttributeCreateForm,
-    ResourceSearchForm,
     ResourceAttributeDeleteForm,
+    ResourceSearchForm,
 )
 from coldfront.core.resource.models import Resource, ResourceAttribute
 

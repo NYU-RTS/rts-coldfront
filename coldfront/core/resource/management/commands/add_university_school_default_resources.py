@@ -1,11 +1,11 @@
+import json
 import logging
 import os
-import json
-
 from pathlib import Path
+
 from django.core.management.base import BaseCommand
 
-from coldfront.core.resource.models import ResourceType, Resource
+from coldfront.core.resource.models import Resource, ResourceType
 from coldfront.core.school.models import School
 from coldfront.core.utils.common import import_from_settings
 

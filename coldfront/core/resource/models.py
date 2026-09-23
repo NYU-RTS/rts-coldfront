@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from model_utils.models import TimeStampedModel
 from simple_history.models import HistoricalRecords
+
 import coldfront.core.attribute_expansion as attribute_expansion
 from coldfront.core.school.models import School
 
