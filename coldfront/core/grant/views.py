@@ -10,10 +10,10 @@ from django.views import View
 from django.views.generic import FormView, ListView, TemplateView
 from django.views.generic.edit import UpdateView
 
-from coldfront.core.utils.common import Echo
 from coldfront.core.grant.forms import GrantDeleteForm, GrantDownloadForm, GrantForm
 from coldfront.core.grant.models import Grant
 from coldfront.core.project.models import Project
+from coldfront.core.utils.common import Echo
 
 
 class GrantCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
@@ -185,7 +185,7 @@ class GrantDeleteGrantsView(LoginRequiredMixin, UserPassesTestMixin, TemplateVie
         project_obj = get_object_or_404(Project, pk=self.kwargs.get("project_pk"))
 
         grants_to_delete = self.get_grants_to_delete(project_obj)
-        context = {}
+        context = {}  # noqa F841
 
         formset = formset_factory(GrantDeleteForm, max_num=len(grants_to_delete))
         formset = formset(request.POST, initial=grants_to_delete, prefix="grantform")

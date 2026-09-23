@@ -6,7 +6,6 @@ from django.core.validators import (
 from django.db import models
 from model_utils.models import TimeStampedModel
 from simple_history.models import HistoricalRecords
-from django.core.validators import RegexValidator
 
 from coldfront.core.project.models import Project
 
