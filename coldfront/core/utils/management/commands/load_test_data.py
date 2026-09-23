@@ -13,17 +13,16 @@ from coldfront.core.allocation.models import (
     AllocationUser,
     AllocationUserStatusChoice,
 )
-from coldfront.core.school.models import School
 from coldfront.core.grant.models import Grant, GrantFundingAgency, GrantStatusChoice
 from coldfront.core.project.models import (
+    AttributeType,
     Project,
+    ProjectAttribute,
+    ProjectAttributeType,
     ProjectStatusChoice,
     ProjectUser,
     ProjectUserRoleChoice,
     ProjectUserStatusChoice,
-    ProjectAttribute,
-    ProjectAttributeType,
-    AttributeType,
 )
 from coldfront.core.publication.models import Publication, PublicationSource
 from coldfront.core.resource.models import (
@@ -32,6 +31,7 @@ from coldfront.core.resource.models import (
     ResourceAttributeType,
     ResourceType,
 )
+from coldfront.core.school.models import School
 from coldfront.core.user.management.commands.load_approver_schools import (
     load_approver_schools,
 )
@@ -468,7 +468,7 @@ class Command(BaseCommand):
         allocation_attribute_obj.allocationattributeusage.value = 200
         allocation_attribute_obj.allocationattributeusage.save()
 
-        allocation_user_obj = AllocationUser.objects.create(
+        _ = AllocationUser.objects.create(
             allocation=allocation_obj,
             user=pi2,
             status=AllocationUserStatusChoice.objects.get(name="Active"),
