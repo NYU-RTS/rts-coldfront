@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 
 from coldfront.core.project.models import Project, ProjectUser, ProjectUserRoleChoice, ProjectUserStatusChoice
 from coldfront.core.school.models import School
-from coldfront.core.user.models import User, ApproverProfile
+from coldfront.core.user.models import User
 from coldfront.core.utils.common import import_from_settings
 
 logger = logging.getLogger(__name__)
