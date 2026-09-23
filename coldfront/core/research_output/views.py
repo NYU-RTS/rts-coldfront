@@ -10,10 +10,10 @@ from coldfront.core.project.models import Project
 from coldfront.core.research_output.forms import ResearchOutputForm
 from coldfront.core.research_output.models import ResearchOutput
 from coldfront.core.utils.mixins.views import (
-    UserActiveManagerOrHigherMixin,
     ChangesOnlyOnActiveProjectMixin,
     ProjectInContextMixin,
     SnakeCaseTemplateNameMixin,
+    UserActiveManagerOrHigherMixin,
 )
 
 

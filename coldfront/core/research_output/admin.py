@@ -3,7 +3,6 @@ from simple_history.admin import SimpleHistoryAdmin
 
 from coldfront.core.research_output.models import ResearchOutput
 
-
 _research_output_fields_for_end = ["created_by", "project", "created", "modified"]
 
 
