@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.html import format_html
 from django.utils.module_loading import import_string
+from django.utils.safestring import SafeString
 from model_utils.models import TimeStampedModel
 from simple_history.models import HistoricalRecords
 
@@ -149,10 +150,11 @@ class Allocation(TimeStampedModel):
             str: the allocation's attribute type, usage out of total value, and usage out of total value as a percentage
         """
 
-        html_string = ""
+        html_string = SafeString()
         for attribute in self.allocationattribute_set.all():
             if attribute.allocation_attribute_type.name in ALLOCATION_ATTRIBUTE_VIEW_LIST:
-                html_string += "%s: %s <br>" % (
+                html_string += format_html(
+                    "{}: {} <br>",
                     attribute.allocation_attribute_type.name,
                     attribute.value,
                 )
@@ -175,15 +177,15 @@ class Allocation(TimeStampedModel):
                         attribute.allocation_attribute_type.name,
                     )
 
-                string = "{}: {}/{} ({} %) <br>".format(
+                html_string += format_html(
+                    "{}: {}/{} ({} %) <br>",
                     attribute.allocation_attribute_type.name,
                     attribute.allocationattributeusage.value,
                     attribute.value,
                     percent,
                 )
-                html_string += string
 
-        return format_html(html_string)
+        return html_string
 
     @property
     def get_resources_as_string(self):
