@@ -4,27 +4,26 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 
-from coldfront.core.test_helpers.factories import (
-    UserFactory,
-    ProjectFactory,
-    SchoolFactory,
-    ProjectAttributeFactory,
-    ProjectStatusChoiceFactory,
-    ProjectAttributeTypeFactory,
-    PAttributeTypeFactory,
-    ProjectUserRoleChoiceFactory,
-    ProjectUserStatusChoiceFactory,
-)
 from coldfront.core.project.models import (
     Project,
     ProjectAttribute,
     ProjectAttributeType,
-    ProjectUser,
     ProjectPermission,
     ProjectStatusChoice,
+    ProjectUser,
+)
+from coldfront.core.test_helpers.factories import (
+    PAttributeTypeFactory,
+    ProjectAttributeFactory,
+    ProjectAttributeTypeFactory,
+    ProjectFactory,
+    ProjectStatusChoiceFactory,
+    ProjectUserRoleChoiceFactory,
+    ProjectUserStatusChoiceFactory,
+    SchoolFactory,
+    UserFactory,
 )
 from coldfront.core.utils.common import import_from_settings
-
 
 MAX_PROJECTS_PER_PI = import_from_settings("MAX_PROJECTS_PER_PI")
 

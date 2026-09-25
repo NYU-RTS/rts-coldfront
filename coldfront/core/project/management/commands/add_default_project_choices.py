@@ -1,12 +1,12 @@
 from django.core.management.base import BaseCommand
 
 from coldfront.core.project.models import (
+    AttributeType,
     ProjectAttributeType,
     ProjectReviewStatusChoice,
     ProjectStatusChoice,
     ProjectUserRoleChoice,
     ProjectUserStatusChoice,
-    AttributeType,
 )
 
 

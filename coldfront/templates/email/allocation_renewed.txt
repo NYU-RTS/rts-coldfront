@@ -1,2 +1,4 @@
 A allocation has been renewed for {{pi}} - {{resource}}. Please activate the allocation:
 {{url}}
+
+If you are a PI/Manager on this project, please note that this email is for informational purposes only.

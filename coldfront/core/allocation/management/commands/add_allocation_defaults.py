@@ -1,11 +1,11 @@
 from django.core.management.base import BaseCommand
 
 from coldfront.core.allocation.models import (
-    AttributeType,
     AllocationAttributeType,
-    AllocationStatusChoice,
     AllocationChangeStatusChoice,
+    AllocationStatusChoice,
     AllocationUserStatusChoice,
+    AttributeType,
 )
 
 

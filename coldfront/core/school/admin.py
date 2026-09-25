@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from coldfront.core.school.models import School
 from coldfront.core.user.models import ApproverProfile
 

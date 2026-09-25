@@ -1,27 +1,28 @@
-from coldfront.core.project.models import (
-    ProjectUserRoleChoice,
-    ProjectUser,
-    ProjectUserStatusChoice,
-)
+import datetime
+from unittest.mock import patch
+
+from django.test import TestCase
 
 from coldfront.core.allocation.models import Allocation, AllocationStatusChoice
-from coldfront.core.test_helpers.factories import (
-    SchoolFactory,
-    ProjectStatusChoiceFactory,
-    ProjectFactory,
-    UserFactory,
-    ResourceFactory,
+from coldfront.core.project.models import (
+    ProjectUser,
+    ProjectUserRoleChoice,
+    ProjectUserStatusChoice,
 )
+from coldfront.core.test_helpers.factories import (
+    ProjectFactory,
+    ProjectStatusChoiceFactory,
+    ResourceFactory,
+    SchoolFactory,
+    UserFactory,
+)
+from coldfront.core.user.models import ApproverProfile, UserProfile
 from coldfront.core.utils.mail import (
-    send_allocation_admin_email,
-    send_admin_email_template,
     EMAIL_SENDER,
     EMAIL_TICKET_SYSTEM_ADDRESS,
+    send_admin_email_template,
+    send_allocation_admin_email,
 )
-from coldfront.core.user.models import UserProfile, ApproverProfile
-from django.test import TestCase
-from unittest.mock import patch
-import datetime
 
 
 class EmailUtilsTests(TestCase):

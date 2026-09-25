@@ -1,33 +1,34 @@
-from coldfront.core.project.models import (
-    ProjectUserRoleChoice,
-    ProjectUser,
-    ProjectUserStatusChoice,
-)
+import datetime
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.utils import timezone
-from unittest.mock import patch
-import datetime
 
 from coldfront.core.allocation.models import (
     Allocation,
-    AllocationStatusChoice,
-    AllocationAttributeType,
     AllocationAttribute,
+    AllocationAttributeType,
+    AllocationStatusChoice,
     AttributeType,
 )
 from coldfront.core.allocation.tasks import (
-    send_expiring_mails,
     send_expired_mails,
+    send_expiring_mails,
     send_expiry_emails,
 )
-from coldfront.core.test_helpers.factories import (
-    SchoolFactory,
-    ProjectStatusChoiceFactory,
-    ProjectFactory,
-    UserFactory,
-    ResourceFactory,
+from coldfront.core.project.models import (
+    ProjectUser,
+    ProjectUserRoleChoice,
+    ProjectUserStatusChoice,
 )
-from coldfront.core.user.models import UserProfile, ApproverProfile
+from coldfront.core.test_helpers.factories import (
+    ProjectFactory,
+    ProjectStatusChoiceFactory,
+    ResourceFactory,
+    SchoolFactory,
+    UserFactory,
+)
+from coldfront.core.user.models import ApproverProfile, UserProfile
 
 
 class SendExpiryEmailsWrapperTest(TestCase):

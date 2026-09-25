@@ -1,7 +1,6 @@
 from coldfront.config.base import INSTALLED_APPS
 from coldfront.config.env import ENV  # noqa: F401
 
-
 INSTALLED_APPS += [
     "coldfront.plugins.slurmrest",
 ]

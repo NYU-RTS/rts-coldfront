@@ -1,9 +1,10 @@
-import logging
 import csv
+import logging
 import os
 from datetime import date
 
 from django.core.management.base import BaseCommand
+
 from coldfront.core.allocation.models import Allocation
 from coldfront.core.school.models import School
 from coldfront.plugins.xdmod.management.commands.school_abbreviations import sch_abbrv

@@ -1,11 +1,11 @@
-import json
+from django.contrib.auth.models import Permission, User
 from django.test import TestCase
-from django.contrib.auth.models import User, Permission
-from coldfront.core.user.models import UserProfile, ApproverProfile
+
 from coldfront.core.school.models import School
 from coldfront.core.user.management.commands.load_approver_schools import (
     load_approver_schools,
 )
+from coldfront.core.user.models import ApproverProfile, UserProfile
 
 
 class LoadApproverSchoolsTest(TestCase):

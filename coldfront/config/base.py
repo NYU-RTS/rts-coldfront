@@ -6,10 +6,7 @@
 Base Django settings for ColdFront project.
 """
 
-import importlib.util
 import os
-import sys
-import coldfront
 
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management.utils import get_random_secret_key

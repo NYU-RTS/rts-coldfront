@@ -2,7 +2,7 @@ import datetime
 import logging
 from datetime import date
 
-from coldfront.core.user.models import UserProfile
+import plotly.express as px
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.contrib import messages
@@ -12,23 +12,24 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.forms import formset_factory
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.utils.html import format_html
 from django.views import View
 from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
+from plotly.offline import plot
 
 from coldfront.core.allocation.forms import (
     AllocationAccountForm,
     AllocationAddUserForm,
+    AllocationAttributeChangeForm,
     AllocationAttributeCreateForm,
     AllocationAttributeDeleteForm,
+    AllocationAttributeUpdateForm,
     AllocationChangeForm,
     AllocationChangeNoteForm,
-    AllocationAttributeChangeForm,
-    AllocationAttributeUpdateForm,
     AllocationForm,
     AllocationInvoiceNoteDeleteForm,
     AllocationInvoiceUpdateForm,
@@ -39,25 +40,25 @@ from coldfront.core.allocation.forms import (
 )
 from coldfront.core.allocation.models import (
     Allocation,
-    AllocationPermission,
     AllocationAccount,
     AllocationAttribute,
+    AllocationAttributeChangeRequest,
     AllocationAttributeType,
     AllocationChangeRequest,
     AllocationChangeStatusChoice,
-    AllocationAttributeChangeRequest,
+    AllocationPermission,
     AllocationStatusChoice,
     AllocationUser,
     AllocationUserNote,
     AllocationUserStatusChoice,
 )
 from coldfront.core.allocation.signals import (
-    allocation_new,
     allocation_activate,
     allocation_activate_user,
-    allocation_disable,
-    allocation_remove_user,
     allocation_change_approved,
+    allocation_disable,
+    allocation_new,
+    allocation_remove_user,
 )
 from coldfront.core.allocation.utils import (
     generate_guauge_data_from_usage,
@@ -65,22 +66,18 @@ from coldfront.core.allocation.utils import (
 )
 from coldfront.core.project.models import (
     Project,
-    ProjectUser,
     ProjectPermission,
+    ProjectUser,
     ProjectUserStatusChoice,
 )
 from coldfront.core.resource.models import Resource
+from coldfront.core.user.models import UserProfile
 from coldfront.core.utils.common import get_domain_url, import_from_settings
 from coldfront.core.utils.mail import (
     send_allocation_admin_email,
     send_allocation_customer_email,
 )
-
-from coldfront.plugins.xdmod.utils import get_usage_data, XDMoDConnectivityError, XDMoDFetchError
-import plotly.express as px
-from plotly.offline import plot
-from django.http import HttpResponse, HttpResponseBadRequest
-from django.db import IntegrityError, transaction
+from coldfront.plugins.xdmod.utils import XDMoDConnectivityError, XDMoDFetchError, get_usage_data
 
 ALLOCATION_ENABLE_ALLOCATION_RENEWAL = import_from_settings("ALLOCATION_ENABLE_ALLOCATION_RENEWAL", True)
 ALLOCATION_DEFAULT_ALLOCATION_LENGTH = import_from_settings("ALLOCATION_DEFAULT_ALLOCATION_LENGTH", 365)
@@ -2070,7 +2067,7 @@ class AllocationChangeView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         )
 
         for attribute in attribute_changes_to_make:
-            attribute_change_request_obj = AllocationAttributeChangeRequest.objects.create(
+            AllocationAttributeChangeRequest.objects.create(
                 allocation_change_request=allocation_change_request_obj,
                 allocation_attribute=attribute[0],
                 new_value=attribute[1],

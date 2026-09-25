@@ -1,12 +1,13 @@
 import datetime
+
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
+from coldfront.core.research_output.models import ResearchOutput
 from coldfront.core.test_helpers.factories import (
     ProjectFactory,
     UserFactory,
 )
-from coldfront.core.research_output.models import ResearchOutput
 
 
 class TestResearchOutput(TestCase):

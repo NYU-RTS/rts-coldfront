@@ -1,10 +1,9 @@
-from coldfront.core.project.models import ProjectStatusChoice, Project
-
-from coldfront.core.resource.models import ResourceType, Resource
-from django.test import TestCase
-from coldfront.core.allocation.forms import AllocationForm
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 
+from coldfront.core.allocation.forms import AllocationForm
+from coldfront.core.project.models import Project, ProjectStatusChoice
+from coldfront.core.resource.models import Resource, ResourceType
 from coldfront.core.school.models import School
 from coldfront.core.utils.common import import_from_settings
 

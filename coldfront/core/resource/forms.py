@@ -1,8 +1,7 @@
 from django import forms
+from django.db.models.functions import Lower
 
 from coldfront.core.resource.models import ResourceAttribute
-
-from django.db.models.functions import Lower
 
 
 class ResourceSearchForm(forms.Form):

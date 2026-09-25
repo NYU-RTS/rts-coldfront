@@ -2,10 +2,11 @@ import json
 import logging
 import os
 
+from django.contrib.auth.models import Permission, User
 from django.core.management.base import BaseCommand
+
 from coldfront.core.school.models import School
-from coldfront.core.user.models import UserProfile, ApproverProfile
-from django.contrib.auth.models import User, Permission
+from coldfront.core.user.models import ApproverProfile, UserProfile
 
 logger = logging.getLogger(__name__)
 

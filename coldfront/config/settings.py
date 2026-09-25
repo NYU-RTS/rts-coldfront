@@ -1,5 +1,6 @@
 import environ
-from split_settings.tools import optional, include
+from split_settings.tools import include, optional
+
 from coldfront.config.env import ENV, PROJECT_ROOT
 
 # ColdFront split settings

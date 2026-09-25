@@ -2,10 +2,10 @@ import logging
 from smtplib import SMTPException
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.mail import EmailMessage, send_mail
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.contrib.auth.models import User
 
 from coldfront.core.utils.common import import_from_settings
 
@@ -91,7 +91,7 @@ def build_link(url_path, domain_url=""):
 
 def send_admin_email_template(subject, template_name, template_context, receiver_list=None):
     """Helper function for sending admin emails using a template"""
-    if receiver_list == None:
+    if receiver_list is None:
         receiver_list = [
             EMAIL_TICKET_SYSTEM_ADDRESS,
         ]

@@ -8,7 +8,6 @@
 import logging
 import math
 
-
 logger = logging.getLogger(__name__)
 
 # ALLOCATION_ATTRIBUTE_VIEW_LIST = import_from_settings(

@@ -1,43 +1,42 @@
 import datetime
 import logging
 
-from django.core.management import call_command
-
-from coldfront.core.allocation.views import GENERAL_RESOURCE_NAME
-from coldfront.core.resource.models import Resource, ResourceType
-from coldfront.core.project.models import Project
-from coldfront.core.school.models import School
-from coldfront.core.user.models import UserProfile, ApproverProfile
 from django.contrib.auth.models import Permission, User
+from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 
-from coldfront.core.test_helpers import utils
-from coldfront.core.test_helpers.factories import (
-    UserFactory,
-    ProjectFactory,
-    SchoolFactory,
-    ResourceFactory,
-    AllocationFactory,
-    ProjectUserFactory,
-    AllocationUserFactory,
-    AllocationAttributeFactory,
-    ProjectStatusChoiceFactory,
-    ProjectUserRoleChoiceFactory,
-    AllocationStatusChoiceFactory,
-    AllocationAttributeTypeFactory,
-    AllocationChangeRequestFactory,
-)
 from coldfront.core.allocation.models import (
+    Allocation,
+    AllocationAttribute,
+    AllocationAttributeChangeRequest,
+    AllocationAttributeType,
     AllocationChangeRequest,
     AllocationChangeStatusChoice,
     AllocationStatusChoice,
-    AllocationAttributeChangeRequest,
-    Allocation,
-    AllocationAttribute,
-    AllocationAttributeType,
     AttributeType,
 )
+from coldfront.core.allocation.views import GENERAL_RESOURCE_NAME
+from coldfront.core.project.models import Project
+from coldfront.core.resource.models import Resource, ResourceType
+from coldfront.core.school.models import School
+from coldfront.core.test_helpers import utils
+from coldfront.core.test_helpers.factories import (
+    AllocationAttributeFactory,
+    AllocationAttributeTypeFactory,
+    AllocationChangeRequestFactory,
+    AllocationFactory,
+    AllocationStatusChoiceFactory,
+    AllocationUserFactory,
+    ProjectFactory,
+    ProjectStatusChoiceFactory,
+    ProjectUserFactory,
+    ProjectUserRoleChoiceFactory,
+    ResourceFactory,
+    SchoolFactory,
+    UserFactory,
+)
+from coldfront.core.user.models import ApproverProfile, UserProfile
 
 logging.disable(logging.CRITICAL)
 

@@ -1,7 +1,7 @@
 from django.contrib import admin
+from simple_history.admin import SimpleHistoryAdmin
 
 from coldfront.core.grant.models import Grant, GrantFundingAgency
-from simple_history.admin import SimpleHistoryAdmin
 
 
 @admin.register(GrantFundingAgency)

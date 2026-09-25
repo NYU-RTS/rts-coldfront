@@ -1,15 +1,16 @@
-from django.test import TestCase
-from coldfront.core.resource.models import Resource, ResourceType
-from coldfront.core.school.models import School
-from coldfront.core.utils.common import import_from_settings
+import json
+import os
+import tempfile
+
 from django.core.management import call_command
+from django.test import TestCase
+
 from coldfront.core.resource.management.commands.add_university_school_default_resources import (
     Command,
 )
-import tempfile
-import json
-import os
-from pathlib import Path
+from coldfront.core.resource.models import Resource, ResourceType
+from coldfront.core.school.models import School
+from coldfront.core.utils.common import import_from_settings
 
 GENERAL_RESOURCE_NAME = import_from_settings("GENERAL_RESOURCE_NAME")
 

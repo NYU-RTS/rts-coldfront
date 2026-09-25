@@ -1,7 +1,9 @@
+import logging
+
+from httpx2 import URL, Client, Headers
+
 from coldfront.core.user.utils import UserSearch
 from coldfront.plugins.keycloak_user_search.keycloak_config import KeycloakClientConfig
-import logging
-from httpx2 import Client, URL, Headers
 
 logger = logging.getLogger(__name__)
 

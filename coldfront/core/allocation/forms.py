@@ -5,8 +5,8 @@ from django.shortcuts import get_object_or_404
 
 from coldfront.core.allocation.models import (
     AllocationAccount,
-    AllocationAttributeType,
     AllocationAttribute,
+    AllocationAttributeType,
     AllocationStatusChoice,
 )
 from coldfront.core.project.models import Project
