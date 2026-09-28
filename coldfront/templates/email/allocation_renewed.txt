@@ -1,4 +1,6 @@
-A allocation has been renewed for {{pi}} - {{resource}}. Please activate the allocation:
+An allocation renewal has been requested by {{pi}} for {{resource}}.
+
+If you are a school resource approver, please activate the allocation:
 {{url}}
 
 If you are a PI/Manager on this project, please note that this email is for informational purposes only.
