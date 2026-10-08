@@ -23,6 +23,6 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     "TITLE": "RTS Coldfront API",
     "DESCRIPTION": "HPC Project Management portal",
-    "VERSION": "2025.12.02",
+    "VERSION": "2026.10.08",
     "SERVE_INCLUDE_SCHEMA": False,
 }

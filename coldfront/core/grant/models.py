@@ -68,6 +68,7 @@ class Grant(TimeStampedModel):
         project (Project): links the project to the grant
         title (str): grant title
         grant_number (str): grant number from agency used for identification
+        nyu_cayuse_id (str): NYU Cayuse ID for the grant
         role (str): role of the user in charge of the grant
         grant_pi_full_name (str): PI's name
         funding_agency (GrantFundingAgency): represents the agency funding the grant
@@ -91,6 +92,7 @@ class Grant(TimeStampedModel):
         validators=[MinLengthValidator(3), MaxLengthValidator(255)],
         max_length=255,
     )
+    nyu_cayuse_id = models.CharField("NYU Cayuse ID", max_length=255, default="")
     ROLE_CHOICES = (
         ("PI", "Principal Investigator (PI)"),
         ("CoPI", "Co-Principal Investigator (CoPI)"),

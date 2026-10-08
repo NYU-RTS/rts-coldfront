@@ -52,6 +52,7 @@ class ColdfrontAPI(APITestCase):
             project=project,
             title="Test grant",
             grant_number="TEST-123",
+            nyu_cayuse_id="CAYUSE-123",
             role="PI",
             grant_pi_full_name="",
             funding_agency=GrantFundingAgency.objects.create(name="Test agency"),
@@ -157,6 +158,7 @@ class ColdfrontAPI(APITestCase):
             [
                 {
                     "title": "Test grant",
+                    "nyu_cayuse_id": "CAYUSE-123",
                     "funding_agency": "Test agency",
                     "total_amount_awarded": 2000,
                     "status": "Active",

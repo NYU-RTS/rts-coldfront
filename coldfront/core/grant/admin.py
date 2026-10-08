@@ -20,6 +20,7 @@ class GrantAdmin(SimpleHistoryAdmin):
         "project",
         "title",
         "grant_number",
+        "nyu_cayuse_id",
         "role",
         "grant_pi_full_name",
         "funding_agency",
