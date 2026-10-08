@@ -208,7 +208,7 @@ class GrantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Grant
-        fields = ("title", "funding_agency", "total_amount_awarded", "status")
+        fields = ("title", "nyu_cayuse_id", "funding_agency", "total_amount_awarded", "status")
 
 
 class ProjectSerializer(serializers.ModelSerializer):

@@ -30,6 +30,7 @@ class TestGrant(TestCase):
                 "project": project,
                 "title": "Quantum Halls",
                 "grant_number": "12345",
+                "nyu_cayuse_id": "CAYUSE-12345",
                 "role": "PI",
                 "grant_pi_full_name": "Stephanie Foster",
                 "funding_agency": grantFundingAgency,

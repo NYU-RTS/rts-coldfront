@@ -64,6 +64,7 @@ class GrantCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
             project=project_obj,
             title=form_data.get("title"),
             grant_number=form_data.get("grant_number"),
+            nyu_cayuse_id=form_data.get("nyu_cayuse_id"),
             role=form_data.get("role"),
             grant_pi_full_name=form_data.get("grant_pi_full_name"),
             funding_agency=form_data.get("funding_agency"),
@@ -115,6 +116,7 @@ class GrantUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     fields = [
         "title",
         "grant_number",
+        "nyu_cayuse_id",
         "role",
         "grant_pi_full_name",
         "funding_agency",
