@@ -5,6 +5,7 @@ from coldfront.core.project.models import (
     ProjectAttributeType,
     ProjectReviewStatusChoice,
     ProjectStatusChoice,
+    # ProjectUseCaseChoice,
     ProjectUserRoleChoice,
     ProjectUserStatusChoice,
 )
@@ -20,6 +21,16 @@ class Command(BaseCommand):
             "Archived",
         ]:
             ProjectStatusChoice.objects.get_or_create(name=choice)
+
+        # for pk, choice in enumerate(
+        #     [
+        #         "Other",
+        #         "Research",
+        #         "Instruction",
+        #         "Experimentation",
+        #     ]
+        # ):
+        #     ProjectUseCaseChoice.objects.get_or_create(pk=pk, name=choice)
 
         for choice in [
             "Completed",
