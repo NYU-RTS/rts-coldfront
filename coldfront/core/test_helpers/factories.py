@@ -42,6 +42,7 @@ from coldfront.core.school.models import School
 ### Default values and Faker provider setup ###
 
 project_status_choice_names = ["New", "Active", "Archived"]
+project_use_case_choice_names = ["Research", "Instruction", "Experimentation"]
 project_user_role_choice_names = ["User", "Manager"]
 school_names = [
     "Arts & Science",
@@ -135,6 +136,7 @@ class ProjectFactory(DjangoModelFactory):
     pi = SubFactory(UserFactory)
     title = factory.Faker("project_title")
     description = factory.Faker("sentence")
+    use_case = FuzzyChoice(project_use_case_choice_names)
     school = SubFactory(SchoolFactory)
     status = SubFactory(ProjectStatusChoiceFactory)
     force_review = False

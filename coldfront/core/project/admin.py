@@ -24,7 +24,6 @@ from coldfront.core.project.models import (
 class ProjectStatusChoiceAdmin(admin.ModelAdmin):
     list_display = ("name",)
 
-
 @admin.register(ProjectUserRoleChoice)
 class ProjectUserRoleChoiceAdmin(admin.ModelAdmin):
     list_display = ("name",)
@@ -315,6 +314,7 @@ class ProjectAdmin(SimpleHistoryAdmin):
         "pi",
         "school",
         "description",
+        "use_case",
         "status",
         "requires_review",
         "force_review",
